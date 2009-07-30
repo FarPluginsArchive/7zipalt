@@ -20,15 +20,12 @@ using namespace NWindows;
 using namespace NFar;
 
 CPlugin::CPlugin(const UString &fileName,
-    // const UString &defaultName,
     IInFolderArchive *archiveHandler,
     UString archiveTypeName
     ):
   m_ArchiveHandler(archiveHandler),
   m_FileName(fileName),
   _archiveTypeName(archiveTypeName)
-  // , m_DefaultName(defaultName)
-  // , m_ArchiverInfo(archiverInfo)
 {
   if (!NFile::NFind::FindFile(m_FileName, m_FileInfo))
     throw "error";
@@ -147,9 +144,9 @@ int CPlugin::GetFindData(PluginPanelItem **panelItems,
     int *itemsNumber, int opMode)
 {
   // CScreenRestorer screenRestorer;
+	/*
   if ((opMode & OPM_SILENT) == 0 && (opMode & OPM_FIND ) == 0)
   {
-    /*
     screenRestorer.Save();
     const char *msgItems[]=
     {
@@ -158,30 +155,32 @@ int CPlugin::GetFindData(PluginPanelItem **panelItems,
     };
     g_StartupInfo.ShowMessage(0, NULL, msgItems,
       sizeof(msgItems) / sizeof(msgItems[0]), 0);
-    */
   }
+	*/
 
   UInt32 numItems = 0;
 	if (_folder)
 		_folder->GetNumberOfItems(&numItems);
 
-	//*panelItems = new PluginPanelItem[numItems];
-  *panelItems = (PluginPanelItem*) HeapAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY, sizeof(PluginPanelItem)*numItems);
-  try
-  {
-    for (UInt32 i = 0; i < numItems; i++)
-    {
-      PluginPanelItem &panelItem = (*panelItems)[i];
-      ReadPluginPanelItem(panelItem, i);
-      panelItem.UserData = i;
-    }
-  }
-  catch(...)
-  {
-		HeapFree(GetProcessHeap(),0,*panelItems);
-		//delete [] panelItems;
-    throw;
-  }
+	*panelItems = NULL;
+	if (numItems > 0)
+	{
+		*panelItems = (PluginPanelItem*) HeapAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY, sizeof(PluginPanelItem)*numItems);
+		try
+		{
+			for (UInt32 i = 0; i < numItems; i++)
+			{
+				PluginPanelItem &panelItem = (*panelItems)[i];
+				ReadPluginPanelItem(panelItem, i);
+				panelItem.UserData = i;
+			}
+		}
+		catch(...)
+		{
+			HeapFree(GetProcessHeap(),0,*panelItems);
+	    throw;
+		}
+	}
   *itemsNumber = numItems;
   return(TRUE);
 }
@@ -203,7 +202,6 @@ void CPlugin::FreeFindData(PluginPanelItem *panelItems,
 	}
 
 	if (panelItems)
-		//delete [] panelItems;
 		HeapFree(GetProcessHeap(),0,panelItems);
 }
 
