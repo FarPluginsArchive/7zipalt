@@ -243,35 +243,6 @@ bool MyCreateDirectory(LPCWSTR pathName)
 }
 #endif
 
-/*
-bool CreateComplexDirectory(LPCTSTR pathName)
-{
-  NName::CParsedPath path;
-  path.ParsePath(pathName);
-  CSysString fullPath = path.Prefix;
-  DWORD errorCode = ERROR_SUCCESS;
-  for (int i = 0; i < path.PathParts.Size(); i++)
-  {
-    const CSysString &string = path.PathParts[i];
-    if (string.IsEmpty())
-    {
-      if (i != path.PathParts.Size() - 1)
-        return false;
-      return true;
-    }
-    fullPath += path.PathParts[i];
-    if (!MyCreateDirectory(fullPath))
-    {
-      DWORD errorCode = GetLastError();
-      if (errorCode != ERROR_ALREADY_EXISTS)
-        return false;
-    }
-    fullPath += NName::kDirDelimiter;
-  }
-  return true;
-}
-*/
-
 bool CreateComplexDirectory(LPCTSTR _aPathName)
 {
   CSysString pathName = _aPathName;
@@ -450,34 +421,6 @@ bool MyGetShortPathName(LPCTSTR longPath, CSysString &shortPath)
   return (needLength > 0 && needLength < MAX_PATH);
 }
 
-/*bool MyGetFullPathName(LPCTSTR fileName, CSysString &resultPath, int &fileNamePartStartIndex)
-{
-  resultPath.Empty();
-  LPTSTR fileNamePointer = 0;
-  LPTSTR buffer = resultPath.GetBuffer(MAX_PATH);
-  DWORD needLength = ::GetFullPathName(fileName, MAX_PATH + 1, buffer, &fileNamePointer);
-  resultPath.ReleaseBuffer();
-  if (needLength == 0)
-    return false;
-  if (needLength >= MAX_PATH)
-  {
-    #ifdef WIN_LONG_PATH2
-    needLength++;
-    buffer = resultPath.GetBuffer(needLength + 1);
-    DWORD needLength2 = ::GetFullPathNameW(fileName, needLength, buffer, &fileNamePointer);
-    resultPath.ReleaseBuffer();
-    if (needLength2 == 0 || needLength2 > needLength)
-    #endif
-      return false;
-  }
-  if (fileNamePointer == 0)
-    fileNamePartStartIndex = lstrlen(fileName);
-  else
-    fileNamePartStartIndex = (int)(fileNamePointer - buffer);
-  return true;
-}*/
-
-//#ifndef _UNICODE
 bool MyGetFullPathName(const UString &fileName, UString &resultPath, int &fileNamePartStartIndex)
 {
   resultPath.Empty();
@@ -521,33 +464,11 @@ bool MyGetFullPathName(const UString &fileName, UString &resultPath, int &fileNa
 #endif
   return true;
 }
-//#endif
-
-
-/*bool MyGetFullPathName(LPCTSTR fileName, CSysString &path)
-{
-  int index;
-  return MyGetFullPathName(fileName, path, index);
-}*/
-
-//#ifndef _UNICODE
 bool MyGetFullPathName(const UString &fileName, UString &path)
 {
   int index;
   return MyGetFullPathName(fileName, path, index);
 }
-//#endif
-
-/*bool GetOnlyName(LPCTSTR fileName, CSysString &resultName)
-{
-  int index;
-  if (!MyGetFullPathName(fileName, resultName, index))
-    return false;
-  resultName = resultName.Mid(index);
-  return true;
-}*/
-
-//#ifndef _UNICODE
 bool GetOnlyName(LPCWSTR fileName, UString &resultName)
 {
   int index;
@@ -556,18 +477,6 @@ bool GetOnlyName(LPCWSTR fileName, UString &resultName)
   resultName = resultName.Mid(index);
   return true;
 }
-//#endif
-
-/*bool GetOnlyDirPrefix(LPCTSTR fileName, CSysString &resultName)
-{
-  int index;
-  if (!MyGetFullPathName(fileName, resultName, index))
-    return false;
-  resultName = resultName.Left(index);
-  return true;
-}*/
-
-//#ifndef _UNICODE
 bool GetOnlyDirPrefix(const UString &fileName, UString &resultName)
 {
   int index;
@@ -576,8 +485,6 @@ bool GetOnlyDirPrefix(const UString &fileName, UString &resultName)
   resultName = resultName.Left(index);
   return true;
 }
-//#endif
-
 bool MyGetCurrentDirectory(CSysString &path)
 {
   DWORD needLength = ::GetCurrentDirectory(MAX_PATH + 1, path.GetBuffer(MAX_PATH + 1));

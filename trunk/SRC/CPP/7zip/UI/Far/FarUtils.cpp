@@ -40,17 +40,6 @@ int CStartupInfo::ShowMessage(unsigned int flags,
     (farChar **)items, numItems, numButtons);
 }
 
-/*namespace NMessageID
-{
-  enum
-  {
-    kOk,
-    kCancel,
-    kWarning,
-    kError
-  };
-}*/
-
 int CStartupInfo::ShowMessage(const farChar *message)
 {
   const farChar *messagesItems[]= { GetMsgString(NMessageID::kError), message,
@@ -665,7 +654,6 @@ static CSysString DWORDToString(DWORD number)
 {
   farChar buffer[32];
 	g_StartupInfo.m_FSF.itoa(number, buffer, 10);
-  //_ultoa(number, buffer, 10);
   return buffer;
 }
 

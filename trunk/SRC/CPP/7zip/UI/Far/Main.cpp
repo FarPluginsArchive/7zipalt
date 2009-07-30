@@ -454,13 +454,6 @@ STDMETHODIMP COpenArchiveCallback::CryptoGetTextPassword(BSTR *password)
 static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
 //\Nsky
 {
-/*#ifndef _UNICODE
-	UINT codePage = ::AreFileApisANSI() ? CP_ACP : CP_OEMCP;
-
-	UString normalizedName = GetUnicodeString(name, codePage);
-#else
-	UString normalizedName = name;
-#endif*/
 	UString normalizedName = name;
   normalizedName.Trim();
   UString fullName;
@@ -485,9 +478,6 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
 
   CMyComPtr<IInFolderArchive> archiveHandler;
 
-  // CArchiverInfo archiverInfoResult;
-  // ::OutputDebugString("before OpenArchive\n");
-  
   CScreenRestorer screenRestorer;
   {
     screenRestorer.Save();
@@ -496,13 +486,10 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
   COpenArchiveCallback *openArchiveCallbackSpec = new COpenArchiveCallback;
   CMyComPtr<IArchiveOpenCallback> openArchiveCallback = openArchiveCallbackSpec;
 
-  // if ((opMode & OPM_SILENT) == 0 && (opMode & OPM_FIND ) == 0)
   openArchiveCallbackSpec->Init();
   openArchiveCallbackSpec->LoadFileInfo(
       fullName.Left(fileNamePartStartIndex),
       fullName.Mid(fileNamePartStartIndex));
-
-  // ::OutputDebugString("before OpenArchive\n");
 
   archiveHandler = new CAgent;
   CMyComBSTR archiveType;
@@ -511,10 +498,6 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
 #else
 	HRESULT result = archiveHandler->Open(fullName, &archiveType, openArchiveCallback);
 #endif
-  /*
-  HRESULT result = ::OpenArchive(fullName, &archiveHandler,
-      archiverInfoResult, defaultName, openArchiveCallback);
-  */
   if (result != S_OK)
   {
     if (result == E_ABORT)
@@ -524,11 +507,8 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
     return INVALID_HANDLE_VALUE;
   }
 
-  // ::OutputDebugString("after OpenArchive\n");
-
   CPlugin *plugin = new CPlugin(
       fullName,
-      // defaultName,
       archiveHandler,
       (const wchar_t *)archiveType
       );

@@ -146,10 +146,9 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
     struct CInitDialogItem initItems[]={
       { DI_DOUBLEBOX, 3, 1, kXSize - 4, kYSize - 2, false, false, 0, false, NMessageID::kExtractTitle, NULL, NULL },
       { DI_TEXT, 5, 2, 0, 0, false, false, 0, false, NMessageID::kExtractTo, NULL, NULL },
-      
+
       { DI_EDIT, 5, 3, kXSize - 6, 3, true, false, DIF_HISTORY, false, -1, destPath, kExractPathHistoryName},
-      // { DI_EDIT, 5, 3, kXSize - 6, 3, true, false, 0, false, -1, destPath, NULL},
-      
+
       { DI_SINGLEBOX, 4, 5, kXMid - 2, 5 + 4, false, false, 0, false, NMessageID::kExtractPathMode, NULL, NULL },
       { DI_RADIOBUTTON, 6, 6, 0, 0, false,
           extractionInfo.PathMode == NExtract::NPathMode::kFullPathnames,
@@ -356,9 +355,7 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
 		MultiByteToUnicodeString(destPath, CP_OEMCP), 
 		passwordIsDefined, password);
 #endif
-  
-  // HRESULT result = ExtractFiles(decompressAllItems, realIndices, !showBox, 
-  //     extractionInfo, destPath, passwordIsDefined, password);
+
   if (result != S_OK)
   {
     if (result == E_ABORT)
@@ -367,10 +364,5 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
     return NFileOperationReturnCode::kError;
   }
 
-  // if(move != 0)
-  // {
-  //   if(DeleteFiles(panelItems, itemsNumber, opMode) == FALSE)
-  //     return NFileOperationReturnCode::kError;
-  // }
   return NFileOperationReturnCode::kSuccess;
 }
