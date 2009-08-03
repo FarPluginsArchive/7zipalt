@@ -155,7 +155,7 @@ CSysString GetFormats()
 #ifdef _UNICODE
 int WINAPI _export GetMinFarVersionW(void)
 {
-	return MAKEFARVERSION(2,0,789);//тут был breaking change
+	return MAKEFARVERSION(2,0,992);//тут был breaking change
 }
 #endif
 
