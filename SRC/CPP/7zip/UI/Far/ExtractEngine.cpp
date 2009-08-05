@@ -55,18 +55,6 @@ STDMETHODIMP CExtractCallBackImp::SetCompleted(const UInt64 *completeValue)
     m_ProgressBox->Progress(
       _totalIsDefined ? &_total: NULL,
       _processedIsDefined ? &_processed: NULL, m_message);
-
-		m_titlemessage.Empty();
-		if (_totalIsDefined && _processedIsDefined)
-		{
-			farChar tmp[256];
-			g_StartupInfo.m_FSF.sprintf(tmp, _F("{%u%%} "), _processed * 100 / _total);
-			m_titlemessage += tmp;
-		}
-		m_titlemessage += m_ProgressBox->GetTitle();
-		m_titlemessage += _F(": ");
-		m_titlemessage += m_message;
-		SetConsoleTitle(m_titlemessage);
 	}
   return S_OK;
 }

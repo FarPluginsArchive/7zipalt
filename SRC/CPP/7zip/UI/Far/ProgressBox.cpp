@@ -108,10 +108,20 @@ void CProgressBox::Init(const CSysString &title, int width)
   _prevMessage.Empty();
   _prevPercentMessage.Empty();
   _wasShown = false;
+  unsigned __int64 TmCurr;
+  QueryPerformanceCounter((PLARGE_INTEGER) &TmCurr);
+  QueryPerformanceFrequency((PLARGE_INTEGER) &TmFreq);
+  TmNext = TmCurr + TmFreq / 2; // display box after 0.5 sec.
 }
 
 void CProgressBox::Progress(const UInt64 *total, const UInt64 *completed, const CSysString &message)
 {
+  // update box every 0.5 sec.
+  unsigned __int64 TmCurr;
+  QueryPerformanceCounter((PLARGE_INTEGER) &TmCurr);
+  if (TmCurr < TmNext) return;
+  TmNext = TmCurr + TmFreq / 2;
+
   CSysString percentMessage;
   if (total != 0 && completed != 0)
   {
@@ -130,5 +140,9 @@ void CProgressBox::Progress(const UInt64 *total, const UInt64 *completed, const 
     const farChar *strings[] = { message, percentMessage };
     ShowMessages(strings, sizeof(strings) / sizeof(strings[0]));
     _wasShown = true;
+
+    CSysString TitleMessage;
+    TitleMessage = _F("{") + percentMessage +  _F("} ") + _title + _F(": ") + message;
+    SetConsoleTitle(TitleMessage);
   }
 }
