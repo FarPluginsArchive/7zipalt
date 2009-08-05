@@ -38,17 +38,11 @@ HRESULT CPlugin::ExtractFiles(
 {
   CScreenRestorer screenRestorer;
   CProgressBox progressBox;
-  CProgressBox *progressBoxPointer = NULL;
-  if (!silent)
-  {
-    screenRestorer.Save();
 
-    progressBoxPointer = &progressBox;
-    progressBox.Init(
-        // g_StartupInfo.GetMsgString(NMessageID::kWaitTitle),
-        g_StartupInfo.GetMsgString(NMessageID::kExtracting), 48);
-  }
+  screenRestorer.Save();
 
+  CProgressBox *progressBoxPointer = &progressBox;
+  progressBox.Init(g_StartupInfo.GetMsgString(NMessageID::kExtracting), 48);
 
   CExtractCallBackImp *extractCallbackSpec = new CExtractCallBackImp;
   CMyComPtr<IFolderArchiveExtractCallback> extractCallback(extractCallbackSpec);
