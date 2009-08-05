@@ -254,7 +254,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;FAR_EXPORTS;EXTERNAL_CODECS"
@@ -661,7 +660,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/MP"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\..\"
 				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;FAR_EXPORTS;EXTERNAL_CODECS"
