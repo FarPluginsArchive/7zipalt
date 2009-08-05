@@ -16,6 +16,8 @@ class CMessageBox
 {
   CSysString _title;
   int _width;
+  int MaxWidth;
+  int GetMaxWidth();
 public:
   void Init(const CSysString &title, int width);
 	CSysString GetTitle();
