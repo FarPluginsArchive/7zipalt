@@ -35,10 +35,27 @@ void ConvertUInt64ToStringAligned(UInt64 value, farChar *s, int alignSize)
 
 static const int kMaxLen = 255;
 
+int CMessageBox::GetMaxWidth()
+{
+  HANDLE Con = GetStdHandle(STD_OUTPUT_HANDLE);
+  if (Con != INVALID_HANDLE_VALUE)
+  {
+    CONSOLE_SCREEN_BUFFER_INFO ConInfo;
+    if (GetConsoleScreenBufferInfo(Con, &ConInfo))
+    {
+      int ConWidth = ConInfo.srWindow.Right - ConInfo.srWindow.Left + 1;
+      if (ConWidth >= 80)
+        return ConWidth - 20;
+    }
+  }
+  return 60;
+}
+
 void CMessageBox::Init(const CSysString &title, int width)
 {
   _title = title;
   _width = MyMin(width, kMaxLen);
+  MaxWidth = MyMin(GetMaxWidth(), kMaxLen);
 }
 
 void CMessageBox::ShowMessages(const farChar *strings[], int numStrings)
@@ -59,19 +76,19 @@ void CMessageBox::ShowMessages(const farChar *strings[], int numStrings)
     farChar *formattedMessage = formattedMessages[i];
     const farChar *s = strings[i];
     int len = (int)lstrlen(s);
-    if (len < kMaxLen)
+    if (len < MaxWidth)
     {
-      int size = MyMax(_width, len);
-      int startPos = (size - len) / 2;
+      _width = MyMax(_width, len);
+      int startPos = (_width - len) / 2;
       CopySpaces(formattedMessage, startPos);
-			lstrcpy(formattedMessage + startPos, s);
-      //MyStringCopy(formattedMessage + startPos, s);
-      CopySpaces(formattedMessage + startPos + len, size - startPos - len);
+      lstrcpy(formattedMessage + startPos, s);
+      CopySpaces(formattedMessage + startPos + len, _width - startPos - len);
     }
     else
     {
-      lstrcpyn(formattedMessage, s, kMaxLen);
-      formattedMessage[kMaxLen] = 0;
+      _width = MaxWidth;
+      lstrcpyn(formattedMessage, s, _width);
+      formattedMessage[_width] = 0;
     }
     msgItems[kNumStaticStrings + i] = formattedMessage;
   }
