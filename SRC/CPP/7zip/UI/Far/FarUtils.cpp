@@ -17,7 +17,7 @@ namespace NFar {
 CStartupInfo g_StartupInfo;
 
 void CStartupInfo::Init(const PluginStartupInfo &pluginStartupInfo,
-    const CSysString &pliginNameForRegestry)
+    const CSysString &pluginNameForRegistry)
 {
   m_Data = pluginStartupInfo;
   //Nsky
@@ -25,7 +25,7 @@ void CStartupInfo::Init(const PluginStartupInfo &pluginStartupInfo,
   //\Nsky
   m_RegistryPath = pluginStartupInfo.RootKey;
   m_RegistryPath += '\\';
-  m_RegistryPath += pliginNameForRegestry;
+  m_RegistryPath += pluginNameForRegistry;
 }
 
 const farChar *CStartupInfo::GetMsgString(int messageId)

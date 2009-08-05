@@ -33,16 +33,17 @@ using namespace NFar;
 
 static const farChar *kCommandPrefix = _F("7-zip");
 
-static const farChar *kRegisrtryMainKeyName = _F("");
+static const farChar *kRegistryMainKeyName = _F("");
 
-static const farChar *kRegisrtryValueNameEnabled = _F("UsedByDefault3");
+static const farChar *kRegistryValueNameEnabled = _F("UsedByDefault3");
 static bool kPluginEnabledDefault = true;
 //Nsky
-static const farChar *kRegisrtryValueNameUseMasks = _F("UseMasks");
+static const farChar *kRegistryValueNameUseMasks = _F("UseMasks");
 static bool kUseMasksDefault = false;
-static const farChar *kRegisrtryValueNameMasks = _F("Masks");
+static const farChar *kRegistryValueNameMasks = _F("Masks");
 //static const farChar *kMasksDefault = _F("*.7z,*.bz,*.arj,*.bz2,*.cab,*.gz,*.lzh,*.rar,*.r[0-9][0-9],*.tar,*.z,*.zip,*.tbz,*.tbz2,*.tgz,*.taz,*.rpm,*.cpio,*.deb,*.001,*.jar,*.xpi,*.chm");
 //\Nsky
+static const farChar *kRegistryValueNameDisabledFormats = _F("DisabledFormats");
 
 static const farChar *kHelpTopicConfig =  _F("Config");
 
@@ -119,9 +120,10 @@ static struct COptions
   bool UseMasks;
   CSysString Masks;
 //\Nsky
+  CSysStringVector DisabledFormats;
 } g_Options;
 
-static const farChar *kPliginNameForRegestry = _F("7-ZIP");
+static const farChar *kPluginNameForRegistry = _F("7-ZIP");
 
 // #define  MY_TRY_BEGIN  MY_TRY_BEGIN NCOM::CComInitializer aComInitializer;
 
@@ -159,6 +161,21 @@ int WINAPI _export GetMinFarVersionW(void)
 }
 #endif
 
+CSysStringVector SplitString(const CSysString& Str, farChar SplitCh)
+{
+  CSysStringVector List;
+  int Pos = 0;
+  while (Pos < Str.Length())
+  {
+    int Pos2 = Str.Find(SplitCh, Pos);
+    if (Pos2 == -1)
+      Pos2 = Str.Length();
+    List.Add(Str.Mid(Pos, Pos2 - Pos));
+    Pos = Pos2 + 1;
+  }
+  return List;
+}
+
 #ifdef _UNICODE
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *info)
 #else
@@ -166,19 +183,20 @@ void WINAPI SetStartupInfo(struct PluginStartupInfo *info)
 #endif
 {
   MY_TRY_BEGIN;
-  g_StartupInfo.Init(*info, kPliginNameForRegestry);
+  g_StartupInfo.Init(*info, kPluginNameForRegistry);
   g_Options.Enabled = g_StartupInfo.QueryRegKeyValue(
-      HKEY_CURRENT_USER, kRegisrtryMainKeyName,
-      kRegisrtryValueNameEnabled, kPluginEnabledDefault);
+      HKEY_CURRENT_USER, kRegistryMainKeyName,
+      kRegistryValueNameEnabled, kPluginEnabledDefault);
 //Nsky
   g_Options.UseMasks = g_StartupInfo.QueryRegKeyValue(
-      HKEY_CURRENT_USER, kRegisrtryMainKeyName,
-      kRegisrtryValueNameUseMasks, kUseMasksDefault);
+      HKEY_CURRENT_USER, kRegistryMainKeyName,
+      kRegistryValueNameUseMasks, kUseMasksDefault);
   g_Options.Masks = g_StartupInfo.QueryRegKeyValue(
-      HKEY_CURRENT_USER, kRegisrtryMainKeyName,
-      kRegisrtryValueNameMasks, (CSysString)_F(""));//kMasksDefault);
+      HKEY_CURRENT_USER, kRegistryMainKeyName,
+      kRegistryValueNameMasks, (CSysString)_F(""));//kMasksDefault);
   if (g_Options.Masks == _F("")) g_Options.Masks = GetFormats();
 //\Nsky
+  g_Options.DisabledFormats = SplitString(g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameDisabledFormats, (CSysString)_F("")), _F(','));
   MY_TRY_END1(_F("SetStartupInfo"));
 }
 
@@ -475,13 +493,10 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
   }
   //\Nsky
 
-
   CMyComPtr<IInFolderArchive> archiveHandler;
 
   CScreenRestorer screenRestorer;
-  {
-    screenRestorer.Save();
-  }
+  screenRestorer.Save();
 
   COpenArchiveCallback *openArchiveCallbackSpec = new COpenArchiveCallback;
   CMyComPtr<IArchiveOpenCallback> openArchiveCallback = openArchiveCallbackSpec;
@@ -493,10 +508,10 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
 
   archiveHandler = new CAgent;
   CMyComBSTR archiveType;
-#ifndef _UNICODE
-	HRESULT result = archiveHandler->Open(GetUnicodeString(fullName, CP_OEMCP), &archiveType, openArchiveCallback);
-#else
+#ifdef _UNICODE
 	HRESULT result = archiveHandler->Open(fullName, &archiveType, openArchiveCallback);
+#else
+	HRESULT result = archiveHandler->Open(GetUnicodeString(fullName, CP_OEMCP), &archiveType, openArchiveCallback);
 #endif
   if (result != S_OK)
   {
@@ -504,6 +519,11 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
       return (HANDLE)-2;
 		if (result == E_HANDLE)
 			g_StartupInfo.ShowMessage(NMessageID::kCantLoad7Zip);
+    return INVALID_HANDLE_VALUE;
+  }
+
+  if (g_Options.DisabledFormats.Find(GetSystemString(archiveType)) != -1)
+  {
     return INVALID_HANDLE_VALUE;
   }
 
@@ -746,13 +766,13 @@ int WINAPI Configure(int /* itemNumber */)
 	if (g_Options.Masks.Length() == 0)
 		g_Options.Masks = GetFormats(); //kMasksDefault;
 
-  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegisrtryMainKeyName,
-      kRegisrtryValueNameEnabled, g_Options.Enabled);
+  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName,
+      kRegistryValueNameEnabled, g_Options.Enabled);
 //Nsky
-  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegisrtryMainKeyName,
-      kRegisrtryValueNameUseMasks, g_Options.UseMasks);
-  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegisrtryMainKeyName,
-      kRegisrtryValueNameMasks, g_Options.Masks);
+  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName,
+      kRegistryValueNameUseMasks, g_Options.UseMasks);
+  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName,
+      kRegistryValueNameMasks, g_Options.Masks);
 //Nsky
   return(TRUE);
   MY_TRY_END2(_F("Configure"), FALSE);
