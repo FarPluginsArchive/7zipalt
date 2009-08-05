@@ -14,6 +14,7 @@ void ConvertUInt64ToStringAligned(UInt64 value, char *s, int alignSize);
 
 class CMessageBox
 {
+protected:
   CSysString _title;
   int _width;
   int MaxWidth;
@@ -33,6 +34,8 @@ class CProgressBox: public CMessageBox
   CSysString _prevMessage;
   CSysString _prevPercentMessage;
   bool _wasShown;
+  unsigned __int64 TmNext;
+  unsigned __int64 TmFreq;
 public:
   void Init(const CSysString &title, int width);
   void Progress(const UInt64 *total, const UInt64 *completed, const CSysString &message);

@@ -28,15 +28,6 @@ STDMETHODIMP CUpdateCallback100Imp::SetCompleted(const UInt64 *completeValue)
   if (m_progressBox != 0)
 	{
     m_progressBox->Progress(&_total, completeValue, m_message);
-
-		farChar tmp[256];
-		g_StartupInfo.m_FSF.sprintf(tmp, _F("{%u%%} "), *completeValue * 100 / _total);
-		m_titlemessage.Empty();
-		m_titlemessage += tmp;
-		m_titlemessage += m_progressBox->GetTitle();
-		m_titlemessage += _F(": ");
-		m_titlemessage += m_message;
-		SetConsoleTitle(m_titlemessage);
 	}
   return S_OK;
 }

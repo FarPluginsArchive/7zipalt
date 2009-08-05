@@ -18,7 +18,6 @@ class CUpdateCallback100Imp:
   UInt64 _total;
 
 	CSysString m_message;
-	CSysString m_titlemessage;
 	bool m_PasswordIsDefined;
 	UString m_Password;
 

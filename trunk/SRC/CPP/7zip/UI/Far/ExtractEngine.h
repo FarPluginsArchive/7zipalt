@@ -60,7 +60,6 @@ private:
   UString m_Password;
 
 	CSysString m_message;
-	CSysString m_titlemessage;
 
   void CreateComplexDirectory(const UStringVector &dirPathParts);
   /*
