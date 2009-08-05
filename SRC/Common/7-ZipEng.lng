@@ -156,10 +156,14 @@
 "7-Zip"
 "7-Zip (add to archive)"
 
-"7-Zip"
+"7-Zip Configuration"
 
-"Plugin is used by default"
-"Use masks:"
+"&Plugin is used by default"
+"Use &masks:"
+"Disabled &formats:"
+"&Example masks:"
+"&Available formats:"
+
 "You must specify directory path"
 "There are no items"
 "Can't load 7-Zip codecs"

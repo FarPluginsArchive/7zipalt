@@ -166,10 +166,12 @@ enum EEnum
 
   kConfigTitle,
 
-//Nsky
   kConfigPluginEnabled,
   kConfigUseMasks,
-//\Nsky
+  kConfigDisabledFormats,
+  kConfigAvailableMasks,
+  kConfigAvailableFormats,
+
 	kSpecifyDirectoryPath,
 	kNoItems,
 	kCantLoad7Zip,

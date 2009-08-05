@@ -120,14 +120,14 @@ static struct COptions
   bool UseMasks;
   CSysString Masks;
 //\Nsky
-  CSysStringVector DisabledFormats;
+  CSysString DisabledFormats;
 } g_Options;
 
 static const farChar *kPluginNameForRegistry = _F("7-ZIP");
 
 // #define  MY_TRY_BEGIN  MY_TRY_BEGIN NCOM::CComInitializer aComInitializer;
 
-CSysString GetFormats()
+CSysString GetMaskList()
 {
 
 	UString exts;
@@ -154,6 +154,28 @@ CSysString GetFormats()
 
 	return GetSystemString(exts, CP_OEMCP);
 }
+
+CSysString GetFormatList()
+{
+	UString Formats;
+
+	CCodecs *codecs = new CCodecs;
+	if (codecs->Load() != S_OK)
+		throw g_StartupInfo.GetMsgString(NMessageID::kCantLoad7Zip);
+	{
+		for (int i = 0; i < codecs->Formats.Size(); i++)
+		{
+			const CArcInfoEx &arcInfo = codecs->Formats[i];
+			if (Formats.Length())
+			  Formats += L",";
+			Formats += arcInfo.Name;
+		}
+	}
+	codecs->Release();
+
+	return GetSystemString(Formats);
+}
+
 #ifdef _UNICODE
 int WINAPI _export GetMinFarVersionW(void)
 {
@@ -170,7 +192,9 @@ CSysStringVector SplitString(const CSysString& Str, farChar SplitCh)
     int Pos2 = Str.Find(SplitCh, Pos);
     if (Pos2 == -1)
       Pos2 = Str.Length();
-    List.Add(Str.Mid(Pos, Pos2 - Pos));
+    CSysString SubStr = Str.Mid(Pos, Pos2 - Pos);
+    SubStr.Trim();
+    List.Add(SubStr);
     Pos = Pos2 + 1;
   }
   return List;
@@ -194,9 +218,9 @@ void WINAPI SetStartupInfo(struct PluginStartupInfo *info)
   g_Options.Masks = g_StartupInfo.QueryRegKeyValue(
       HKEY_CURRENT_USER, kRegistryMainKeyName,
       kRegistryValueNameMasks, (CSysString)_F(""));//kMasksDefault);
-  if (g_Options.Masks == _F("")) g_Options.Masks = GetFormats();
+  if (g_Options.Masks == _F("")) g_Options.Masks = GetMaskList();
 //\Nsky
-  g_Options.DisabledFormats = SplitString(g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameDisabledFormats, (CSysString)_F("")), _F(','));
+  g_Options.DisabledFormats = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameDisabledFormats, (CSysString)_F(""));
   MY_TRY_END1(_F("SetStartupInfo"));
 }
 
@@ -522,7 +546,7 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
     return INVALID_HANDLE_VALUE;
   }
 
-  if (g_Options.DisabledFormats.Find(GetSystemString(archiveType)) != -1)
+  if (SplitString(g_Options.DisabledFormats, _F(',')).Find(GetSystemString(UString(archiveType))) != -1)
   {
     return INVALID_HANDLE_VALUE;
   }
@@ -703,25 +727,32 @@ int WINAPI Configure(int /* itemNumber */)
   MY_TRY_BEGIN;
 
   const int kEnabledCheckBoxIndex = 1;
-//Nsky
   const int kUseMasksCheckBoxIndex = 2;
   const int kMasksIndex = 3;
+  const int kDisabledFormatsIndex = 5;
 
-  const int kYSize = 9;
+  const int kYSize = 16;
   const int kXSize = 76;
-//\Nsky
+
+  CSysString AvailableMasks = GetMaskList();
+  CSysString AvailableFormats = GetFormatList();
 
   struct CInitDialogItem initItems[]=
   {
-//Nsky
     { DI_DOUBLEBOX, 3, 1, kXSize - 4, kYSize - 2, false, false, 0, false, NMessageID::kConfigTitle, NULL, NULL },
     { DI_CHECKBOX, 5, 2, 0, 0, true, g_Options.Enabled, 0, false, NMessageID::kConfigPluginEnabled, NULL, NULL },
-    { DI_CHECKBOX, 9, 3, 0, 0, false, g_Options.UseMasks, 0, false, NMessageID::kConfigUseMasks, NULL, NULL },
-    { DI_EDIT, 9, 4, kXSize - 10, 0, false, false, 0, false, -1,  g_Options.Masks, NULL },
-    { DI_TEXT, 5, 5, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
+    { DI_CHECKBOX, 5, 3, 0, 0, false, g_Options.UseMasks, 0, false, NMessageID::kConfigUseMasks, NULL, NULL },
+    { DI_EDIT, 5, 4, kXSize - 6, 0, false, false, 0, false, -1, g_Options.Masks, NULL },
+    { DI_TEXT, 5, 5, 0, 0, false, false, 0, false, NMessageID::kConfigDisabledFormats, NULL, NULL },
+    { DI_EDIT, 5, 6, kXSize - 6, 0, false, false, 0, false, -1, g_Options.DisabledFormats, NULL },
+    { DI_TEXT, 5, 7, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
+    { DI_TEXT, 5, 8, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableMasks, NULL, NULL },
+    { DI_EDIT, 5, 9, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableMasks, NULL },
+    { DI_TEXT, 5, 10, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableFormats, NULL, NULL },
+    { DI_EDIT, 5, 11, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableFormats, NULL },
+    { DI_TEXT, 5, 12, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
     { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, true, NMessageID::kOk, NULL, NULL },
     { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, false, NMessageID::kCancel, NULL, NULL },
-//\Nsky
   };
 
   const int kNumDialogItems = sizeof(initItems) / sizeof(initItems[0]);
@@ -737,11 +768,15 @@ int WINAPI Configure(int /* itemNumber */)
 		kHelpTopicConfig, dialogItems, kNumDialogItems, hDlg);
 	//\Nsky
 
-	g_Options.Enabled = BOOLToBool(g_StartupInfo.GetItemSelected(hDlg, kEnabledCheckBoxIndex));
-	//Nsky
-	g_Options.UseMasks = BOOLToBool(g_StartupInfo.GetItemSelected(hDlg, kUseMasksCheckBoxIndex));
-	g_Options.Masks = g_StartupInfo.GetItemData(hDlg, kMasksIndex);
-	//\Nsky
+  if (askCode == kOkButtonIndex)
+  {
+    g_Options.Enabled = BOOLToBool(g_StartupInfo.GetItemSelected(hDlg, kEnabledCheckBoxIndex));
+    //Nsky
+    g_Options.UseMasks = BOOLToBool(g_StartupInfo.GetItemSelected(hDlg, kUseMasksCheckBoxIndex));
+    g_Options.Masks = g_StartupInfo.GetItemData(hDlg, kMasksIndex);
+    //\Nsky
+  	g_Options.DisabledFormats = g_StartupInfo.GetItemData(hDlg, kDisabledFormatsIndex);
+  }
 
 	g_StartupInfo.DialogFree(hDlg);
 #else
@@ -760,11 +795,13 @@ int WINAPI Configure(int /* itemNumber */)
 	g_Options.UseMasks = BOOLToBool(dialogItems[kUseMasksCheckBoxIndex].Selected);
 	g_Options.Masks = dialogItems[kMasksIndex].Data;
 	//\Nsky
+	g_Options.DisabledFormats = dialogItems[kDisabledFormatsIndex].Data;
 #endif
 
 	g_Options.Masks.Trim();
 	if (g_Options.Masks.Length() == 0)
-		g_Options.Masks = GetFormats(); //kMasksDefault;
+		g_Options.Masks = GetMaskList(); //kMasksDefault;
+	g_Options.DisabledFormats.Trim();
 
   g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName,
       kRegistryValueNameEnabled, g_Options.Enabled);
@@ -774,6 +811,7 @@ int WINAPI Configure(int /* itemNumber */)
   g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName,
       kRegistryValueNameMasks, g_Options.Masks);
 //Nsky
+  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameDisabledFormats, g_Options.DisabledFormats);
   return(TRUE);
   MY_TRY_END2(_F("Configure"), FALSE);
 }
