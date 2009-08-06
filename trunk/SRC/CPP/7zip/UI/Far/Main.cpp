@@ -246,8 +246,6 @@ class COpenArchiveCallback:
   bool _numBytesTotalDefined;
   bool _numBytesCurDefined;
 
-  DWORD m_PrevTickCount;
-
   NWindows::NFile::NFind::CFileInfoW _fileInfo;
 public:
   bool PasswordIsDefined;
@@ -287,7 +285,6 @@ public:
     _numBytesCurDefined = false;
 
     m_MessageBoxIsShown = false;
-    m_PrevTickCount = GetTickCount();
   }
   void ShowMessage();
 
@@ -305,20 +302,10 @@ void COpenArchiveCallback::ShowMessage()
   DWORD currentTime = GetTickCount();
   if (!m_MessageBoxIsShown)
   {
-    if (currentTime - m_PrevTickCount < 400)
-      return;
-    _progressBox.Init(
-        // g_StartupInfo.GetMsgString(NMessageID::kWaitTitle),
-        g_StartupInfo.GetMsgString(NMessageID::kReading), 48);
+    _progressBox.Init(g_StartupInfo.GetMsgString(NMessageID::kReading), 48, true);
 
     m_MessageBoxIsShown = true;
   }
-  else
-  {
-    if (currentTime - m_PrevTickCount < 200)
-      return;
-  }
-  m_PrevTickCount = currentTime;
   UInt64 total = 0, cur = 0;
   bool curIsDefined = false, totalIsDefined = false;
 
