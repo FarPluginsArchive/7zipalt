@@ -102,7 +102,7 @@ CSysString CMessageBox::GetTitle()
 
 // ---------- CProgressBox ----------
 
-void CProgressBox::Init(const CSysString &title, int width)
+void CProgressBox::Init(const CSysString &title, int width, bool lazy)
 {
   CMessageBox::Init(title, width);
   _prevMessage.Empty();
@@ -111,7 +111,10 @@ void CProgressBox::Init(const CSysString &title, int width)
   unsigned __int64 TmCurr;
   QueryPerformanceCounter((PLARGE_INTEGER) &TmCurr);
   QueryPerformanceFrequency((PLARGE_INTEGER) &TmFreq);
-  TmNext = TmCurr + TmFreq / 2; // display box after 0.5 sec.
+  if (lazy)
+    TmNext = TmCurr + TmFreq / 2; // display box after 0.5 sec.
+  else
+    TmNext = TmCurr; // display box as soon as possible
 }
 
 void CProgressBox::Progress(const UInt64 *total, const UInt64 *completed, const CSysString &message)

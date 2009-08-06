@@ -185,15 +185,11 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   CScreenRestorer screenRestorer;
   CProgressBox progressBox;
   CProgressBox *progressBoxPointer = NULL;
-  if ((opMode & OPM_SILENT) == 0 && (opMode & OPM_FIND ) == 0)
-  {
-    screenRestorer.Save();
 
-    progressBoxPointer = &progressBox;
-    progressBox.Init(
-        // g_StartupInfo.GetMsgString(NMessageID::kWaitTitle),
-        g_StartupInfo.GetMsgString(NMessageID::kUpdating), 48);
-  }
+  screenRestorer.Save();
+
+  progressBoxPointer = &progressBox;
+  progressBox.Init(g_StartupInfo.GetMsgString(NMessageID::kUpdating), 48, opMode & OPM_SILENT);
  
   ////////////////////////////
   // Save FolderItem;
@@ -679,10 +675,7 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
   screenRestorer.Save();
 
   progressBoxPointer = &progressBox;
-  progressBox.Init(
-      // g_StartupInfo.GetMsgString(NMessageID::kWaitTitle),
-      g_StartupInfo.GetMsgString(NMessageID::kUpdating), 48);
-
+  progressBox.Init(g_StartupInfo.GetMsgString(NMessageID::kUpdating), 48, false);
 
   NFind::CFileInfoW fileInfo;
 
