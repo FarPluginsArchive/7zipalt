@@ -528,7 +528,7 @@ static CSysString PropToString2(const NCOM::CPropVariant &prop, PROPID propID)
   return s;
 }
 
-void CPlugin::GetOpenPluginInfo(struct OpenPluginInfo *info)
+void CPlugin::GetOpenPluginInfo(struct OpenPluginInfo *info, const CPanelMode& panelMode)
 {
   info->StructSize = sizeof(*info);
   info->Flags = OPIF_USEFILTER | OPIF_USESORTGROUPS| OPIF_USEHIGHLIGHTING|
@@ -691,20 +691,12 @@ void CPlugin::GetOpenPluginInfo(struct OpenPluginInfo *info)
   info->InfoLines = m_InfoLines;
   info->InfoLinesNumber = numItems;
 
-  
-  info->DescrFiles = NULL;
-  info->DescrFilesNumber = 0;
-
   PanelModeColumnTypes.Empty();
   PanelModeColumnWidths.Empty();
 
-  info->PanelModesArray = NULL;
-  info->PanelModesNumber = 0;
-
-  info->StartPanelMode = 0;
-  info->StartSortMode = 0;
-  info->KeyBar = NULL;
-  info->ShortcutData = NULL;
+  info->StartPanelMode = '0' + panelMode.ViewMode;
+  info->StartSortMode = panelMode.SortMode;
+  info->StartSortOrder = panelMode.ReverseSort ? 1 : 0;
 }
 
 struct CArchiveItemProperty
@@ -879,3 +871,16 @@ int CPlugin::ProcessKey(int key, unsigned int controlState)
 
   return FALSE;
 }
+
+void CPlugin::GetPanelMode(CPanelMode& panelMode)
+{
+  PanelInfo pi;
+  if (g_StartupInfo.Control(this, FCTL_GETPANELSHORTINFO, 0, reinterpret_cast<LONG_PTR>(&pi)))
+  {
+    panelMode.ViewMode = pi.ViewMode;
+    panelMode.SortMode = pi.SortMode;
+    panelMode.ReverseSort = (pi.Flags & PFLAGS_REVERSESORTORDER) != 0;
+    panelMode.NumericSort = (pi.Flags & PFLAGS_NUMERICSORT) != 0;
+  }
+}
+

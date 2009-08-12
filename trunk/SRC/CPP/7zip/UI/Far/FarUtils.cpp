@@ -228,11 +228,11 @@ void CStartupInfo::SetRegKeyValue(HKEY parentKey, const CSysString &keyName,
 }
 
 void CStartupInfo::SetRegKeyValue(HKEY parentKey, const CSysString &keyName,
-    LPCTSTR valueName, UINT32 value) const
+    LPCTSTR valueName, int value) const
 {
   NRegistry::CKey regKey;
   CreateRegKey(parentKey, keyName, regKey);
-  regKey.SetValue(valueName, value);
+  regKey.SetValue(valueName, static_cast<UInt32>(value));
 }
 
 void CStartupInfo::SetRegKeyValue(HKEY parentKey, const CSysString &keyName,
@@ -257,14 +257,14 @@ CSysString CStartupInfo::QueryRegKeyValue(HKEY parentKey, const CSysString &keyN
   return value;
 }
 
-UINT32 CStartupInfo::QueryRegKeyValue(HKEY parentKey, const CSysString &keyName,
-    LPCTSTR valueName, UINT32 valueDefault) const
+int CStartupInfo::QueryRegKeyValue(HKEY parentKey, const CSysString &keyName,
+    LPCTSTR valueName, int valueDefault) const
 {
   NRegistry::CKey regKey;
   if (OpenRegKey(parentKey, keyName, regKey) != ERROR_SUCCESS)
     return valueDefault;
 
-  UINT32 value;
+  UInt32 value;
   if(regKey.QueryValue(valueName, value) != ERROR_SUCCESS)
     return valueDefault;
 
@@ -288,7 +288,7 @@ bool CStartupInfo::QueryRegKeyValue(HKEY parentKey, const CSysString &keyName,
 bool CStartupInfo::Control(HANDLE pluginHandle, int command, int param1, LONG_PTR param2)
 {
 #ifdef _UNICODE
-  return BOOLToBool(m_Data.Control(pluginHandle, command, param1, (LONG_PTR)param2));
+  return BOOLToBool(m_Data.Control(pluginHandle, command, param1, param2));
 #else
 	return BOOLToBool(m_Data.Control(pluginHandle, command, (void*)param2));
 #endif
@@ -296,7 +296,7 @@ bool CStartupInfo::Control(HANDLE pluginHandle, int command, int param1, LONG_PT
 LONG_PTR CStartupInfo::Control2(HANDLE pluginHandle, int command, int param1, LONG_PTR param2)
 {
 #ifdef _UNICODE
-	return m_Data.Control(pluginHandle, command, param1, (LONG_PTR)param2);
+	return m_Data.Control(pluginHandle, command, param1, param2);
 #else
 	return m_Data.Control(pluginHandle, command, (void*)param2);
 #endif

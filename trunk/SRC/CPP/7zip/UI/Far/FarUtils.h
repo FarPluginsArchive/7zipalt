@@ -11,6 +11,7 @@
 #define lstrcpyF lstrcpyW
 #define lstrcatF lstrcatW
 #define lstrcmpF lstrcmpW
+#define FCTL_GETPANELSHORTINFO FCTL_GETPANELINFO
 #else
 #define kInfoPanelLineSize 80
 #include "FarPlugin.h"
@@ -119,15 +120,15 @@ public:
   void SetRegKeyValue(HKEY parentKey, const CSysString &keyName,
       const LPCTSTR valueName, LPCTSTR value) const;
   void SetRegKeyValue(HKEY hRoot, const CSysString &keyName,
-      const LPCTSTR valueName, UINT32 value) const;
+      const LPCTSTR valueName, int value) const;
   void SetRegKeyValue(HKEY hRoot, const CSysString &keyName,
       const LPCTSTR valueName, bool value) const;
 
   CSysString QueryRegKeyValue(HKEY parentKey, const CSysString &keyName,
       LPCTSTR valueName, const CSysString &valueDefault) const;
 
-  UINT32 QueryRegKeyValue(HKEY parentKey, const CSysString &keyName,
-      LPCTSTR valueName, UINT32 valueDefault) const;
+  int QueryRegKeyValue(HKEY parentKey, const CSysString &keyName,
+      LPCTSTR valueName, int valueDefault) const;
 
   bool QueryRegKeyValue(HKEY parentKey, const CSysString &keyName,
       LPCTSTR valueName, bool valueDefault) const;

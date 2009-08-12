@@ -31,21 +31,26 @@
 using namespace NWindows;
 using namespace NFar;
 
-static const farChar *kCommandPrefix = _F("7-zip");
+const farChar *kCommandPrefix = _F("7-zip");
 
-static const farChar *kRegistryMainKeyName = _F("");
+const farChar *kRegistryMainKeyName = _F("");
 
-static const farChar *kRegistryValueNameEnabled = _F("UsedByDefault3");
-static bool kPluginEnabledDefault = true;
-//Nsky
-static const farChar *kRegistryValueNameUseMasks = _F("UseMasks");
-static bool kUseMasksDefault = false;
-static const farChar *kRegistryValueNameMasks = _F("Masks");
-//static const farChar *kMasksDefault = _F("*.7z,*.bz,*.arj,*.bz2,*.cab,*.gz,*.lzh,*.rar,*.r[0-9][0-9],*.tar,*.z,*.zip,*.tbz,*.tbz2,*.tgz,*.taz,*.rpm,*.cpio,*.deb,*.001,*.jar,*.xpi,*.chm");
-//\Nsky
-static const farChar *kRegistryValueNameDisabledFormats = _F("DisabledFormats");
+const farChar *kRegistryValueNameEnabled = _F("UsedByDefault3");
+const bool kPluginEnabledDefault = true;
+const farChar *kRegistryValueNameUseMasks = _F("UseMasks");
+const bool kUseMasksDefault = false;
+const farChar *kRegistryValueNameMasks = _F("Masks");
+const farChar *kRegistryValueNameDisabledFormats = _F("DisabledFormats");
+const farChar *kRegistryValueNameViewMode = _F("ViewMode");
+const int kViewModeDefault = 2;
+const farChar *kRegistryValueNameSortMode = _F("SortMode");
+const int kSortModeDefault = SM_NAME;
+const farChar *kRegistryValueNameReverseSort = _F("ReverseSort");
+const bool kReverseSortDefault = false;
+const farChar *kRegistryValueNameNumericSort = _F("NumericSort");
+const bool kNumericSortDefault = true;
 
-static const farChar *kHelpTopicConfig =  _F("Config");
+const farChar *kHelpTopicConfig =  _F("Config");
 
 extern "C"
 {
@@ -113,16 +118,6 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID)
   return TRUE;
 }
 
-static struct COptions
-{
-  bool Enabled;
-//Nsky
-  bool UseMasks;
-  CSysString Masks;
-//\Nsky
-  CSysString DisabledFormats;
-} g_Options;
-
 static const farChar *kPluginNameForRegistry = _F("7-ZIP");
 
 // #define  MY_TRY_BEGIN  MY_TRY_BEGIN NCOM::CComInitializer aComInitializer;
@@ -176,6 +171,38 @@ CSysString GetFormatList()
 	return GetSystemString(Formats);
 }
 
+struct COptions
+{
+  bool Enabled;
+  bool UseMasks;
+  CSysString Masks;
+  CSysString DisabledFormats;
+  CPanelMode PanelMode;
+  void Load()
+  {
+    Enabled = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameEnabled, kPluginEnabledDefault);
+    UseMasks = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameUseMasks, kUseMasksDefault);
+    Masks = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameMasks, (CSysString)_F(""));
+    if (Masks == _F("")) Masks = GetMaskList();
+    DisabledFormats = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameDisabledFormats, (CSysString)_F(""));
+    PanelMode.ViewMode = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameViewMode, kViewModeDefault);
+    PanelMode.SortMode = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameSortMode, kSortModeDefault);
+    PanelMode.ReverseSort = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameReverseSort, kReverseSortDefault);
+    PanelMode.NumericSort = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameNumericSort, kNumericSortDefault);
+  }
+  void Save()
+  {
+    g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameEnabled, Enabled);
+    g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameUseMasks, UseMasks);
+    g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameMasks, Masks);
+    g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameDisabledFormats, DisabledFormats);
+    g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameViewMode, PanelMode.ViewMode);
+    g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameSortMode, PanelMode.SortMode);
+    g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameReverseSort, PanelMode.ReverseSort);
+    g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameNumericSort, PanelMode.NumericSort);
+  }
+} g_Options;
+
 #ifdef _UNICODE
 int WINAPI _export GetMinFarVersionW(void)
 {
@@ -208,19 +235,7 @@ void WINAPI SetStartupInfo(struct PluginStartupInfo *info)
 {
   MY_TRY_BEGIN;
   g_StartupInfo.Init(*info, kPluginNameForRegistry);
-  g_Options.Enabled = g_StartupInfo.QueryRegKeyValue(
-      HKEY_CURRENT_USER, kRegistryMainKeyName,
-      kRegistryValueNameEnabled, kPluginEnabledDefault);
-//Nsky
-  g_Options.UseMasks = g_StartupInfo.QueryRegKeyValue(
-      HKEY_CURRENT_USER, kRegistryMainKeyName,
-      kRegistryValueNameUseMasks, kUseMasksDefault);
-  g_Options.Masks = g_StartupInfo.QueryRegKeyValue(
-      HKEY_CURRENT_USER, kRegistryMainKeyName,
-      kRegistryValueNameMasks, (CSysString)_F(""));//kMasksDefault);
-  if (g_Options.Masks == _F("")) g_Options.Masks = GetMaskList();
-//\Nsky
-  g_Options.DisabledFormats = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameDisabledFormats, (CSysString)_F(""));
+  g_Options.Load();
   MY_TRY_END1(_F("SetStartupInfo"));
 }
 
@@ -629,6 +644,8 @@ void WINAPI ClosePlugin(HANDLE plugin)
 #endif
 {
   MY_TRY_BEGIN;
+  ((CPlugin *)plugin)->GetPanelMode(g_Options.PanelMode);
+  g_Options.Save();
   delete (CPlugin *)plugin;
   MY_TRY_END1(_F("ClosePlugin"));
 }
@@ -790,15 +807,7 @@ int WINAPI Configure(int /* itemNumber */)
 		g_Options.Masks = GetMaskList(); //kMasksDefault;
 	g_Options.DisabledFormats.Trim();
 
-  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName,
-      kRegistryValueNameEnabled, g_Options.Enabled);
-//Nsky
-  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName,
-      kRegistryValueNameUseMasks, g_Options.UseMasks);
-  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName,
-      kRegistryValueNameMasks, g_Options.Masks);
-//Nsky
-  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameDisabledFormats, g_Options.DisabledFormats);
+  g_Options.Save();
   return(TRUE);
   MY_TRY_END2(_F("Configure"), FALSE);
 }
@@ -810,7 +819,7 @@ void WINAPI GetOpenPluginInfo(HANDLE plugin,struct OpenPluginInfo *info)
 #endif
 {
   MY_TRY_BEGIN;
-  ((CPlugin *)plugin)->GetOpenPluginInfo(info);
+  ((CPlugin *)plugin)->GetOpenPluginInfo(info, g_Options.PanelMode);
   MY_TRY_END1(_F("GetOpenPluginInfo"));
 }
 
