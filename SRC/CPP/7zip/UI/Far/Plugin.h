@@ -15,6 +15,14 @@
 
 const UInt32 kNumInfoLinesMax = 64;
 
+struct CPanelMode
+{
+  int ViewMode;
+  int SortMode;
+  bool ReverseSort;
+  bool NumericSort;
+};
+
 class CPlugin
 {
   NWindows::NCOM::CComInitializer m_ComInitializer;
@@ -66,7 +74,7 @@ public:
   int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,int OpMode);
   void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
   int SetDirectory(const farChar *aDir, int opMode);
-  void GetOpenPluginInfo(struct OpenPluginInfo *anInfo);
+  void GetOpenPluginInfo(struct OpenPluginInfo *anInfo, const CPanelMode& panelMode);
 
   int DeleteFiles(PluginPanelItem *aPanelItems, int itemsNumber, int opMode);
 
@@ -99,6 +107,8 @@ public:
   HRESULT ShowAttributesWindow();
 
   int ProcessKey(int aKey, unsigned int aControlState);
+
+  void GetPanelMode(CPanelMode& panelMode);
 };
 
 HRESULT CompressFiles(const CObjectVector<NFar::MyPluginPanelItem> &aPluginPanelItems);
