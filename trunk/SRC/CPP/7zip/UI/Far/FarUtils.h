@@ -150,7 +150,6 @@ public:
 	bool ControlRedrawActivePanel(LONG_PTR param);
 	bool ControlRedrawPassivePanel(LONG_PTR param);
   bool ControlGetActivePanelInfo(PanelInfo &panelInfo);
-  bool ControlSetSelection(const PanelInfo &panelInfo);
 	DWORD_PTR GetActivePanelUserData(bool bSelected, int i);
 	CSysString GetActivePanelName(bool bSelected, int i);
 	DWORD GetActivePanelAtt(bool bSelected, int i);
