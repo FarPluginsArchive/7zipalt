@@ -389,10 +389,6 @@ bool CStartupInfo::ControlGetActivePanelInfo(PanelInfo &panelInfo)
 {
   return ControlRequestActivePanel(FCTL_GETPANELINFO, 0, (LONG_PTR)&panelInfo);
 }
-bool CStartupInfo::ControlSetSelection(const PanelInfo &panelInfo)
-{
-  return ControlRequestActivePanel(FCTL_SETSELECTION, 0, (LONG_PTR)&panelInfo);
-}
 bool CStartupInfo::ControlGetActivePanelCurrentItemInfo(
     PluginPanelItem &pluginPanelItem, PanelInfo &panelInfo)
 {
@@ -558,15 +554,17 @@ bool CStartupInfo::ControlClearPanelSelection()
   PanelInfo panelInfo;
   if(!ControlGetActivePanelInfo(panelInfo))
     return false;
+#ifdef _UNICODE
+  ControlRequestActivePanel(FCTL_BEGINSELECTION, 0, 0);
+#endif
   for (int i = 0; i < panelInfo.ItemsNumber; i++)
 #ifdef _UNICODE
-		Control(PANEL_ACTIVE, FCTL_SETSELECTION, i, NULL);
-
-	return true;
+    ControlRequestActivePanel(FCTL_SETSELECTION, i, NULL);
+  ControlRequestActivePanel(FCTL_ENDSELECTION, 0, 0);
+  return true;
 #else
-		panelInfo.PanelItems[i].Flags &= ~PPIF_SELECTED;
-
-	return ControlSetSelection(panelInfo);
+    panelInfo.PanelItems[i].Flags &= ~PPIF_SELECTED;
+  return ControlRequestActivePanel(FCTL_SETSELECTION, 0, reinterpret_cast<LONG_PTR>(&panelInfo));
 #endif
 }
 
