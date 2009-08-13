@@ -1,0 +1,768 @@
+// PluginWrite.cpp
+
+#include "StdAfx.h"
+
+#include "Plugin.h"
+
+#include "Common/Wildcard.h"
+#include "Common/StringConvert.h"
+
+#include "Windows/FileDir.h"
+#include "Windows/FileName.h"
+#include "Windows/FileFind.h"
+#include "Windows/Defs.h"
+#include "Windows/PropVariant.h"
+
+#include "../Common/ZipRegistry.h"
+#include "../Common/WorkDir.h"
+#include "../Common/OpenArchive.h"
+
+#include "../Agent/Agent.h"
+
+#include "ProgressBox.h"
+#include "Messages.h"
+#include "UpdateCallback100.h"
+
+
+using namespace NWindows;
+using namespace NFile;
+using namespace NDirectory;
+using namespace NFar;
+
+using namespace NUpdateArchive;
+
+static const farChar *kHelpTopic =  _F("Update");
+
+static LPCWSTR kTempArcivePrefix = L"7zA";
+
+static const farChar *kArchiveHistoryKeyName = _F("7-ZipArcName"); 
+
+static UINT32 g_MethodMap[] = { 0, 1, 3, 5, 7, 9 };
+
+static HRESULT SetOutProperties(IOutFolderArchive *outArchive, UINT32 method)
+{
+  CMyComPtr<ISetProperties> setProperties;
+  if (outArchive->QueryInterface(IID_ISetProperties, (void **)&setProperties) == S_OK)
+  {
+    UStringVector realNames;
+    realNames.Add(UString(L"x"));
+    NCOM::CPropVariant value = (UInt32)method;
+    CRecordVector<const wchar_t *> names;
+    for(int i = 0; i < realNames.Size(); i++)
+      names.Add(realNames[i]);
+    RINOK(setProperties->SetProperties(&names.Front(), &value, names.Size()));
+  }
+  return S_OK;
+}
+
+NFileOperationReturnCode::EEnum CPlugin::PutFiles(
+  struct PluginPanelItem *panelItems, int numItems,
+  int moveMode, int opMode)
+{
+  if(moveMode != 0)
+  {
+    g_StartupInfo.ShowMessage(NMessageID::kMoveIsNotSupported);
+    return NFileOperationReturnCode::kError;
+  }
+  if (numItems == 0)
+    return NFileOperationReturnCode::kError;
+
+  const int kYSize = 14;
+  const int kXMid = 38;
+
+  NCompression::CInfo compressionInfo;
+  ReadCompressionInfo(compressionInfo);
+
+  int methodIndex = 0;
+  int i;
+  for (i = sizeof(g_MethodMap) / sizeof(g_MethodMap[0]) - 1; i >= 0; i--)
+    if (compressionInfo.Level >= g_MethodMap[i])
+    {
+      methodIndex = i;
+      break;
+    }
+
+  const int kMethodRadioIndex = 2;
+  const int kModeRadioIndex = kMethodRadioIndex + 7;
+
+  struct CInitDialogItem initItems[]={
+    { DI_DOUBLEBOX, 3, 1, 72, kYSize - 2, false, false, 0, false, NMessageID::kUpdateTitle, NULL, NULL },
+    { DI_SINGLEBOX, 4, 2, kXMid - 2, 2 + 7, false, false, 0, false, NMessageID::kUpdateMethod, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 3, 0, 0, methodIndex == 0, methodIndex == 0,
+        DIF_GROUP, false, NMessageID::kUpdateMethodStore, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 4, 0, 0, methodIndex == 1, methodIndex == 1,
+        0, false, NMessageID::kUpdateMethodFastest, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 5, 0, 0, methodIndex == 2, methodIndex == 2,
+        0, false, NMessageID::kUpdateMethodFast, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 6, 0, 0, methodIndex == 3, methodIndex == 3,
+        0, false, NMessageID::kUpdateMethodNormal, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 7, 0, 0, methodIndex == 4, methodIndex == 4,
+        0, false, NMessageID::kUpdateMethodMaximum, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 8, 0, 0, methodIndex == 5, methodIndex == 5,
+        0, false, NMessageID::kUpdateMethodUltra, NULL, NULL },
+    
+    { DI_SINGLEBOX, kXMid, 2, 70, 2 + 5, false, false, 0, false, NMessageID::kUpdateMode, NULL, NULL },
+    { DI_RADIOBUTTON, kXMid + 2, 3, 0, 0, false, true,
+        DIF_GROUP, false, NMessageID::kUpdateModeAdd, NULL, NULL },
+    { DI_RADIOBUTTON, kXMid + 2, 4, 0, 0, false, false,
+        0, false, NMessageID::kUpdateModeUpdate, NULL, NULL },
+    { DI_RADIOBUTTON, kXMid + 2, 5, 0, 0, false, false,
+        0, false, NMessageID::kUpdateModeFreshen, NULL, NULL },
+    { DI_RADIOBUTTON, kXMid + 2, 6, 0, 0, false, false,
+        0, false, NMessageID::kUpdateModeSynchronize, NULL, NULL },
+  
+    { DI_TEXT, 3, kYSize - 4, 0, 0, false, false, DIF_BOXCOLOR|DIF_SEPARATOR, false, -1, _F(""), NULL  },  
+    
+    { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, true, NMessageID::kUpdateAdd, NULL, NULL  },
+    { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, false, NMessageID::kCancel, NULL, NULL  }
+  };
+  
+  const int kNumDialogItems = sizeof(initItems) / sizeof(initItems[0]);
+  const int kOkButtonIndex = kNumDialogItems - 2;
+  FarDialogItem dialogItems[kNumDialogItems];
+  g_StartupInfo.InitDialogItems(initItems, dialogItems, kNumDialogItems);
+#ifdef _UNICODE
+	HANDLE hDlg = 0;
+	int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems, hDlg);
+#else
+	int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems);
+#endif
+  
+  if (askCode != kOkButtonIndex)
+    return NFileOperationReturnCode::kInterruptedByUser;
+
+	compressionInfo.Level = g_MethodMap[0];
+#ifdef _UNICODE
+	for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
+		if (g_StartupInfo.GetItemSelected(hDlg, kMethodRadioIndex + i))
+			compressionInfo.Level = g_MethodMap[i];
+
+	const CActionSet *actionSet;
+
+	if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex))
+		actionSet = &kAddActionSet;
+	else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 1))
+		actionSet = &kUpdateActionSet;
+	else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 2))
+		actionSet = &kFreshActionSet;
+	else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 3))
+		actionSet = &kSynchronizeActionSet;
+	else
+		throw 51751;
+
+	g_StartupInfo.DialogFree(hDlg);
+#else
+	for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
+		if (dialogItems[kMethodRadioIndex + i].Selected)
+			compressionInfo.Level = g_MethodMap[i];
+
+	const CActionSet *actionSet;
+
+	if (dialogItems[kModeRadioIndex].Selected)
+		actionSet = &kAddActionSet;
+	else if (dialogItems[kModeRadioIndex + 1].Selected)
+		actionSet = &kUpdateActionSet;
+	else if (dialogItems[kModeRadioIndex + 2].Selected)
+		actionSet = &kFreshActionSet;
+	else if (dialogItems[kModeRadioIndex + 3].Selected)
+		actionSet = &kSynchronizeActionSet;
+	else
+		throw 51751;
+#endif
+
+  SaveCompressionInfo(compressionInfo);
+
+  NWorkDir::CInfo workDirInfo;
+  ReadWorkDirInfo(workDirInfo);
+  UString workDir = GetWorkDir(workDirInfo, m_FileName);
+  CreateComplexDirectory(workDir);
+
+  CTempFileW tempFile;
+  UString tempFileName;
+  if (tempFile.Create(workDir, kTempArcivePrefix, tempFileName) == 0)
+    return NFileOperationReturnCode::kError;
+
+  CScreenRestorer screenRestorer;
+  CProgressBox progressBox;
+  CProgressBox *progressBoxPointer = NULL;
+
+  screenRestorer.Save();
+
+  progressBoxPointer = &progressBox;
+  progressBox.Init(g_StartupInfo.GetMsgString(NMessageID::kUpdating), 48, opMode & OPM_SILENT);
+ 
+  ////////////////////////////
+  // Save FolderItem;
+  UStringVector aPathVector;
+  GetPathParts(aPathVector);
+
+  UStringVector fileNames;
+  fileNames.Reserve(numItems);
+  for(i = 0; i < numItems; i++)
+#ifdef _UNICODE
+		fileNames.Add(panelItems[i].FindData.lpwszFileName);
+#else
+		fileNames.Add(MultiByteToUnicodeString(panelItems[i].FindData.cFileName, CP_OEMCP));
+#endif
+  CRecordVector<const wchar_t *> fileNamePointers;
+  fileNamePointers.Reserve(numItems);
+  for(i = 0; i < numItems; i++)
+    fileNamePointers.Add(fileNames[i]);
+
+  CMyComPtr<IOutFolderArchive> outArchive;
+  HRESULT result = m_ArchiveHandler.QueryInterface(IID_IOutFolderArchive, &outArchive);
+  if(result != S_OK)
+  {
+    g_StartupInfo.ShowMessage(NMessageID::kUpdateNotSupportedForThisArchive);
+    return NFileOperationReturnCode::kError;
+  }
+  outArchive->SetFolder(_folder);
+
+  outArchive->SetFiles(L"", &fileNamePointers.Front(), fileNamePointers.Size());
+  BYTE actionSetByte[NUpdateArchive::NPairState::kNumValues];
+  for (i = 0; i < NUpdateArchive::NPairState::kNumValues; i++)
+    actionSetByte[i] = (BYTE)actionSet->StateActions[i];
+
+  CUpdateCallback100Imp *updateCallbackSpec = new CUpdateCallback100Imp;
+  CMyComPtr<IFolderArchiveUpdateCallback> updateCallback(updateCallbackSpec );
+
+	UString pass;
+	//CrOm: попытка внедрить пароль на упаковку
+  updateCallbackSpec->Init(/* m_ArchiveHandler, */ &progressBox, false, pass);
+
+  if (SetOutProperties(outArchive, compressionInfo.Level) != S_OK)
+    return NFileOperationReturnCode::kError;
+
+  result = outArchive->DoOperation2(tempFileName, actionSetByte, NULL, updateCallback);
+  updateCallback.Release();
+  outArchive.Release();
+
+  if (result != S_OK)
+  {
+    ShowErrorMessage(result);
+    return NFileOperationReturnCode::kError;
+  }
+
+  _folder.Release();
+  m_ArchiveHandler->Close();
+
+	bool bDeleteRes = DeleteFileAlways(m_FileName);
+  if (!bDeleteRes)
+    ShowLastErrorMessage();
+	else
+	{
+		tempFile.DisableDeleting();
+		bDeleteRes = MyMoveFile(tempFileName, m_FileName);
+		if (!bDeleteRes)
+	    ShowLastErrorMessage();
+	}
+
+  result = m_ArchiveHandler->ReOpen(NULL);
+  if (result != S_OK)
+  {
+    ShowErrorMessage(result);
+    return NFileOperationReturnCode::kError;
+  }
+  ////////////////////////////
+  // Restore FolderItem;
+
+  m_ArchiveHandler->BindToRootFolder(&_folder);
+  for (i = 0; i < aPathVector.Size(); i++)
+  {
+    CMyComPtr<IFolderFolder> newFolder;
+    _folder->BindToFolder(aPathVector[i], &newFolder);
+    if(!newFolder  )
+      break;
+    _folder = newFolder;
+  }
+
+	return bDeleteRes?NFileOperationReturnCode::kSuccess:NFileOperationReturnCode::kError;
+}
+
+namespace NPathType
+{
+  enum EEnum
+  {
+    kLocal,
+    kUNC
+  };
+  EEnum GetPathType(const UString &path);
+}
+
+struct CParsedPath
+{
+  UString Prefix; // Disk or UNC with slash
+  UStringVector PathParts;
+  void ParsePath(const UString &path);
+  UString MergePath() const;
+};
+
+static const wchar_t kDirDelimiter = WCHAR_PATH_SEPARATOR;
+static const wchar_t kDiskDelimiter = L':';
+
+namespace NPathType
+{
+  EEnum GetPathType(const UString &path)
+  {
+    if (path.Length() <= 2)
+      return kLocal;
+    if (path[0] == kDirDelimiter && path[1] == kDirDelimiter)
+      return kUNC;
+    return kLocal;
+  }
+}
+
+void CParsedPath::ParsePath(const UString &path)
+{
+  int curPos = 0;
+  switch (NPathType::GetPathType(path))
+  {
+    case NPathType::kLocal:
+    {
+      int posDiskDelimiter = path.Find(kDiskDelimiter);
+      if(posDiskDelimiter >= 0)
+      {
+        curPos = posDiskDelimiter + 1;
+        if (path.Length() > curPos)
+          if(path[curPos] == kDirDelimiter)
+            curPos++;
+      }
+      break;
+    }
+    case NPathType::kUNC:
+    {
+      int curPos = path.Find(kDirDelimiter, 2);
+      if(curPos < 0)
+        curPos = path.Length();
+      else
+        curPos++;
+    }
+  }
+  Prefix = path.Left(curPos);
+  SplitPathToParts(path.Mid(curPos), PathParts);
+}
+
+UString CParsedPath::MergePath() const
+{
+  UString result = Prefix;
+  for(int i = 0; i < PathParts.Size(); i++)
+  {
+    if (i != 0)
+      result += kDirDelimiter;
+    result += PathParts[i];
+  }
+  return result;
+}
+
+HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
+{
+  if (pluginPanelItems.Size() == 0)
+    return E_FAIL;
+
+  UStringVector fileNames;
+	bool bSingleDir = pluginPanelItems.Size() == 1 && NFind::NAttributes::IsDir(pluginPanelItems[0].dwAttributes);
+
+	int i;
+  for(i = 0; i < pluginPanelItems.Size(); i++)
+  {
+    const MyPluginPanelItem &panelItem = pluginPanelItems[i];
+    UString fullName;
+		if (panelItem.strFileName == _F("..") && 
+				NFind::NAttributes::IsDir(panelItem.dwAttributes))
+			return E_FAIL;
+		if (panelItem.strFileName == _F(".") && 
+				NFind::NAttributes::IsDir(panelItem.dwAttributes))
+			return E_FAIL;
+		if (!MyGetFullPathName(GetUnicodeString(panelItem.strFileName, CP_OEMCP), fullName))
+			return E_FAIL;
+		fileNames.Add(fullName);
+  }
+
+  NCompression::CInfo compressionInfo;
+  ReadCompressionInfo(compressionInfo);
+
+  int archiverIndex = 0;
+
+  CCodecs *codecs = new CCodecs;
+  CMyComPtr<ICompressCodecsInfo> compressCodecsInfo = codecs;
+  if (codecs->Load() != S_OK || codecs->Formats.Size() == 0)
+    throw g_StartupInfo.GetMsgString(NMessageID::kCantLoad7Zip);
+  {
+    for (int i = 0; i < codecs->Formats.Size(); i++)
+    {
+      const CArcInfoEx &arcInfo = codecs->Formats[i];
+      if (arcInfo.UpdateEnabled)
+      {
+        if (archiverIndex == -1)
+          archiverIndex = i;
+        if (arcInfo.Name.CompareNoCase(compressionInfo.ArchiveType) == 0)
+          archiverIndex = i;
+      }
+    }
+  }
+
+
+  UString resultPath;
+  {
+    CParsedPath parsedPath;
+    parsedPath.ParsePath(fileNames.Front());
+    if(parsedPath.PathParts.Size() == 0)
+      return E_FAIL;
+    if (fileNames.Size() == 1 || parsedPath.PathParts.Size() == 1)
+			resultPath = parsedPath.PathParts.Back();
+    else
+    {
+      parsedPath.PathParts.DeleteBack();
+      resultPath = parsedPath.PathParts.Back();
+    }
+  }
+  UString archiveNameSrc = resultPath;
+  UString archiveName = archiveNameSrc;
+
+  const CArcInfoEx &arcInfo = codecs->Formats[archiverIndex];
+  int prevFormat = archiverIndex;
+ 
+  if (!arcInfo.KeepName && !bSingleDir)
+  {
+    int dotPos = archiveName.ReverseFind('.');
+    int slashPos = MyMax(archiveName.ReverseFind('\\'), archiveName.ReverseFind('/'));
+    if (dotPos > slashPos)
+      archiveName = archiveName.Left(dotPos);
+  }
+  archiveName += L'.';
+  archiveName += arcInfo.GetMainExt();
+  
+  const CActionSet *actionSet = &kAddActionSet;
+
+  for (;;)
+  {
+#ifdef _UNICODE
+		UString archiveNameA = archiveName;
+#else
+		AString archiveNameA = UnicodeStringToMultiByte(archiveName, CP_OEMCP);
+#endif
+    const int kYSize = 17;
+    const int kXMid = 38;
+  
+    const int kArchiveNameIndex = 2;
+    const int kMethodRadioIndex = kArchiveNameIndex + 2;
+    const int kModeRadioIndex = kMethodRadioIndex + 7;
+		const int kAddExtensionCheck = kModeRadioIndex + 4;
+
+    const CArcInfoEx &arcInfo = codecs->Formats[archiverIndex];
+
+    farChar updateAddToArchiveString[512];
+    const CSysString s = GetSystemString(arcInfo.Name, CP_OEMCP);
+
+    g_StartupInfo.m_FSF.sprintf(updateAddToArchiveString, 
+        g_StartupInfo.GetMsgString(NMessageID::kUpdateAddToArchive), (const farChar *)s);
+
+    int methodIndex = 0;
+    int i;
+    for (i = sizeof(g_MethodMap) / sizeof(g_MethodMap[0]) - 1; i >= 0; i--)
+      if (compressionInfo.Level >= g_MethodMap[i])
+      {
+        methodIndex = i;
+        break;
+      }
+
+    struct CInitDialogItem initItems[]=
+    {
+      { DI_DOUBLEBOX, 3, 1, 72, kYSize - 2, false, false, 0, false, NMessageID::kUpdateTitle, NULL, NULL },
+
+      { DI_TEXT, 5, 2, 0, 0, false, false, 0, false, -1, updateAddToArchiveString, NULL },
+
+      { DI_EDIT, 5, 3, 70, 3, true, false, DIF_HISTORY, false, -1, archiveNameA, kArchiveHistoryKeyName},
+
+      { DI_SINGLEBOX, 4, 4, kXMid - 2, 4 + 7, false, false, 0, false, NMessageID::kUpdateMethod, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 5, 0, 0, false, methodIndex == 0,
+          DIF_GROUP, false, NMessageID::kUpdateMethodStore, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 6, 0, 0, false, methodIndex == 1,
+          0, false, NMessageID::kUpdateMethodFastest, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 7, 0, 0, false, methodIndex == 2,
+          0, false, NMessageID::kUpdateMethodFast, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 8, 0, 0, false, methodIndex == 3,
+          0, false, NMessageID::kUpdateMethodNormal, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 9, 0, 0, false, methodIndex == 4,
+          false, 0, NMessageID::kUpdateMethodMaximum, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 10, 0, 0, false, methodIndex == 5,
+          false, 0, NMessageID::kUpdateMethodUltra, NULL, NULL },
+      
+      { DI_SINGLEBOX, kXMid, 4, 70, 4 + 5, false, false, 0, false, NMessageID::kUpdateMode, NULL, NULL },
+      { DI_RADIOBUTTON, kXMid + 2, 5, 0, 0, false,
+          actionSet == &kAddActionSet,
+          DIF_GROUP, false, NMessageID::kUpdateModeAdd, NULL, NULL },
+      { DI_RADIOBUTTON, kXMid + 2, 6, 0, 0, false,
+          actionSet == &kUpdateActionSet,
+          0, false, NMessageID::kUpdateModeUpdate, NULL, NULL },
+      { DI_RADIOBUTTON, kXMid + 2, 7, 0, 0, false,
+          actionSet == &kFreshActionSet,
+          0, false, NMessageID::kUpdateModeFreshen, NULL, NULL },
+      { DI_RADIOBUTTON, kXMid + 2, 8, 0, 0, false,
+          actionSet == &kSynchronizeActionSet,
+          0, false, NMessageID::kUpdateModeSynchronize, NULL, NULL },
+
+			{ DI_CHECKBOX, 5, 12, 0, 0, false, compressionInfo.AddExtension, 0, false, NMessageID::kAddExtension, NULL, NULL },
+
+      { DI_TEXT, 3, kYSize - 4, 0, 0, false, false, DIF_BOXCOLOR|DIF_SEPARATOR, false, -1, _F(""), NULL  },  
+      
+      { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, true, NMessageID::kUpdateAdd, NULL, NULL  },
+      { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, false, NMessageID::kUpdateSelectArchiver, NULL, NULL  },
+      { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, false, NMessageID::kCancel, NULL, NULL  }
+    };
+
+    const int kNumDialogItems = sizeof(initItems) / sizeof(initItems[0]);
+    
+    const int kOkButtonIndex = kNumDialogItems - 3;
+    const int kSelectarchiverButtonIndex = kNumDialogItems - 2;
+
+    FarDialogItem dialogItems[kNumDialogItems];
+    g_StartupInfo.InitDialogItems(initItems, dialogItems, kNumDialogItems);
+    
+#ifdef _UNICODE
+		HANDLE hDlg = 0;
+		int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems, hDlg);
+
+		archiveNameA =  g_StartupInfo.GetItemData(hDlg, kArchiveNameIndex);
+		archiveNameA.Trim();
+		archiveName = archiveNameA;
+#else
+		int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems);
+
+		archiveNameA = dialogItems[kArchiveNameIndex].Data;
+		archiveNameA.Trim();
+		archiveName = MultiByteToUnicodeString(archiveNameA, CP_OEMCP);
+#endif
+
+    compressionInfo.Level = g_MethodMap[0];
+#ifdef _UNICODE
+    for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
+      if (g_StartupInfo.GetItemSelected(hDlg, kMethodRadioIndex + i))
+        compressionInfo.Level = g_MethodMap[i];
+    if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex))
+      actionSet = &kAddActionSet;
+    else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 1))
+      actionSet = &kUpdateActionSet;
+    else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 2))
+      actionSet = &kFreshActionSet;
+    else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 3))
+      actionSet = &kSynchronizeActionSet;
+    else
+      throw 51751;
+
+		compressionInfo.AddExtension = g_StartupInfo.GetItemSelected(hDlg, kAddExtensionCheck)?true:false;
+
+		g_StartupInfo.DialogFree(hDlg);
+#else
+		for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
+			if (dialogItems[kMethodRadioIndex + i].Selected)
+				compressionInfo.Level = g_MethodMap[i];
+		if (dialogItems[kModeRadioIndex].Selected)
+			actionSet = &kAddActionSet;
+		else if (dialogItems[kModeRadioIndex + 1].Selected)
+			actionSet = &kUpdateActionSet;
+		else if (dialogItems[kModeRadioIndex + 2].Selected)
+			actionSet = &kFreshActionSet;
+		else if (dialogItems[kModeRadioIndex + 3].Selected)
+			actionSet = &kSynchronizeActionSet;
+		else
+			throw 51751;
+
+		compressionInfo.AddExtension = dialogItems[kAddExtensionCheck].Selected?true:false;
+#endif
+
+    if (askCode == kSelectarchiverButtonIndex)
+    {
+      CIntVector indices;
+      CSysStringVector archiverNames;
+      for(int i = 0; i < codecs->Formats.Size(); i++)
+      {
+        const CArcInfoEx &arc = codecs->Formats[i];
+        if (arc.UpdateEnabled)
+        {
+          indices.Add(i);
+          archiverNames.Add(GetSystemString(arc.Name, CP_OEMCP));
+        }
+      }
+    
+      int index = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT,
+          g_StartupInfo.GetMsgString(NMessageID::kUpdateSelectArchiverMenuTitle),
+          NULL, archiverNames, archiverIndex);
+      if(index >= 0)
+      {
+        const CArcInfoEx &prevArchiverInfo = codecs->Formats[prevFormat];
+        if (prevArchiverInfo.KeepName)
+        {
+          const UString &prevExtension = prevArchiverInfo.GetMainExt();
+          const int prevExtensionLen = prevExtension.Length();
+          if (archiveName.Right(prevExtensionLen).CompareNoCase(prevExtension) == 0)
+          {
+            int pos = archiveName.Length() - prevExtensionLen;
+            if (pos > 1)
+            {
+              int dotPos = archiveName.ReverseFind('.');
+              if (dotPos == pos - 1)
+                archiveName = archiveName.Left(dotPos);
+            }
+          }
+        }
+
+        archiverIndex = indices[index];
+        const CArcInfoEx &arcInfo = codecs->Formats[archiverIndex];
+        prevFormat = archiverIndex;
+        
+        if (arcInfo.KeepName || bSingleDir)
+          archiveName = archiveNameSrc;
+        else
+        {
+          int dotPos = archiveName.ReverseFind('.');
+          int slashPos = MyMax(archiveName.ReverseFind('\\'), archiveName.ReverseFind('/'));
+          if (dotPos > slashPos)
+            archiveName = archiveName.Left(dotPos);
+        }
+        archiveName += L'.';
+        archiveName += arcInfo.GetMainExt();
+      }
+      continue;
+    }
+
+    if (askCode != kOkButtonIndex)
+      return E_ABORT;
+
+		//CrOm: автоматическое добавление расширения файлу (если стоит крыжик).
+		if (compressionInfo.AddExtension)
+		{
+			int dotPos = archiveName.ReverseFind('.');
+			int slashPos = MyMax(archiveName.ReverseFind('\\'), archiveName.ReverseFind('/'));
+			if (dotPos > slashPos || dotPos == -1)
+			{
+				UString archiveExt = archiveName.Mid(dotPos + 1);
+				if (archiveExt.CompareNoCase(arcInfo.GetMainExt()))
+				{
+					archiveName += L'.';
+					archiveName += arcInfo.GetMainExt();
+				}
+			}
+		}
+
+    break;
+  }
+
+  const CArcInfoEx &archiverInfoFinal = codecs->Formats[archiverIndex];
+  compressionInfo.ArchiveType = archiverInfoFinal.Name;
+  SaveCompressionInfo(compressionInfo);
+
+  NWorkDir::CInfo workDirInfo;
+  ReadWorkDirInfo(workDirInfo);
+
+  UString fullArchiveName;
+  if (!MyGetFullPathName(archiveName, fullArchiveName))
+    return E_FAIL;
+   
+  UString workDir = GetWorkDir(workDirInfo, fullArchiveName);
+  CreateComplexDirectory(workDir);
+
+  CTempFileW tempFile;
+  UString tempFileName;
+  if (tempFile.Create(workDir, kTempArcivePrefix, tempFileName) == 0)
+    return E_FAIL;
+
+
+  CScreenRestorer screenRestorer;
+  CProgressBox progressBox;
+  CProgressBox *progressBoxPointer = NULL;
+
+  screenRestorer.Save();
+
+  progressBoxPointer = &progressBox;
+  progressBox.Init(g_StartupInfo.GetMsgString(NMessageID::kUpdating), 48, false);
+
+  NFind::CFileInfoW fileInfo;
+
+  CMyComPtr<IOutFolderArchive> outArchive;
+
+  CMyComPtr<IInFolderArchive> archiveHandler;
+  if(NFind::FindFile(fullArchiveName, fileInfo))
+  {
+    if (fileInfo.IsDir())
+      throw g_StartupInfo.GetMsgString(NMessageID::kDirWithSuchName);
+
+    CAgent *agentSpec = new CAgent;
+    archiveHandler = agentSpec;
+    // CLSID realClassID;
+    CMyComBSTR archiveType;
+    RINOK(agentSpec->Open(
+        fullArchiveName,
+        // &realClassID,
+        &archiveType,
+        NULL));
+
+    if (archiverInfoFinal.Name.CompareNoCase((const wchar_t *)archiveType) != 0)
+      throw g_StartupInfo.GetMsgString(NMessageID::kExistingArchDiffersSpecified);
+    HRESULT result = archiveHandler.QueryInterface(
+        IID_IOutFolderArchive, &outArchive);
+    if(result != S_OK)
+    {
+      g_StartupInfo.ShowMessage(NMessageID::kUpdateNotSupportedForThisArchive);
+      return E_FAIL;
+    }
+  }
+  else
+  {
+    CAgent *agentSpec = new CAgent;
+    outArchive = agentSpec;
+  }
+
+  CRecordVector<const wchar_t *> fileNamePointers;
+  fileNamePointers.Reserve(fileNames.Size());
+  for(i = 0; i < fileNames.Size(); i++)
+    fileNamePointers.Add(fileNames[i]);
+
+  outArchive->SetFolder(NULL);
+  outArchive->SetFiles(L"", &fileNamePointers.Front(), fileNamePointers.Size());
+  BYTE actionSetByte[NUpdateArchive::NPairState::kNumValues];
+  for (i = 0; i < NUpdateArchive::NPairState::kNumValues; i++)
+    actionSetByte[i] = (BYTE)actionSet->StateActions[i];
+
+  CUpdateCallback100Imp *updateCallbackSpec = new CUpdateCallback100Imp;
+  CMyComPtr<IFolderArchiveUpdateCallback> updateCallback(updateCallbackSpec );
+  
+	bool bpass = false;
+	UString pass;
+  updateCallbackSpec->Init(/* archiveHandler, */ &progressBox, bpass, pass);
+
+
+  RINOK(SetOutProperties(outArchive, compressionInfo.Level));
+
+  HRESULT result = outArchive->DoOperation(
+      codecs, archiverIndex,
+      tempFileName, actionSetByte,
+      NULL, updateCallback);
+  updateCallback.Release();
+  outArchive.Release();
+
+  if (result != S_OK)
+  {
+    ShowErrorMessage(result);
+    return result;
+  }
+ 
+  if(archiveHandler)
+  {
+    archiveHandler->Close();
+    if (!DeleteFileAlways(fullArchiveName))
+    {
+      ShowLastErrorMessage();
+      return NFileOperationReturnCode::kError;
+    }
+  }
+  tempFile.DisableDeleting();
+  if (!MyMoveFile(tempFileName, fullArchiveName))
+  {
+    ShowLastErrorMessage();
+    return E_FAIL;
+  }
+  
+  return S_OK;
+}
+
