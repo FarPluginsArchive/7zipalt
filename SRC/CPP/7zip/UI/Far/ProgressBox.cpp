@@ -119,11 +119,11 @@ void CProgressBox::Init(const CSysString &title, int width, bool lazy)
 
 void CProgressBox::Progress(const UInt64 *total, const UInt64 *completed, const CSysString &message)
 {
-  // update box every 0.5 sec.
+  // update box every 1/4 sec.
   unsigned __int64 TmCurr;
   QueryPerformanceCounter((PLARGE_INTEGER) &TmCurr);
   if (TmCurr < TmNext) return;
-  TmNext = TmCurr + TmFreq / 2;
+  TmNext = TmCurr + TmFreq / 4;
 
   CSysString percentMessage;
   if (total != 0 && completed != 0)
