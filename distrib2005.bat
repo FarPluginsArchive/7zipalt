@@ -1,4 +1,4 @@
-set build=19
+set build=20
 
 rem you can setup environment for compilation
 rem example for Visual Studio 2005

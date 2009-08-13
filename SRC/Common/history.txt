@@ -1,5 +1,12 @@
 History of the 7-ZipFar Alternative
 -----------------------------------
+Version 4.65  b20  2009-08-13
+ - improve progress box
+ - support for Far 2 build 1017
+ - save/restore plugin panel mode
+ - allocate disk space to avoid fragmentation
+ - ability to disable selected archive formats (work in progress)
+
 Version 4.65  b19  2009-07-29
  - fix archive file name for dir with dots in it's name
  - new option in compression dialog "Add default extension"
@@ -7,7 +14,6 @@ Version 4.65  b19  2009-07-29
  - output progress to FAR title
  - fix crashing when try to change occupied archive 
  - ANSI: fix working with russian names
-
 
 Version 4.65  b18  2009-07-07
  - fix remembering of compressing settings

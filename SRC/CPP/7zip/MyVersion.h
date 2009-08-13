@@ -1,7 +1,7 @@
 #define MY_VER_MAJOR 4
 #define MY_VER_MINOR 65
-#define MY_VER_BUILD 19
-#define MY_VER_BUILDS "19"
+#define MY_VER_BUILD 20
+#define MY_VER_BUILDS "20"
 
 #ifdef _UNICODE
 #define MY_VER_TYPE " Unicode "
