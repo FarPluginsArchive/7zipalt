@@ -510,7 +510,21 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
   _compressCodecsInfo = _codecs;
   RINOK(_codecs->Load());
 
-  RINOK(OpenArchive(_codecs, CIntVector(), _archiveFilePath, SplitString(g_Options.DisabledFormats, L','), _archiveLink, openArchiveCallback));
+	CIntVector formats;
+	if (showFormatMenu)
+	{
+    CSysStringVector formatNames, formatNamesSorted;
+    for (int i = 0; i < _codecs->Formats.Size(); i++)
+      formatNames.Add(_codecs->Formats[i].Name);
+		formatNamesSorted = formatNames;
+		formatNamesSorted.Sort();
+    int index = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT, g_StartupInfo.GetMsgString(NMessageID::kUpdateSelectArchiverMenuTitle), NULL, formatNamesSorted, 0);
+    if (index == -1)
+      return E_ABORT;
+		formats.Add(formatNames.Find(formatNamesSorted[index]));
+	}
+
+  RINOK(OpenArchive(_codecs, formats, _archiveFilePath, SplitString(g_Options.DisabledFormats, L','), _archiveLink, openArchiveCallback));
   DefaultName = _archiveLink.GetDefaultItemName();
   const CArcInfoEx &ai = _codecs->Formats[_archiveLink.GetArchiverIndex()];
 
@@ -563,7 +577,9 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
       fullName.Left(fileNamePartStartIndex),
       fullName.Mid(fileNamePartStartIndex));
 
-  archiveHandler = new CAgent;
+  CAgent* agent = new CAgent;
+	agent->showFormatMenu = CallLocation == CL_MENU;
+	archiveHandler = agent;
   CMyComBSTR archiveType;
 #ifdef _UNICODE
 	HRESULT result = archiveHandler->Open(fullName, &archiveType, openArchiveCallback);
@@ -572,8 +588,6 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
 #endif
   if (result != S_OK)
   {
-    if (result == E_ABORT)
-      return (HANDLE)-2;
 		if (result == E_HANDLE)
 			g_StartupInfo.ShowMessage(NMessageID::kCantLoad7Zip);
     return INVALID_HANDLE_VALUE;

@@ -201,6 +201,8 @@ public:
 
   UString _archiveFilePath;
 
+	bool showFormatMenu;
+
   #ifndef EXTRACT_ONLY
   CObjectVector<UString> m_PropNames;
   CObjectVector<NWindows::NCOM::CPropVariant> m_PropValues;
