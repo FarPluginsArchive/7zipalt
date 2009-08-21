@@ -206,24 +206,6 @@ HRESULT OpenArchive(
         orderIndices2.Add(val);
     }
     orderIndices = orderIndices2;
-
-    if (orderIndices.Size() >= 2)
-    {
-      int isoIndex = codecs->FindFormatForArchiveType(L"iso");
-      int udfIndex = codecs->FindFormatForArchiveType(L"udf");
-      int iIso = -1;
-      int iUdf = -1;
-      for (int i = 0; i < orderIndices.Size(); i++)
-      {
-        if (orderIndices[i] == isoIndex) iIso = i;
-        if (orderIndices[i] == udfIndex) iUdf = i;
-      }
-      if (iUdf == iIso + 1)
-      {
-        orderIndices[iUdf] = isoIndex;
-        orderIndices[iIso] = udfIndex;
-      }
-    }
   }
   else if (extension == L"000" || extension == L"001")
   {
@@ -287,6 +269,23 @@ HRESULT OpenArchive(
 				link.Close();
 			}
 		}
+  }
+  if (orderIndices.Size() >= 2)
+  {
+    int isoIndex = codecs->FindFormatForArchiveType(L"iso");
+    int udfIndex = codecs->FindFormatForArchiveType(L"udf");
+    int iIso = -1;
+    int iUdf = -1;
+    for (int i = 0; i < orderIndices.Size(); i++)
+    {
+      if (orderIndices[i] == isoIndex) iIso = i;
+      if (orderIndices[i] == udfIndex) iUdf = i;
+    }
+    if (iUdf > iIso && iIso >= 0)
+    {
+      orderIndices[iUdf] = isoIndex;
+      orderIndices[iIso] = udfIndex;
+    }
   }
 #endif
   }
