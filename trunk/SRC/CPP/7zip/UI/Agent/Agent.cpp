@@ -422,7 +422,8 @@ STDMETHODIMP CAgentFolder::Extract(const UInt32 *indices,
 
 CAgent::CAgent():
   _proxyArchive(NULL),
-  _codecs(0)
+  _codecs(0),
+	showFormatMenu(false)
 {
 }
 
