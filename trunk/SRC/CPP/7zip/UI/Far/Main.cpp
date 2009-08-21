@@ -11,6 +11,7 @@
 #include "Common/DynamicBuffer.h"
 #include "Common/StringConvert.h"
 #include "Common/Defs.h"
+#include "Common/ComTry.h"
 
 #include "Windows/FileFind.h"
 #include "Windows/FileIO.h"
@@ -210,18 +211,21 @@ int WINAPI _export GetMinFarVersionW(void)
 }
 #endif
 
-CSysStringVector SplitString(const CSysString& Str, farChar SplitCh)
+UStringVector SplitString(const UString& Str, wchar_t SplitCh)
 {
-  CSysStringVector List;
+  UStringVector List;
   int Pos = 0;
   while (Pos < Str.Length())
   {
     int Pos2 = Str.Find(SplitCh, Pos);
     if (Pos2 == -1)
       Pos2 = Str.Length();
-    CSysString SubStr = Str.Mid(Pos, Pos2 - Pos);
-    SubStr.Trim();
-    List.Add(SubStr);
+    if (Pos2 != Pos)
+    {
+      CSysString SubStr = Str.Mid(Pos, Pos2 - Pos);
+      SubStr.Trim();
+      List.Add(SubStr);
+    }
     Pos = Pos2 + 1;
   }
   return List;
@@ -490,13 +494,40 @@ STDMETHODIMP COpenArchiveCallback::CryptoGetTextPassword(BSTR *password)
   return StringToBstr(Password, password);
 }
 
-//Nsky
+STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOpenCallback *openArchiveCallback)
+{
+  COM_TRY_BEGIN
+  _archiveFilePath = filePath;
+  NFile::NFind::CFileInfoW fileInfo;
+  if (!NFile::NFind::FindFile(_archiveFilePath, fileInfo))
+    return ::GetLastError();
+  if (fileInfo.IsDir())
+    return E_FAIL;
+  CArcInfoEx archiverInfo0, archiverInfo1;
+
+  _compressCodecsInfo.Release();
+  _codecs = new CCodecs;
+  _compressCodecsInfo = _codecs;
+  RINOK(_codecs->Load());
+
+  RINOK(OpenArchive(_codecs, CIntVector(), _archiveFilePath, SplitString(g_Options.DisabledFormats, L','), _archiveLink, openArchiveCallback));
+  DefaultName = _archiveLink.GetDefaultItemName();
+  const CArcInfoEx &ai = _codecs->Formats[_archiveLink.GetArchiverIndex()];
+
+  DefaultTime = fileInfo.MTime;
+  DefaultAttrib = fileInfo.Attrib;
+  ArchiveType = ai.Name;
+  if (archiveType == 0)
+    return S_OK;
+  return StringToBstr(ArchiveType, archiveType);
+  COM_TRY_END
+}
+
 #define CL_FILE    1
 #define CL_CMDLINE 2
 #define CL_MENU    3
 
 static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
-//\Nsky
 {
 	UString normalizedName = name;
   normalizedName.Trim();
@@ -545,11 +576,6 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
       return (HANDLE)-2;
 		if (result == E_HANDLE)
 			g_StartupInfo.ShowMessage(NMessageID::kCantLoad7Zip);
-    return INVALID_HANDLE_VALUE;
-  }
-
-  if (SplitString(g_Options.DisabledFormats, _F(',')).Find(GetSystemString(UString(archiveType))) != -1)
-  {
     return INVALID_HANDLE_VALUE;
   }
 

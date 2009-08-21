@@ -28,6 +28,7 @@ HRESULT OpenArchive(
     int arcTypeIndex,
     IInStream *inStream,
     const UString &fileName,
+    const UStringVector& disabledFormats,
     IInArchive **archiveResult,
     int &formatIndex,
     UString &defaultItemName,
@@ -37,6 +38,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     int arcTypeIndex,
     const UString &filePath,
+    const UStringVector& disabledFormats,
     IInArchive **archive,
     int &formatIndex,
     UString &defaultItemName,
@@ -46,6 +48,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &filePath,
+    const UStringVector& disabledFormats,
     IInArchive **archive0,
     IInArchive **archive1,
     int &formatIndex0,
@@ -97,6 +100,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &archiveName,
+    const UStringVector& disabledFormats,
     CArchiveLink &archiveLink,
     IArchiveOpenCallback *openCallback);
 

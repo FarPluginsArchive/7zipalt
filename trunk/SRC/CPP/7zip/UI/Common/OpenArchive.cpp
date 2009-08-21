@@ -115,6 +115,7 @@ HRESULT OpenArchive(
     int arcTypeIndex,
     IInStream *inStream,
     const UString &fileName,
+    const UStringVector& disabledFormats,
     IInArchive **archiveResult,
     int &formatIndex,
     UString &defaultItemName,
@@ -136,10 +137,11 @@ HRESULT OpenArchive(
   int i;
   int numFinded = 0;
   for (i = 0; i < codecs->Formats.Size(); i++)
-    if (codecs->Formats[i].FindExtension(extension) >= 0)
-      orderIndices.Insert(numFinded++, i);
-    else
-      orderIndices.Add(i);
+    if (disabledFormats.Find(codecs->Formats[i].Name) == -1)
+      if (codecs->Formats[i].FindExtension(extension) >= 0)
+        orderIndices.Insert(numFinded++, i);
+      else
+        orderIndices.Add(i);
   
 #ifndef _SFX
   if (numFinded != 1)
@@ -251,7 +253,7 @@ HRESULT OpenArchive(
 		if (NFile::NFind::FindFile(testName, fileInfo) && !fileInfo.IsDir())
 		{
 			CArchiveLink link;
-			if (OpenArchive(codecs, CIntVector(), testName, link, NULL) == S_OK)
+			if (OpenArchive(codecs, CIntVector(), testName, disabledFormats, link, NULL) == S_OK)
 			{
 				if (codecs->Formats[orderIndices[0]].FormatIndex != link.FormatIndex0)
 				{
@@ -340,6 +342,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     int arcTypeIndex,
     const UString &filePath,
+    const UStringVector& disabledFormats,
     IInArchive **archiveResult,
     int &formatIndex,
     UString &defaultItemName,
@@ -349,7 +352,7 @@ HRESULT OpenArchive(
   CMyComPtr<IInStream> inStream(inStreamSpec);
   if (!inStreamSpec->Open(filePath))
     return GetLastError();
-  return OpenArchive(codecs, arcTypeIndex, inStream, ExtractFileNameFromPath(filePath),
+  return OpenArchive(codecs, arcTypeIndex, inStream, ExtractFileNameFromPath(filePath), disabledFormats,
     archiveResult, formatIndex,
     defaultItemName, openArchiveCallback);
 }
@@ -372,6 +375,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &fileName,
+    const UStringVector& disabledFormats,
     IInArchive **archive0,
     IInArchive **archive1,
     int &formatIndex0,
@@ -387,7 +391,7 @@ HRESULT OpenArchive(
   if (formatIndices.Size() >= 1)
     arcTypeIndex = formatIndices[formatIndices.Size() - 1];
   
-  HRESULT result = OpenArchive(codecs, arcTypeIndex, fileName,
+  HRESULT result = OpenArchive(codecs, arcTypeIndex, fileName, disabledFormats,
     archive0, formatIndex0, defaultItemName0, openArchiveCallback);
   RINOK(result);
 
@@ -440,7 +444,7 @@ HRESULT OpenArchive(
   if (setSubArchiveName)
     setSubArchiveName->SetSubArchiveName(subPath);
 
-  result = OpenArchive(codecs, arcTypeIndex, subStream, subPath,
+  result = OpenArchive(codecs, arcTypeIndex, subStream, subPath, disabledFormats,
       archive1, formatIndex1, defaultItemName1, openArchiveCallback);
   resSpec = (formatIndices.Size() == 0 ? S_OK : S_FALSE);
   if (result != S_OK)
@@ -475,7 +479,7 @@ HRESULT MyOpenArchive(
   CMyComPtr<IArchiveOpenCallback> openCallback;
   SetCallback(archiveName, openCallbackUI, NULL, openCallback);
   int formatInfo;
-  return OpenArchive(codecs, arcTypeIndex, archiveName, archive, formatInfo, defaultItemName, openCallback);
+  return OpenArchive(codecs, arcTypeIndex, archiveName, UStringVector(), archive, formatInfo, defaultItemName, openCallback);
 }
 
 HRESULT MyOpenArchive(
@@ -503,7 +507,7 @@ HRESULT MyOpenArchive(
   openCallbackSpec->Init(prefix, name);
 
   int formatIndex0, formatIndex1;
-  RINOK(OpenArchive(codecs, formatIndices, archiveName,
+  RINOK(OpenArchive(codecs, formatIndices, archiveName, UStringVector(),
       archive0,
       archive1,
       formatIndex0,
@@ -539,10 +543,11 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &archiveName,
+	 	const UStringVector& disabledFormats,
     CArchiveLink &archiveLink,
     IArchiveOpenCallback *openCallback)
 {
-  HRESULT res = OpenArchive(codecs, formatIndices, archiveName,
+  HRESULT res = OpenArchive(codecs, formatIndices, archiveName, disabledFormats,
     &archiveLink.Archive0, &archiveLink.Archive1,
     archiveLink.FormatIndex0, archiveLink.FormatIndex1,
     archiveLink.DefaultItemName0, archiveLink.DefaultItemName1,
