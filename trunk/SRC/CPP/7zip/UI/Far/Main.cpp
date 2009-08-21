@@ -222,7 +222,7 @@ UStringVector SplitString(const UString& Str, wchar_t SplitCh)
       Pos2 = Str.Length();
     if (Pos2 != Pos)
     {
-      CSysString SubStr = Str.Mid(Pos, Pos2 - Pos);
+      UString SubStr = Str.Mid(Pos, Pos2 - Pos);
       SubStr.Trim();
       List.Add(SubStr);
     }
@@ -515,7 +515,7 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
 	{
     CSysStringVector formatNames, formatNamesSorted;
     for (int i = 0; i < _codecs->Formats.Size(); i++)
-      formatNames.Add(_codecs->Formats[i].Name);
+      formatNames.Add(GetSystemString(_codecs->Formats[i].Name));
 		formatNamesSorted = formatNames;
 		formatNamesSorted.Sort();
     int index = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT, g_StartupInfo.GetMsgString(NMessageID::kUpdateSelectArchiverMenuTitle), NULL, formatNamesSorted, 0);
@@ -524,7 +524,7 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
 		formats.Add(formatNames.Find(formatNamesSorted[index]));
 	}
 
-  RINOK(OpenArchive(_codecs, formats, _archiveFilePath, SplitString(g_Options.DisabledFormats, L','), _archiveLink, openArchiveCallback));
+  RINOK(OpenArchive(_codecs, formats, _archiveFilePath, SplitString(GetUnicodeString(g_Options.DisabledFormats), L','), _archiveLink, openArchiveCallback));
   DefaultName = _archiveLink.GetDefaultItemName();
   const CArcInfoEx &ai = _codecs->Formats[_archiveLink.GetArchiverIndex()];
 
