@@ -8,6 +8,8 @@ if exist setenv.bat call setenv.bat
 rem SRC\Common\FILE_ID.DIZ
 rem SRC\CPP\7zip\MyVersion.h
 
+call :clean
+
 vcbuild /nologo SRC\CPP\7zip\UI\Far\Far.vcproj "Release|Win32" 
 @if errorlevel 1 goto error
 vcbuild /nologo SRC\CPP\7zip\UI\Far\Far.vcproj "Release x64|x64"
@@ -22,11 +24,15 @@ call :package PluginW64 b%build%\7zip-465alt64-20-b%build%.zip
 call :package PluginA b%build%\7zip-465alt-b%build%.zip
 call :package PluginA64 b%build%\7zip-465alt64-b%build%.zip
 
+call :clean
+
+@goto end
+
+:clean
 vcbuild /clean /nologo SRC\CPP\7zip\UI\Far\Far.vcproj "Release|Win32" 
 vcbuild /clean /nologo SRC\CPP\7zip\UI\Far\Far.vcproj "Release x64|x64"
 vcbuild /clean /nologo SRC\CPP\7zip\UI\Far\Far.vcproj "ReleaseA|Win32" 
 vcbuild /clean /nologo SRC\CPP\7zip\UI\Far\Far.vcproj "ReleaseA x64|x64"
-
 @goto end
 
 :package
