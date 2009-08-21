@@ -285,7 +285,8 @@ void CPlugin::GetCurrentDir()
   GetPathParts(pathParts);
   for (int i = 0; i < pathParts.Size(); i++)
   {
-    m_CurrentDir += WCHAR_PATH_SEPARATOR;
+    if (i != 0)
+      m_CurrentDir += WCHAR_PATH_SEPARATOR;
     m_CurrentDir += pathParts[i];
   }
 }
