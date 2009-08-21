@@ -432,40 +432,6 @@ CAgent::~CAgent()
     delete _proxyArchive;
 }
 
-STDMETHODIMP CAgent::Open(
-    const wchar_t *filePath,
-    BSTR *archiveType,
-    // CLSID *clsIDResult,
-    IArchiveOpenCallback *openArchiveCallback)
-{
-  COM_TRY_BEGIN
-  _archiveFilePath = filePath;
-  NFile::NFind::CFileInfoW fileInfo;
-  if (!NFile::NFind::FindFile(_archiveFilePath, fileInfo))
-    return ::GetLastError();
-  if (fileInfo.IsDir())
-    return E_FAIL;
-  CArcInfoEx archiverInfo0, archiverInfo1;
-
-  _compressCodecsInfo.Release();
-  _codecs = new CCodecs;
-  _compressCodecsInfo = _codecs;
-  RINOK(_codecs->Load());
-
-  RINOK(OpenArchive(_codecs, CIntVector(), _archiveFilePath, _archiveLink, openArchiveCallback));
-  // _archive = _archiveLink.GetArchive();
-  DefaultName = _archiveLink.GetDefaultItemName();
-  const CArcInfoEx &ai = _codecs->Formats[_archiveLink.GetArchiverIndex()];
-
-  DefaultTime = fileInfo.MTime;
-  DefaultAttrib = fileInfo.Attrib;
-  ArchiveType = ai.Name;
-  if (archiveType == 0)
-    return S_OK;
-  return StringToBstr(ArchiveType, archiveType);
-  COM_TRY_END
-}
-
 STDMETHODIMP CAgent::ReOpen(IArchiveOpenCallback *openArchiveCallback)
 {
   COM_TRY_BEGIN
