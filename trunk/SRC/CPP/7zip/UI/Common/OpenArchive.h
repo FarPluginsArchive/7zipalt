@@ -23,6 +23,13 @@ struct ISetSubArchiveName
   virtual void SetSubArchiveName(const wchar_t *name) = 0;
 };
 
+struct CArcInfo
+{
+  CMyComPtr<IInArchive> Archive;
+  UString DefaultItemName;
+  int FormatIndex;
+};
+
 HRESULT OpenArchive(
     CCodecs *codecs,
     int arcTypeIndex,
@@ -49,49 +56,27 @@ HRESULT OpenArchive(
     const CIntVector &formatIndices,
     const UString &filePath,
     const UStringVector& disabledFormats,
-    IInArchive **archive0,
-    IInArchive **archive1,
-    int &formatIndex0,
-    int &formatIndex1,
-    UString &defaultItemName0,
-    UString &defaultItemName1,
+    CObjectVector<CArcInfo>& arcList,
     IArchiveOpenCallback *openArchiveCallback);
-
 
 HRESULT ReOpenArchive(IInArchive *archive, const UString &fileName, IArchiveOpenCallback *openArchiveCallback);
 
 struct CArchiveLink
 {
-  CMyComPtr<IInArchive> Archive0;
-  CMyComPtr<IInArchive> Archive1;
-  UString DefaultItemName0;
-  UString DefaultItemName1;
+  CObjectVector<CArcInfo> ArcList;
 
-  int FormatIndex0;
-  int FormatIndex1;
-  
   UStringVector VolumePaths;
 
   bool IsOpen;
   UInt64 VolumesSize;
 
-  int GetNumLevels() const
-  {
-    int result = 0;
-    if (Archive0)
-    {
-      result++;
-      if (Archive1)
-        result++;
-    }
-    return result;
-  }
+  int GetNumLevels() const { return ArcList.Size(); }
 
   CArchiveLink(): IsOpen(false), VolumesSize(0) {};
 
-  IInArchive *GetArchive() { return Archive1 != 0 ? Archive1: Archive0; }
-  UString GetDefaultItemName()  { return Archive1 != 0 ? DefaultItemName1: DefaultItemName0; }
-  int GetArchiverIndex() const { return Archive1 != 0 ? FormatIndex1: FormatIndex0; }
+  IInArchive *GetArchive() { return ArcList.Back().Archive; }
+  UString GetDefaultItemName()  { return ArcList.Back().DefaultItemName; }
+  int GetArchiverIndex() const { return ArcList.Back().FormatIndex; }
   HRESULT Close();
   void Release();
 };
