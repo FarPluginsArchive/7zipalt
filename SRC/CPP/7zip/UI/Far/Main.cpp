@@ -494,6 +494,11 @@ STDMETHODIMP COpenArchiveCallback::CryptoGetTextPassword(BSTR *password)
   return StringToBstr(Password, password);
 }
 
+int CompareNoCase(void *const *a1, void *const *a2, void * /* param */)
+{
+  return g_StartupInfo.m_FSF.LStricmp((**(const CSysString**)a1), (**(const CSysString**)a2));
+}
+
 STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOpenCallback *openArchiveCallback)
 {
   COM_TRY_BEGIN
@@ -517,7 +522,7 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
     for (int i = 0; i < _codecs->Formats.Size(); i++)
       formatNames.Add(GetSystemString(_codecs->Formats[i].Name));
     formatNamesSorted = formatNames;
-    formatNamesSorted.Sort();
+    formatNamesSorted.Sort(CompareNoCase, NULL);
     int index = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT, g_StartupInfo.GetMsgString(NMessageID::kUpdateSelectArchiverMenuTitle), NULL, formatNamesSorted, 0);
     if (index == -1)
       return E_ABORT;
