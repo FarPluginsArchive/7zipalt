@@ -56,41 +56,41 @@ const farChar *kHelpTopicConfig =  _F("Config");
 extern "C"
 {
 #ifndef _UNICODE
-	void WINAPI SetStartupInfo(const struct PluginStartupInfo *Info);
-	HANDLE WINAPI OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize);
-	HANDLE WINAPI OpenPlugin(int OpenFrom,INT_PTR Item);
-	void WINAPI ClosePlugin(HANDLE plugin);
-	int WINAPI GetFindData(HANDLE plugin, struct PluginPanelItem **panelItems,
-		int *itemsNumber, int OpMode);
-	void WINAPI FreeFindData(HANDLE plugin, struct PluginPanelItem *panelItems,
-		int itemsNumber);
-	int WINAPI GetFiles(HANDLE plugin, struct PluginPanelItem *panelItems,
-		int itemsNumber, int move, char *destPath, int opMode);
-	int WINAPI SetDirectory(HANDLE plugin, const char *dir, int opMode);
-	void WINAPI GetPluginInfo(struct PluginInfo *info);
-	int WINAPI Configure(int itemNumber);
-	void WINAPI GetOpenPluginInfo(HANDLE plugin, struct OpenPluginInfo *info);
-	int WINAPI PutFiles(HANDLE plugin, struct PluginPanelItem *panelItems,
-		int itemsNumber, int move, int opMode);
-	int WINAPI DeleteFiles(HANDLE plugin, PluginPanelItem *panelItems,
-		int itemsNumber, int opMode);
-	int WINAPI ProcessKey(HANDLE plugin, int key, unsigned int controlState);
+  void WINAPI SetStartupInfo(const struct PluginStartupInfo *Info);
+  HANDLE WINAPI OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize);
+  HANDLE WINAPI OpenPlugin(int OpenFrom,INT_PTR Item);
+  void WINAPI ClosePlugin(HANDLE plugin);
+  int WINAPI GetFindData(HANDLE plugin, struct PluginPanelItem **panelItems,
+    int *itemsNumber, int OpMode);
+  void WINAPI FreeFindData(HANDLE plugin, struct PluginPanelItem *panelItems,
+    int itemsNumber);
+  int WINAPI GetFiles(HANDLE plugin, struct PluginPanelItem *panelItems,
+    int itemsNumber, int move, char *destPath, int opMode);
+  int WINAPI SetDirectory(HANDLE plugin, const char *dir, int opMode);
+  void WINAPI GetPluginInfo(struct PluginInfo *info);
+  int WINAPI Configure(int itemNumber);
+  void WINAPI GetOpenPluginInfo(HANDLE plugin, struct OpenPluginInfo *info);
+  int WINAPI PutFiles(HANDLE plugin, struct PluginPanelItem *panelItems,
+    int itemsNumber, int move, int opMode);
+  int WINAPI DeleteFiles(HANDLE plugin, PluginPanelItem *panelItems,
+    int itemsNumber, int opMode);
+  int WINAPI ProcessKey(HANDLE plugin, int key, unsigned int controlState);
 #else
-	int WINAPI GetMinFarVersionW(void);
-	void WINAPI SetStartupInfoW(const struct PluginStartupInfo *info);
-	HANDLE WINAPI OpenFilePluginW(const wchar_t *name,const unsigned char *Data,int DataSize,int OpMode);
-	HANDLE WINAPI OpenPluginW(int openFrom, INT_PTR item);
-	void WINAPI ClosePluginW(HANDLE plugin);
-	int WINAPI GetFindDataW(HANDLE plugin, struct PluginPanelItem **panelItems,	int *itemsNumber, int OpMode);
-	void WINAPI FreeFindDataW(HANDLE plugin, struct PluginPanelItem *panelItems,	int itemsNumber);
-	int WINAPI GetFilesW(HANDLE plugin, struct PluginPanelItem *panelItems,	int itemsNumber, int move, const wchar_t **destPath, int opMode);
-	int WINAPI SetDirectoryW(HANDLE plugin,const wchar_t *dir, int opMode);
-	void WINAPI GetPluginInfoW(struct PluginInfo *info);
-	int WINAPI ConfigureW(int itemNumber);
-	void WINAPI GetOpenPluginInfoW(HANDLE plugin, struct OpenPluginInfo *info);
-	int WINAPI PutFilesW(HANDLE plugin, struct PluginPanelItem *panelItems,	int itemsNumber, int move, int opMode);
-	int WINAPI DeleteFilesW(HANDLE plugin, PluginPanelItem *panelItems,	int itemsNumber, int opMode);
-	int WINAPI ProcessKeyW(HANDLE plugin, int key, unsigned int controlState);
+  int WINAPI GetMinFarVersionW(void);
+  void WINAPI SetStartupInfoW(const struct PluginStartupInfo *info);
+  HANDLE WINAPI OpenFilePluginW(const wchar_t *name,const unsigned char *Data,int DataSize,int OpMode);
+  HANDLE WINAPI OpenPluginW(int openFrom, INT_PTR item);
+  void WINAPI ClosePluginW(HANDLE plugin);
+  int WINAPI GetFindDataW(HANDLE plugin, struct PluginPanelItem **panelItems, int *itemsNumber, int OpMode);
+  void WINAPI FreeFindDataW(HANDLE plugin, struct PluginPanelItem *panelItems, int itemsNumber);
+  int WINAPI GetFilesW(HANDLE plugin, struct PluginPanelItem *panelItems, int itemsNumber, int move, const wchar_t **destPath, int opMode);
+  int WINAPI SetDirectoryW(HANDLE plugin,const wchar_t *dir, int opMode);
+  void WINAPI GetPluginInfoW(struct PluginInfo *info);
+  int WINAPI ConfigureW(int itemNumber);
+  void WINAPI GetOpenPluginInfoW(HANDLE plugin, struct OpenPluginInfo *info);
+  int WINAPI PutFilesW(HANDLE plugin, struct PluginPanelItem *panelItems, int itemsNumber, int move, int opMode);
+  int WINAPI DeleteFilesW(HANDLE plugin, PluginPanelItem *panelItems, int itemsNumber, int opMode);
+  int WINAPI ProcessKeyW(HANDLE plugin, int key, unsigned int controlState);
 #endif
 };
 
@@ -126,50 +126,50 @@ static const farChar *kPluginNameForRegistry = _F("7-ZIP");
 CSysString GetMaskList()
 {
 
-	UString exts;
+  UString exts;
 
-	CCodecs *codecs = new CCodecs;
-	if (codecs->Load() != S_OK)
-		throw g_StartupInfo.GetMsgString(NMessageID::kCantLoad7Zip);
-	{
-		for (int i = 0; i < codecs->Formats.Size(); i++)
-		{
-			const CArcInfoEx &arcInfo = codecs->Formats[i];
-			for (int j = 0; j < arcInfo.Exts.Size(); j++)
-			{
-				exts += L"*.";
-				exts += arcInfo.Exts[j].Ext;
-				exts += L",";
-			}
-		}
-		exts.MakeLower();
-		exts.Replace(L".r00", L".r[0-9][0-9]");
-		exts.TrimRight(L',');
-	}
-	codecs->Release();
+  CCodecs *codecs = new CCodecs;
+  if (codecs->Load() != S_OK)
+    throw g_StartupInfo.GetMsgString(NMessageID::kCantLoad7Zip);
+  {
+    for (int i = 0; i < codecs->Formats.Size(); i++)
+    {
+      const CArcInfoEx &arcInfo = codecs->Formats[i];
+      for (int j = 0; j < arcInfo.Exts.Size(); j++)
+      {
+        exts += L"*.";
+        exts += arcInfo.Exts[j].Ext;
+        exts += L",";
+      }
+    }
+    exts.MakeLower();
+    exts.Replace(L".r00", L".r[0-9][0-9]");
+    exts.TrimRight(L',');
+  }
+  codecs->Release();
 
-	return GetSystemString(exts, CP_OEMCP);
+  return GetSystemString(exts, CP_OEMCP);
 }
 
 CSysString GetFormatList()
 {
-	UString Formats;
+  UString Formats;
 
-	CCodecs *codecs = new CCodecs;
-	if (codecs->Load() != S_OK)
-		throw g_StartupInfo.GetMsgString(NMessageID::kCantLoad7Zip);
-	{
-		for (int i = 0; i < codecs->Formats.Size(); i++)
-		{
-			const CArcInfoEx &arcInfo = codecs->Formats[i];
-			if (Formats.Length())
-			  Formats += L",";
-			Formats += arcInfo.Name;
-		}
-	}
-	codecs->Release();
+  CCodecs *codecs = new CCodecs;
+  if (codecs->Load() != S_OK)
+    throw g_StartupInfo.GetMsgString(NMessageID::kCantLoad7Zip);
+  {
+    for (int i = 0; i < codecs->Formats.Size(); i++)
+    {
+      const CArcInfoEx &arcInfo = codecs->Formats[i];
+      if (Formats.Length())
+        Formats += L",";
+      Formats += arcInfo.Name;
+    }
+  }
+  codecs->Release();
 
-	return GetSystemString(Formats);
+  return GetSystemString(Formats);
 }
 
 struct COptions
@@ -207,7 +207,7 @@ struct COptions
 #ifdef _UNICODE
 int WINAPI _export GetMinFarVersionW(void)
 {
-	return MAKEFARVERSION(2,0,1017);//тут был breaking change
+  return MAKEFARVERSION(2,0,1017);//тут был breaking change
 }
 #endif
 
@@ -468,17 +468,17 @@ HRESULT GetPassword(UString &password)
 
   // sprintf(DialogItems[1].Data,GetMsg(MGetPasswordForFile),FileName);
 #ifdef _UNICODE
-	HANDLE hDlg;
-	if (g_StartupInfo.ShowDialog(76, 6, NULL, dialogItems, kNumItems, hDlg) < 0)
-		return (E_ABORT);
+  HANDLE hDlg;
+  if (g_StartupInfo.ShowDialog(76, 6, NULL, dialogItems, kNumItems, hDlg) < 0)
+    return (E_ABORT);
 
-	password = g_StartupInfo.GetItemData(hDlg, 2);
-	g_StartupInfo.DialogFree(hDlg);
+  password = g_StartupInfo.GetItemData(hDlg, 2);
+  g_StartupInfo.DialogFree(hDlg);
 #else
-	if (g_StartupInfo.ShowDialog(76, 6, NULL, dialogItems, kNumItems) < 0)
-		return (E_ABORT);
-	AString oemPassword = dialogItems[2].Data;
-	password = MultiByteToUnicodeString(oemPassword, CP_OEMCP);
+  if (g_StartupInfo.ShowDialog(76, 6, NULL, dialogItems, kNumItems) < 0)
+    return (E_ABORT);
+  AString oemPassword = dialogItems[2].Data;
+  password = MultiByteToUnicodeString(oemPassword, CP_OEMCP);
 #endif
 
   return S_OK;
@@ -510,19 +510,19 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
   _compressCodecsInfo = _codecs;
   RINOK(_codecs->Load());
 
-	CIntVector formats;
-	if (showFormatMenu)
-	{
+  CIntVector formats;
+  if (showFormatMenu)
+  {
     CSysStringVector formatNames, formatNamesSorted;
     for (int i = 0; i < _codecs->Formats.Size(); i++)
       formatNames.Add(GetSystemString(_codecs->Formats[i].Name));
-		formatNamesSorted = formatNames;
-		formatNamesSorted.Sort();
+    formatNamesSorted = formatNames;
+    formatNamesSorted.Sort();
     int index = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT, g_StartupInfo.GetMsgString(NMessageID::kUpdateSelectArchiverMenuTitle), NULL, formatNamesSorted, 0);
     if (index == -1)
       return E_ABORT;
-		formats.Add(formatNames.Find(formatNamesSorted[index]));
-	}
+    formats.Add(formatNames.Find(formatNamesSorted[index]));
+  }
 
   RINOK(OpenArchive(_codecs, formats, _archiveFilePath, SplitString(GetUnicodeString(g_Options.DisabledFormats), L','), _archiveLink, openArchiveCallback));
   DefaultName = _archiveLink.GetDefaultItemName();
@@ -543,7 +543,7 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
 
 static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
 {
-	UString normalizedName = name;
+  UString normalizedName = name;
   normalizedName.Trim();
   UString fullName;
   int fileNamePartStartIndex;
@@ -557,9 +557,9 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
   if (CallLocation==CL_FILE && g_Options.UseMasks) {
     if (!g_StartupInfo.m_FSF.ProcessName(g_Options.Masks,(farChar*)(const farChar*)GetSystemString(name, CP_OEMCP),
 #ifdef _UNICODE
-			0, 
+      0, 
 #endif
-			PN_CMPNAMELIST | PN_SKIPPATH))
+      PN_CMPNAMELIST | PN_SKIPPATH))
       return INVALID_HANDLE_VALUE;
   }
   //\Nsky
@@ -578,18 +578,18 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
       fullName.Mid(fileNamePartStartIndex));
 
   CAgent* agent = new CAgent;
-	agent->showFormatMenu = CallLocation == CL_MENU;
-	archiveHandler = agent;
+  agent->showFormatMenu = CallLocation == CL_MENU;
+  archiveHandler = agent;
   CMyComBSTR archiveType;
 #ifdef _UNICODE
-	HRESULT result = archiveHandler->Open(fullName, &archiveType, openArchiveCallback);
+  HRESULT result = archiveHandler->Open(fullName, &archiveType, openArchiveCallback);
 #else
-	HRESULT result = archiveHandler->Open(GetUnicodeString(fullName, CP_OEMCP), &archiveType, openArchiveCallback);
+  HRESULT result = archiveHandler->Open(GetUnicodeString(fullName, CP_OEMCP), &archiveType, openArchiveCallback);
 #endif
   if (result != S_OK)
   {
-		if (result == E_HANDLE)
-			g_StartupInfo.ShowMessage(NMessageID::kCantLoad7Zip);
+    if (result == E_HANDLE)
+      g_StartupInfo.ShowMessage(NMessageID::kCantLoad7Zip);
     return INVALID_HANDLE_VALUE;
   }
 
@@ -651,7 +651,7 @@ HANDLE WINAPI OpenPlugin(int openFrom, int item)
       case 0:
       {
 //Nsky
-				return MyOpenFilePlugin(GetUnicodeString(g_StartupInfo.GetActivePanelCurrentItemName(), CP_OEMCP), CL_MENU);
+        return MyOpenFilePlugin(GetUnicodeString(g_StartupInfo.GetActivePanelCurrentItemName(), CP_OEMCP), CL_MENU);
 //\Nsky
       }
       case 1:
@@ -715,9 +715,9 @@ void WINAPI FreeFindData(HANDLE plugin, struct PluginPanelItem *panelItems,
 }
 
 #ifdef _UNICODE
-int WINAPI GetFilesW(HANDLE plugin, struct PluginPanelItem *panelItems,	int itemsNumber, int move, const wchar_t **destPath, int opMode)
+int WINAPI GetFilesW(HANDLE plugin, struct PluginPanelItem *panelItems, int itemsNumber, int move, const wchar_t **destPath, int opMode)
 #else
-int WINAPI GetFiles(HANDLE plugin, struct PluginPanelItem *panelItems,	int itemsNumber, int move, char *destPath, int opMode)
+int WINAPI GetFiles(HANDLE plugin, struct PluginPanelItem *panelItems, int itemsNumber, int move, char *destPath, int opMode)
 #endif
 {
   MY_TRY_BEGIN;
@@ -806,11 +806,11 @@ int WINAPI Configure(int /* itemNumber */)
   g_StartupInfo.InitDialogItems(initItems, dialogItems, kNumDialogItems);
 
 #ifdef _UNICODE
-	//Nsky
-	HANDLE hDlg = 0;
-	int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize,
-		kHelpTopicConfig, dialogItems, kNumDialogItems, hDlg);
-	//\Nsky
+  //Nsky
+  HANDLE hDlg = 0;
+  int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize,
+    kHelpTopicConfig, dialogItems, kNumDialogItems, hDlg);
+  //\Nsky
 
   if (askCode == kOkButtonIndex)
   {
@@ -819,33 +819,33 @@ int WINAPI Configure(int /* itemNumber */)
     g_Options.UseMasks = BOOLToBool(g_StartupInfo.GetItemSelected(hDlg, kUseMasksCheckBoxIndex));
     g_Options.Masks = g_StartupInfo.GetItemData(hDlg, kMasksIndex);
     //\Nsky
-  	g_Options.DisabledFormats = g_StartupInfo.GetItemData(hDlg, kDisabledFormatsIndex);
+    g_Options.DisabledFormats = g_StartupInfo.GetItemData(hDlg, kDisabledFormatsIndex);
   }
 
-	g_StartupInfo.DialogFree(hDlg);
+  g_StartupInfo.DialogFree(hDlg);
 #else
-	//Nsky
-	int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize,
-		kHelpTopicConfig, dialogItems, kNumDialogItems);
-	//\Nsky
+  //Nsky
+  int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize,
+    kHelpTopicConfig, dialogItems, kNumDialogItems);
+  //\Nsky
 #endif
 
   if (askCode != kOkButtonIndex)
     return (FALSE);
 
 #ifndef _UNICODE
-	g_Options.Enabled = BOOLToBool(dialogItems[kEnabledCheckBoxIndex].Selected);
-	//Nsky
-	g_Options.UseMasks = BOOLToBool(dialogItems[kUseMasksCheckBoxIndex].Selected);
-	g_Options.Masks = dialogItems[kMasksIndex].Data;
-	//\Nsky
-	g_Options.DisabledFormats = dialogItems[kDisabledFormatsIndex].Data;
+  g_Options.Enabled = BOOLToBool(dialogItems[kEnabledCheckBoxIndex].Selected);
+  //Nsky
+  g_Options.UseMasks = BOOLToBool(dialogItems[kUseMasksCheckBoxIndex].Selected);
+  g_Options.Masks = dialogItems[kMasksIndex].Data;
+  //\Nsky
+  g_Options.DisabledFormats = dialogItems[kDisabledFormatsIndex].Data;
 #endif
 
-	g_Options.Masks.Trim();
-	if (g_Options.Masks.Length() == 0)
-		g_Options.Masks = GetMaskList(); //kMasksDefault;
-	g_Options.DisabledFormats.Trim();
+  g_Options.Masks.Trim();
+  if (g_Options.Masks.Length() == 0)
+    g_Options.Masks = GetMaskList(); //kMasksDefault;
+  g_Options.DisabledFormats.Trim();
 
   g_Options.Save();
   return(TRUE);

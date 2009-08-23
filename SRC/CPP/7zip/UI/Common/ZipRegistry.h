@@ -49,7 +49,7 @@ namespace NCompression {
 
     CObjectVector<CFormatOptions> FormatOptionsVector;
 
-		bool AddExtension;
+    bool AddExtension;
     bool ShowPassword;
     bool EncryptHeaders;
   };

@@ -71,10 +71,10 @@ HRESULT CPlugin::ExtractFiles(
 
 #ifdef _UNICODE
 NFileOperationReturnCode::EEnum CPlugin::GetFiles(struct PluginPanelItem *panelItems, 
-																						int itemsNumber, int move, const farChar **_aDestPath, int opMode)
+                                            int itemsNumber, int move, const farChar **_aDestPath, int opMode)
 #else
 NFileOperationReturnCode::EEnum CPlugin::GetFiles(struct PluginPanelItem *panelItems, 
-																									int itemsNumber, int move, farChar *_aDestPath, int opMode)
+                                                  int itemsNumber, int move, farChar *_aDestPath, int opMode)
 #endif
 {
   return GetFilesReal(panelItems, itemsNumber, move,
@@ -83,10 +83,10 @@ NFileOperationReturnCode::EEnum CPlugin::GetFiles(struct PluginPanelItem *panelI
 
 #ifdef _UNICODE
 NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *panelItems, 
-																											int itemsNumber, int move, const farChar **_aDestPath, int opMode, bool showBox)
+                                                      int itemsNumber, int move, const farChar **_aDestPath, int opMode, bool showBox)
 #else
 NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *panelItems, 
-																											int itemsNumber, int move, farChar *_aDestPath, int opMode, bool showBox)
+                                                      int itemsNumber, int move, farChar *_aDestPath, int opMode, bool showBox)
 #endif
 
 {
@@ -97,9 +97,9 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
   }
 #ifdef _UNICODE
   static CSysString destPath;
-	destPath = *_aDestPath;
+  destPath = *_aDestPath;
 #else
-	CSysString destPath = _aDestPath;
+  CSysString destPath = _aDestPath;
 #endif
   NFile::NName::NormalizeDirPathPrefix(destPath);
 
@@ -132,9 +132,9 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
 
     CSysString oemPassword;
 #ifdef _UNICODE
-		oemPassword = password;
+    oemPassword = password;
 #else
-		oemPassword = UnicodeStringToMultiByte(password, CP_OEMCP);
+    oemPassword = UnicodeStringToMultiByte(password, CP_OEMCP);
 #endif
     
     struct CInitDialogItem initItems[]={
@@ -192,25 +192,25 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
     FarDialogItem dialogItems[kNumDialogItems];
     g_StartupInfo.InitDialogItems(initItems, dialogItems, kNumDialogItems);
 #ifdef _UNICODE
-		HANDLE hDlg = 0;
+    HANDLE hDlg = 0;
 #endif
     for (;;)
     {
 #ifdef _UNICODE
-			dialogItems[kPathIndex].PtrData = destPath;
-			int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize, kHelpTopicExtrFromSevenZip, dialogItems, kNumDialogItems, hDlg);
-			if (askCode != kOkButtonIndex)
-			{
-				g_StartupInfo.DialogFree(hDlg);
-				return NFileOperationReturnCode::kInterruptedByUser;
-			}
-			destPath = g_StartupInfo.GetItemData(hDlg, kPathIndex);
+      dialogItems[kPathIndex].PtrData = destPath;
+      int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize, kHelpTopicExtrFromSevenZip, dialogItems, kNumDialogItems, hDlg);
+      if (askCode != kOkButtonIndex)
+      {
+        g_StartupInfo.DialogFree(hDlg);
+        return NFileOperationReturnCode::kInterruptedByUser;
+      }
+      destPath = g_StartupInfo.GetItemData(hDlg, kPathIndex);
 #else
-			lstrcpy(dialogItems[kPathIndex].Data, destPath);
-			int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize, kHelpTopicExtrFromSevenZip, dialogItems, kNumDialogItems);
-			if (askCode != kOkButtonIndex)
-				return NFileOperationReturnCode::kInterruptedByUser;
-			destPath = dialogItems[kPathIndex].Data;
+      lstrcpy(dialogItems[kPathIndex].Data, destPath);
+      int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize, kHelpTopicExtrFromSevenZip, dialogItems, kNumDialogItems);
+      if (askCode != kOkButtonIndex)
+        return NFileOperationReturnCode::kInterruptedByUser;
+      destPath = dialogItems[kPathIndex].Data;
 #endif
       
       destPath.Trim();
@@ -226,94 +226,94 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
         if(destPath[destPath.Length() - 1] == kDirDelimiter)
           break;
       }
-			g_StartupInfo.ShowMessage(NMessageID::kSpecifyDirectoryPath);
+      g_StartupInfo.ShowMessage(NMessageID::kSpecifyDirectoryPath);
 #ifdef _UNICODE
-			g_StartupInfo.DialogFree(hDlg);
+      g_StartupInfo.DialogFree(hDlg);
 #endif
     }
 
 #ifdef _UNICODE
-		if (g_StartupInfo.GetItemSelected(hDlg, kPathModeRadioIndex))
-			extractionInfo.PathMode = NExtract::NPathMode::kFullPathnames;
-		else if (g_StartupInfo.GetItemSelected(hDlg, kPathModeRadioIndex + 1))
-			extractionInfo.PathMode = NExtract::NPathMode::kCurrentPathnames;
-		else if (g_StartupInfo.GetItemSelected(hDlg, kPathModeRadioIndex + 2))
-			extractionInfo.PathMode = NExtract::NPathMode::kNoPathnames;
-		else
-			throw 31806;
+    if (g_StartupInfo.GetItemSelected(hDlg, kPathModeRadioIndex))
+      extractionInfo.PathMode = NExtract::NPathMode::kFullPathnames;
+    else if (g_StartupInfo.GetItemSelected(hDlg, kPathModeRadioIndex + 1))
+      extractionInfo.PathMode = NExtract::NPathMode::kCurrentPathnames;
+    else if (g_StartupInfo.GetItemSelected(hDlg, kPathModeRadioIndex + 2))
+      extractionInfo.PathMode = NExtract::NPathMode::kNoPathnames;
+    else
+      throw 31806;
 
-		if (g_StartupInfo.GetItemSelected(hDlg, kOverwriteModeRadioIndex))
-			extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAskBefore;
-		else if (g_StartupInfo.GetItemSelected(hDlg, kOverwriteModeRadioIndex + 1))
-			extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kWithoutPrompt;
-		else if (g_StartupInfo.GetItemSelected(hDlg, kOverwriteModeRadioIndex + 2))
-			extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kSkipExisting;
-		else if (g_StartupInfo.GetItemSelected(hDlg, kOverwriteModeRadioIndex + 3))
-			extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAutoRename;
-		else if (g_StartupInfo.GetItemSelected(hDlg, kOverwriteModeRadioIndex + 4))
-			extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAutoRenameExisting;
-		else
-			throw 31806;
+    if (g_StartupInfo.GetItemSelected(hDlg, kOverwriteModeRadioIndex))
+      extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAskBefore;
+    else if (g_StartupInfo.GetItemSelected(hDlg, kOverwriteModeRadioIndex + 1))
+      extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kWithoutPrompt;
+    else if (g_StartupInfo.GetItemSelected(hDlg, kOverwriteModeRadioIndex + 2))
+      extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kSkipExisting;
+    else if (g_StartupInfo.GetItemSelected(hDlg, kOverwriteModeRadioIndex + 3))
+      extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAutoRename;
+    else if (g_StartupInfo.GetItemSelected(hDlg, kOverwriteModeRadioIndex + 4))
+      extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAutoRenameExisting;
+    else
+      throw 31806;
 
-		if (g_StartupInfo.GetItemSelected(hDlg, kFilesModeIndex))
-			decompressAllItems = false;
-		else if (g_StartupInfo.GetItemSelected(hDlg, kFilesModeIndex + 1))
-			decompressAllItems = true;
-		else
-			throw 31806;
+    if (g_StartupInfo.GetItemSelected(hDlg, kFilesModeIndex))
+      decompressAllItems = false;
+    else if (g_StartupInfo.GetItemSelected(hDlg, kFilesModeIndex + 1))
+      decompressAllItems = true;
+    else
+      throw 31806;
 
-		SaveExtractionInfo(extractionInfo);
+    SaveExtractionInfo(extractionInfo);
 
-		if (g_StartupInfo.GetItemSelected(hDlg, kFilesModeIndex))
-			extractSelectedFiles = true;
-		else if (g_StartupInfo.GetItemSelected(hDlg, kFilesModeIndex + 1))
-			extractSelectedFiles = false;
-		else
-			throw 31806;
+    if (g_StartupInfo.GetItemSelected(hDlg, kFilesModeIndex))
+      extractSelectedFiles = true;
+    else if (g_StartupInfo.GetItemSelected(hDlg, kFilesModeIndex + 1))
+      extractSelectedFiles = false;
+    else
+      throw 31806;
 
-		password = g_StartupInfo.GetItemData(hDlg, kPasswordIndex);
-		g_StartupInfo.DialogFree(hDlg);
+    password = g_StartupInfo.GetItemData(hDlg, kPasswordIndex);
+    g_StartupInfo.DialogFree(hDlg);
 #else
-		if (dialogItems[kPathModeRadioIndex].Selected)
-			extractionInfo.PathMode = NExtract::NPathMode::kFullPathnames;
-		else if (dialogItems[kPathModeRadioIndex + 1].Selected)
-			extractionInfo.PathMode = NExtract::NPathMode::kCurrentPathnames;
-		else if (dialogItems[kPathModeRadioIndex + 2].Selected)
-			extractionInfo.PathMode = NExtract::NPathMode::kNoPathnames;
-		else
-			throw 31806;
+    if (dialogItems[kPathModeRadioIndex].Selected)
+      extractionInfo.PathMode = NExtract::NPathMode::kFullPathnames;
+    else if (dialogItems[kPathModeRadioIndex + 1].Selected)
+      extractionInfo.PathMode = NExtract::NPathMode::kCurrentPathnames;
+    else if (dialogItems[kPathModeRadioIndex + 2].Selected)
+      extractionInfo.PathMode = NExtract::NPathMode::kNoPathnames;
+    else
+      throw 31806;
 
-		if (dialogItems[kOverwriteModeRadioIndex].Selected)
-			extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAskBefore;
-		else if (dialogItems[kOverwriteModeRadioIndex + 1].Selected)
-			extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kWithoutPrompt;
-		else if (dialogItems[kOverwriteModeRadioIndex + 2].Selected)
-			extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kSkipExisting;
-		else if (dialogItems[kOverwriteModeRadioIndex + 3].Selected)
-			extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAutoRename;
-		else if (dialogItems[kOverwriteModeRadioIndex + 4].Selected)
-			extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAutoRenameExisting;
-		else
-			throw 31806;
+    if (dialogItems[kOverwriteModeRadioIndex].Selected)
+      extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAskBefore;
+    else if (dialogItems[kOverwriteModeRadioIndex + 1].Selected)
+      extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kWithoutPrompt;
+    else if (dialogItems[kOverwriteModeRadioIndex + 2].Selected)
+      extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kSkipExisting;
+    else if (dialogItems[kOverwriteModeRadioIndex + 3].Selected)
+      extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAutoRename;
+    else if (dialogItems[kOverwriteModeRadioIndex + 4].Selected)
+      extractionInfo.OverwriteMode = NExtract::NOverwriteMode::kAutoRenameExisting;
+    else
+      throw 31806;
 
-		if (dialogItems[kFilesModeIndex].Selected)
-			decompressAllItems = false;
-		else if (dialogItems[kFilesModeIndex + 1].Selected)
-			decompressAllItems = true;
-		else
-			throw 31806;
+    if (dialogItems[kFilesModeIndex].Selected)
+      decompressAllItems = false;
+    else if (dialogItems[kFilesModeIndex + 1].Selected)
+      decompressAllItems = true;
+    else
+      throw 31806;
 
-		SaveExtractionInfo(extractionInfo);
+    SaveExtractionInfo(extractionInfo);
 
-		if (dialogItems[kFilesModeIndex].Selected)
-			extractSelectedFiles = true;
-		else if (dialogItems[kFilesModeIndex + 1].Selected)
-			extractSelectedFiles = false;
-		else
-			throw 31806;
+    if (dialogItems[kFilesModeIndex].Selected)
+      extractSelectedFiles = true;
+    else if (dialogItems[kFilesModeIndex + 1].Selected)
+      extractSelectedFiles = false;
+    else
+      throw 31806;
 
-		oemPassword = dialogItems[kPasswordIndex].Data;
-		password = MultiByteToUnicodeString(oemPassword, CP_OEMCP); 
+    oemPassword = dialogItems[kPasswordIndex].Data;
+    password = MultiByteToUnicodeString(oemPassword, CP_OEMCP); 
 #endif
 
     passwordIsDefined = !password.IsEmpty();
@@ -323,31 +323,31 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
 
   CRecordVector<UInt32> indices;
   indices.Reserve(itemsNumber);
-	if (!panelItems)
-	{
+  if (!panelItems)
+  {
 #ifdef _UNICODE
-		for (int i = 0; i < itemsNumber; i++)
-		{
-			indices.Add(g_StartupInfo.GetActivePanelUserData(true, i));
-		}
+    for (int i = 0; i < itemsNumber; i++)
+    {
+      indices.Add(g_StartupInfo.GetActivePanelUserData(true, i));
+    }
 #endif
-	}
-	else
-		for (int i = 0; i < itemsNumber; i++)
-			indices.Add((UInt32)panelItems[i].UserData);
+  }
+  else
+    for (int i = 0; i < itemsNumber; i++)
+      indices.Add((UInt32)panelItems[i].UserData);
 
 #ifdef _UNICODE
-	*_aDestPath = destPath;
-	HRESULT result = ExtractFiles(decompressAllItems, &indices.Front(), itemsNumber, 
-		!showBox, extractionInfo.PathMode, extractionInfo.OverwriteMode, 
-		destPath, passwordIsDefined, password);
+  *_aDestPath = destPath;
+  HRESULT result = ExtractFiles(decompressAllItems, &indices.Front(), itemsNumber, 
+    !showBox, extractionInfo.PathMode, extractionInfo.OverwriteMode, 
+    destPath, passwordIsDefined, password);
 #else
-	_aDestPath[0] = 0;
-	lstrcpy(_aDestPath, destPath);
-	HRESULT result = ExtractFiles(decompressAllItems, &indices.Front(), itemsNumber, 
-		!showBox, extractionInfo.PathMode, extractionInfo.OverwriteMode, 
-		MultiByteToUnicodeString(destPath, CP_OEMCP), 
-		passwordIsDefined, password);
+  _aDestPath[0] = 0;
+  lstrcpy(_aDestPath, destPath);
+  HRESULT result = ExtractFiles(decompressAllItems, &indices.Front(), itemsNumber, 
+    !showBox, extractionInfo.PathMode, extractionInfo.OverwriteMode, 
+    MultiByteToUnicodeString(destPath, CP_OEMCP), 
+    passwordIsDefined, password);
 #endif
 
   if (result != S_OK)

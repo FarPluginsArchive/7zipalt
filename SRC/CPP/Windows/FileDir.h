@@ -43,11 +43,19 @@ bool RemoveDirectoryWithSubItems(const UString &path);
 
 #ifndef _WIN32_WCE
 bool MyGetShortPathName(LPCTSTR longPath, CSysString &shortPath);
-bool MyGetFullPathName(const UString &fileName, UString &resultPath,
+
+bool MyGetFullPathName(LPCTSTR fileName, CSysString &resultPath,
     int &fileNamePartStartIndex);
-bool MyGetFullPathName(const UString &fileName, UString &resultPath);
+bool MyGetFullPathName(LPCTSTR fileName, CSysString &resultPath);
+bool GetOnlyName(LPCTSTR fileName, CSysString &resultName);
+bool GetOnlyDirPrefix(LPCTSTR fileName, CSysString &resultName);
+#ifndef _UNICODE
+bool MyGetFullPathName(LPCWSTR fileName, UString &resultPath,
+    int &fileNamePartStartIndex);
+bool MyGetFullPathName(LPCWSTR fileName, UString &resultPath);
 bool GetOnlyName(LPCWSTR fileName, UString &resultName);
-bool GetOnlyDirPrefix(const UString &fileName, UString &resultName);
+bool GetOnlyDirPrefix(LPCWSTR fileName, UString &resultName);
+#endif
 
 inline bool MySetCurrentDirectory(LPCTSTR path)
   { return BOOLToBool(::SetCurrentDirectory(path)); }

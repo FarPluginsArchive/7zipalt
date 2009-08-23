@@ -423,7 +423,7 @@ STDMETHODIMP CAgentFolder::Extract(const UInt32 *indices,
 CAgent::CAgent():
   _proxyArchive(NULL),
   _codecs(0),
-	showFormatMenu(false)
+  showFormatMenu(false)
 {
 }
 
@@ -472,7 +472,6 @@ HRESULT CAgent::ReadItems()
     return S_OK;
   _proxyArchive = new CProxyArchive();
   return _proxyArchive->Load(GetArchive(),
-			//_archiveFilePath,
       DefaultName,
       // _defaultTime,
       // _defaultAttrib,

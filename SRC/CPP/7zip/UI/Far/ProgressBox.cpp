@@ -97,7 +97,7 @@ void CMessageBox::ShowMessages(const farChar *strings[], int numStrings)
 
 CSysString CMessageBox::GetTitle()
 {
-	return _title;
+  return _title;
 }
 
 // ---------- CProgressBox ----------

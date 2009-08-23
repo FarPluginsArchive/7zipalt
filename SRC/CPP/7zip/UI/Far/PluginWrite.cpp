@@ -122,52 +122,52 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   FarDialogItem dialogItems[kNumDialogItems];
   g_StartupInfo.InitDialogItems(initItems, dialogItems, kNumDialogItems);
 #ifdef _UNICODE
-	HANDLE hDlg = 0;
-	int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems, hDlg);
+  HANDLE hDlg = 0;
+  int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems, hDlg);
 #else
-	int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems);
+  int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems);
 #endif
   
   if (askCode != kOkButtonIndex)
     return NFileOperationReturnCode::kInterruptedByUser;
 
-	compressionInfo.Level = g_MethodMap[0];
+  compressionInfo.Level = g_MethodMap[0];
 #ifdef _UNICODE
-	for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
-		if (g_StartupInfo.GetItemSelected(hDlg, kMethodRadioIndex + i))
-			compressionInfo.Level = g_MethodMap[i];
+  for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
+    if (g_StartupInfo.GetItemSelected(hDlg, kMethodRadioIndex + i))
+      compressionInfo.Level = g_MethodMap[i];
 
-	const CActionSet *actionSet;
+  const CActionSet *actionSet;
 
-	if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex))
-		actionSet = &kAddActionSet;
-	else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 1))
-		actionSet = &kUpdateActionSet;
-	else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 2))
-		actionSet = &kFreshActionSet;
-	else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 3))
-		actionSet = &kSynchronizeActionSet;
-	else
-		throw 51751;
+  if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex))
+    actionSet = &kAddActionSet;
+  else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 1))
+    actionSet = &kUpdateActionSet;
+  else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 2))
+    actionSet = &kFreshActionSet;
+  else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 3))
+    actionSet = &kSynchronizeActionSet;
+  else
+    throw 51751;
 
-	g_StartupInfo.DialogFree(hDlg);
+  g_StartupInfo.DialogFree(hDlg);
 #else
-	for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
-		if (dialogItems[kMethodRadioIndex + i].Selected)
-			compressionInfo.Level = g_MethodMap[i];
+  for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
+    if (dialogItems[kMethodRadioIndex + i].Selected)
+      compressionInfo.Level = g_MethodMap[i];
 
-	const CActionSet *actionSet;
+  const CActionSet *actionSet;
 
-	if (dialogItems[kModeRadioIndex].Selected)
-		actionSet = &kAddActionSet;
-	else if (dialogItems[kModeRadioIndex + 1].Selected)
-		actionSet = &kUpdateActionSet;
-	else if (dialogItems[kModeRadioIndex + 2].Selected)
-		actionSet = &kFreshActionSet;
-	else if (dialogItems[kModeRadioIndex + 3].Selected)
-		actionSet = &kSynchronizeActionSet;
-	else
-		throw 51751;
+  if (dialogItems[kModeRadioIndex].Selected)
+    actionSet = &kAddActionSet;
+  else if (dialogItems[kModeRadioIndex + 1].Selected)
+    actionSet = &kUpdateActionSet;
+  else if (dialogItems[kModeRadioIndex + 2].Selected)
+    actionSet = &kFreshActionSet;
+  else if (dialogItems[kModeRadioIndex + 3].Selected)
+    actionSet = &kSynchronizeActionSet;
+  else
+    throw 51751;
 #endif
 
   SaveCompressionInfo(compressionInfo);
@@ -200,9 +200,9 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   fileNames.Reserve(numItems);
   for(i = 0; i < numItems; i++)
 #ifdef _UNICODE
-		fileNames.Add(panelItems[i].FindData.lpwszFileName);
+    fileNames.Add(panelItems[i].FindData.lpwszFileName);
 #else
-		fileNames.Add(MultiByteToUnicodeString(panelItems[i].FindData.cFileName, CP_OEMCP));
+    fileNames.Add(MultiByteToUnicodeString(panelItems[i].FindData.cFileName, CP_OEMCP));
 #endif
   CRecordVector<const wchar_t *> fileNamePointers;
   fileNamePointers.Reserve(numItems);
@@ -226,8 +226,8 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   CUpdateCallback100Imp *updateCallbackSpec = new CUpdateCallback100Imp;
   CMyComPtr<IFolderArchiveUpdateCallback> updateCallback(updateCallbackSpec );
 
-	UString pass;
-	//CrOm: попытка внедрить пароль на упаковку
+  UString pass;
+  //CrOm: попытка внедрить пароль на упаковку
   updateCallbackSpec->Init(/* m_ArchiveHandler, */ &progressBox, false, pass);
 
   if (SetOutProperties(outArchive, compressionInfo.Level) != S_OK)
@@ -246,16 +246,16 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   _folder.Release();
   m_ArchiveHandler->Close();
 
-	bool bDeleteRes = DeleteFileAlways(m_FileName);
+  bool bDeleteRes = DeleteFileAlways(m_FileName);
   if (!bDeleteRes)
     ShowLastErrorMessage();
-	else
-	{
-		tempFile.DisableDeleting();
-		bDeleteRes = MyMoveFile(tempFileName, m_FileName);
-		if (!bDeleteRes)
-	    ShowLastErrorMessage();
-	}
+  else
+  {
+    tempFile.DisableDeleting();
+    bDeleteRes = MyMoveFile(tempFileName, m_FileName);
+    if (!bDeleteRes)
+      ShowLastErrorMessage();
+  }
 
   result = m_ArchiveHandler->ReOpen(NULL);
   if (result != S_OK)
@@ -276,7 +276,7 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
     _folder = newFolder;
   }
 
-	return bDeleteRes?NFileOperationReturnCode::kSuccess:NFileOperationReturnCode::kError;
+  return bDeleteRes?NFileOperationReturnCode::kSuccess:NFileOperationReturnCode::kError;
 }
 
 namespace NPathType
@@ -360,22 +360,22 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     return E_FAIL;
 
   UStringVector fileNames;
-	bool bSingleDir = pluginPanelItems.Size() == 1 && NFind::NAttributes::IsDir(pluginPanelItems[0].dwAttributes);
+  bool bSingleDir = pluginPanelItems.Size() == 1 && NFind::NAttributes::IsDir(pluginPanelItems[0].dwAttributes);
 
-	int i;
+  int i;
   for(i = 0; i < pluginPanelItems.Size(); i++)
   {
     const MyPluginPanelItem &panelItem = pluginPanelItems[i];
     UString fullName;
-		if (panelItem.strFileName == _F("..") && 
-				NFind::NAttributes::IsDir(panelItem.dwAttributes))
-			return E_FAIL;
-		if (panelItem.strFileName == _F(".") && 
-				NFind::NAttributes::IsDir(panelItem.dwAttributes))
-			return E_FAIL;
-		if (!MyGetFullPathName(GetUnicodeString(panelItem.strFileName, CP_OEMCP), fullName))
-			return E_FAIL;
-		fileNames.Add(fullName);
+    if (panelItem.strFileName == _F("..") && 
+        NFind::NAttributes::IsDir(panelItem.dwAttributes))
+      return E_FAIL;
+    if (panelItem.strFileName == _F(".") && 
+        NFind::NAttributes::IsDir(panelItem.dwAttributes))
+      return E_FAIL;
+    if (!MyGetFullPathName(GetUnicodeString(panelItem.strFileName, CP_OEMCP), fullName))
+      return E_FAIL;
+    fileNames.Add(fullName);
   }
 
   NCompression::CInfo compressionInfo;
@@ -409,7 +409,7 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     if(parsedPath.PathParts.Size() == 0)
       return E_FAIL;
     if (fileNames.Size() == 1 || parsedPath.PathParts.Size() == 1)
-			resultPath = parsedPath.PathParts.Back();
+      resultPath = parsedPath.PathParts.Back();
     else
     {
       parsedPath.PathParts.DeleteBack();
@@ -437,9 +437,9 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
   for (;;)
   {
 #ifdef _UNICODE
-		UString archiveNameA = archiveName;
+    UString archiveNameA = archiveName;
 #else
-		AString archiveNameA = UnicodeStringToMultiByte(archiveName, CP_OEMCP);
+    AString archiveNameA = UnicodeStringToMultiByte(archiveName, CP_OEMCP);
 #endif
     const int kYSize = 17;
     const int kXMid = 38;
@@ -447,7 +447,7 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     const int kArchiveNameIndex = 2;
     const int kMethodRadioIndex = kArchiveNameIndex + 2;
     const int kModeRadioIndex = kMethodRadioIndex + 7;
-		const int kAddExtensionCheck = kModeRadioIndex + 4;
+    const int kAddExtensionCheck = kModeRadioIndex + 4;
 
     const CArcInfoEx &arcInfo = codecs->Formats[archiverIndex];
 
@@ -502,7 +502,7 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
           actionSet == &kSynchronizeActionSet,
           0, false, NMessageID::kUpdateModeSynchronize, NULL, NULL },
 
-			{ DI_CHECKBOX, 5, 12, 0, 0, false, compressionInfo.AddExtension, 0, false, NMessageID::kAddExtension, NULL, NULL },
+      { DI_CHECKBOX, 5, 12, 0, 0, false, compressionInfo.AddExtension, 0, false, NMessageID::kAddExtension, NULL, NULL },
 
       { DI_TEXT, 3, kYSize - 4, 0, 0, false, false, DIF_BOXCOLOR|DIF_SEPARATOR, false, -1, _F(""), NULL  },  
       
@@ -520,18 +520,18 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     g_StartupInfo.InitDialogItems(initItems, dialogItems, kNumDialogItems);
     
 #ifdef _UNICODE
-		HANDLE hDlg = 0;
-		int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems, hDlg);
+    HANDLE hDlg = 0;
+    int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems, hDlg);
 
-		archiveNameA =  g_StartupInfo.GetItemData(hDlg, kArchiveNameIndex);
-		archiveNameA.Trim();
-		archiveName = archiveNameA;
+    archiveNameA =  g_StartupInfo.GetItemData(hDlg, kArchiveNameIndex);
+    archiveNameA.Trim();
+    archiveName = archiveNameA;
 #else
-		int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems);
+    int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems);
 
-		archiveNameA = dialogItems[kArchiveNameIndex].Data;
-		archiveNameA.Trim();
-		archiveName = MultiByteToUnicodeString(archiveNameA, CP_OEMCP);
+    archiveNameA = dialogItems[kArchiveNameIndex].Data;
+    archiveNameA.Trim();
+    archiveName = MultiByteToUnicodeString(archiveNameA, CP_OEMCP);
 #endif
 
     compressionInfo.Level = g_MethodMap[0];
@@ -550,25 +550,25 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     else
       throw 51751;
 
-		compressionInfo.AddExtension = g_StartupInfo.GetItemSelected(hDlg, kAddExtensionCheck)?true:false;
+    compressionInfo.AddExtension = g_StartupInfo.GetItemSelected(hDlg, kAddExtensionCheck)?true:false;
 
-		g_StartupInfo.DialogFree(hDlg);
+    g_StartupInfo.DialogFree(hDlg);
 #else
-		for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
-			if (dialogItems[kMethodRadioIndex + i].Selected)
-				compressionInfo.Level = g_MethodMap[i];
-		if (dialogItems[kModeRadioIndex].Selected)
-			actionSet = &kAddActionSet;
-		else if (dialogItems[kModeRadioIndex + 1].Selected)
-			actionSet = &kUpdateActionSet;
-		else if (dialogItems[kModeRadioIndex + 2].Selected)
-			actionSet = &kFreshActionSet;
-		else if (dialogItems[kModeRadioIndex + 3].Selected)
-			actionSet = &kSynchronizeActionSet;
-		else
-			throw 51751;
+    for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
+      if (dialogItems[kMethodRadioIndex + i].Selected)
+        compressionInfo.Level = g_MethodMap[i];
+    if (dialogItems[kModeRadioIndex].Selected)
+      actionSet = &kAddActionSet;
+    else if (dialogItems[kModeRadioIndex + 1].Selected)
+      actionSet = &kUpdateActionSet;
+    else if (dialogItems[kModeRadioIndex + 2].Selected)
+      actionSet = &kFreshActionSet;
+    else if (dialogItems[kModeRadioIndex + 3].Selected)
+      actionSet = &kSynchronizeActionSet;
+    else
+      throw 51751;
 
-		compressionInfo.AddExtension = dialogItems[kAddExtensionCheck].Selected?true:false;
+    compressionInfo.AddExtension = dialogItems[kAddExtensionCheck].Selected?true:false;
 #endif
 
     if (askCode == kSelectarchiverButtonIndex)
@@ -629,21 +629,21 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     if (askCode != kOkButtonIndex)
       return E_ABORT;
 
-		//CrOm: автоматическое добавление расширения файлу (если стоит крыжик).
-		if (compressionInfo.AddExtension)
-		{
-			int dotPos = archiveName.ReverseFind('.');
-			int slashPos = MyMax(archiveName.ReverseFind('\\'), archiveName.ReverseFind('/'));
-			if (dotPos > slashPos || dotPos == -1)
-			{
-				UString archiveExt = archiveName.Mid(dotPos + 1);
-				if (archiveExt.CompareNoCase(arcInfo.GetMainExt()))
-				{
-					archiveName += L'.';
-					archiveName += arcInfo.GetMainExt();
-				}
-			}
-		}
+    //CrOm: автоматическое добавление расширения файлу (если стоит крыжик).
+    if (compressionInfo.AddExtension)
+    {
+      int dotPos = archiveName.ReverseFind('.');
+      int slashPos = MyMax(archiveName.ReverseFind('\\'), archiveName.ReverseFind('/'));
+      if (dotPos > slashPos || dotPos == -1)
+      {
+        UString archiveExt = archiveName.Mid(dotPos + 1);
+        if (archiveExt.CompareNoCase(arcInfo.GetMainExt()))
+        {
+          archiveName += L'.';
+          archiveName += arcInfo.GetMainExt();
+        }
+      }
+    }
 
     break;
   }
@@ -727,8 +727,8 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
   CUpdateCallback100Imp *updateCallbackSpec = new CUpdateCallback100Imp;
   CMyComPtr<IFolderArchiveUpdateCallback> updateCallback(updateCallbackSpec );
   
-	bool bpass = false;
-	UString pass;
+  bool bpass = false;
+  UString pass;
   updateCallbackSpec->Init(/* archiveHandler, */ &progressBox, bpass, pass);
 
 

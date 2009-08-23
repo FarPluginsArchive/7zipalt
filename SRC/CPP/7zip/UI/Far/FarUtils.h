@@ -50,9 +50,9 @@ namespace NEditorReturnCode
 
 struct MyPluginPanelItem
 {
-	CSysString strFileName;
-	DWORD dwAttributes;
-	UINT32 UserData;
+  CSysString strFileName;
+  DWORD dwAttributes;
+  UINT32 UserData;
 };
 
 struct CInitDialogItem
@@ -95,19 +95,19 @@ public:
   int ShowMessage(const farChar *message);
   int ShowMessage(int messageId);
 
-	//bool SetItemData(const HANDLE &hDlg, DWORD item, CSysString &str );
+  //bool SetItemData(const HANDLE &hDlg, DWORD item, CSysString &str );
 #ifdef _UNICODE
-	int ShowDialog(int X1, int Y1, int X2, int Y2,
-		const farChar *helpTopic, struct FarDialogItem *items, int numItems, HANDLE & hDlg);
-	int ShowDialog(int sizeX, int sizeY,
-		const farChar *helpTopic, struct FarDialogItem *items, int numItems, HANDLE & hDlg);
-	BOOL GetItemSelected(const HANDLE &hDlg, DWORD item );
-	void DialogFree(HANDLE &hDlg);
+  int ShowDialog(int X1, int Y1, int X2, int Y2,
+    const farChar *helpTopic, struct FarDialogItem *items, int numItems, HANDLE & hDlg);
+  int ShowDialog(int sizeX, int sizeY,
+    const farChar *helpTopic, struct FarDialogItem *items, int numItems, HANDLE & hDlg);
+  BOOL GetItemSelected(const HANDLE &hDlg, DWORD item );
+  void DialogFree(HANDLE &hDlg);
 #else
-	int ShowDialog(int X1, int Y1, int X2, int Y2,
-		const farChar *helpTopic, struct FarDialogItem *items, int numItems);
-	int ShowDialog(int sizeX, int sizeY,
-		const farChar *helpTopic, struct FarDialogItem *items, int numItems);
+  int ShowDialog(int X1, int Y1, int X2, int Y2,
+    const farChar *helpTopic, struct FarDialogItem *items, int numItems);
+  int ShowDialog(int sizeX, int sizeY,
+    const farChar *helpTopic, struct FarDialogItem *items, int numItems);
 #endif
 
   void InitDialogItems(const CInitDialogItem *srcItems,
@@ -134,29 +134,29 @@ public:
       LPCTSTR valueName, bool valueDefault) const;
 
   bool Control(HANDLE plugin, int command, int param1, LONG_PTR param2);
-	LONG_PTR Control2(HANDLE pluginHandle, int command, int param1, LONG_PTR param2);
-	bool ControlRequestActivePanel(int command, int param1, LONG_PTR param);
-	int  ControlRequestActivePanel2(int command, int param1, LONG_PTR param);
+  LONG_PTR Control2(HANDLE pluginHandle, int command, int param1, LONG_PTR param2);
+  bool ControlRequestActivePanel(int command, int param1, LONG_PTR param);
+  int  ControlRequestActivePanel2(int command, int param1, LONG_PTR param);
 #ifdef _UNICODE
-	CSysString GetItemData(const HANDLE &hDlg, DWORD item );
-	FarDialogItem * GetFarDialogItem(const HANDLE &hDlg, DWORD item);
-	PluginPanelItem * GetFarPluginPanelItem(HANDLE hPanel, int FCTL, int i );
-	bool ControlUpdateActivePanel(int param);
-	bool ControlUpdatePassivePanel(int param);
+  CSysString GetItemData(const HANDLE &hDlg, DWORD item );
+  FarDialogItem * GetFarDialogItem(const HANDLE &hDlg, DWORD item);
+  PluginPanelItem * GetFarPluginPanelItem(HANDLE hPanel, int FCTL, int i );
+  bool ControlUpdateActivePanel(int param);
+  bool ControlUpdatePassivePanel(int param);
 #else
-	bool ControlUpdateActivePanel(LONG_PTR param);
-	bool ControlUpdatePassivePanel(LONG_PTR param);
+  bool ControlUpdateActivePanel(LONG_PTR param);
+  bool ControlUpdatePassivePanel(LONG_PTR param);
 #endif
-	bool ControlRedrawActivePanel(LONG_PTR param);
-	bool ControlRedrawPassivePanel(LONG_PTR param);
+  bool ControlRedrawActivePanel(LONG_PTR param);
+  bool ControlRedrawPassivePanel(LONG_PTR param);
   bool ControlGetActivePanelInfo(PanelInfo &panelInfo);
-	DWORD_PTR GetActivePanelUserData(bool bSelected, int i);
-	CSysString GetActivePanelName(bool bSelected, int i);
-	DWORD GetActivePanelAtt(bool bSelected, int i);
+  DWORD_PTR GetActivePanelUserData(bool bSelected, int i);
+  CSysString GetActivePanelName(bool bSelected, int i);
+  DWORD GetActivePanelAtt(bool bSelected, int i);
 
-	CSysString GetActivePanelCurrentItemName();
-	DWORD GetActivePanelCurrentItemAtt();
-	DWORD_PTR GetActivePanelCurrentItemData();
+  CSysString GetActivePanelCurrentItemName();
+  DWORD GetActivePanelCurrentItemAtt();
+  DWORD_PTR GetActivePanelCurrentItemData();
   bool ControlGetActivePanelCurrentItemInfo(PluginPanelItem &pluginPanelItem, PanelInfo &panelInfo);
   bool ControlGetActivePanelSelectedOrCurrentItems(
       CObjectVector<MyPluginPanelItem> &pluginPanelItems);
@@ -194,9 +194,9 @@ public:
       { return m_Data.Editor((farChar *)fileName, (farChar *)title, X1, Y1, X2, Y2,
         flags, startLine, startChar
 #ifdef _UNICODE
-			, CP_AUTODETECT
+      , CP_AUTODETECT
 #endif
-				); }
+        ); }
   int Editor(const farChar *fileName)
       { return Editor(fileName, NULL, 0, 0, -1, -1, 0, -1, -1); }
 
@@ -204,9 +204,9 @@ public:
       int X1, int Y1, int X2, int Y2, DWORD flags)
       { return m_Data.Viewer((farChar *)fileName, (farChar *)title, X1, Y1, X2, Y2, flags
 #ifdef _UNICODE
-			, CP_AUTODETECT
+      , CP_AUTODETECT
 #endif
-			); }
+      ); }
   int Viewer(const farChar *fileName)
       { return Viewer(fileName, NULL, 0, 0, -1, -1, VF_NONMODAL); }
 };

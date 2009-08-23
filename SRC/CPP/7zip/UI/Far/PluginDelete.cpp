@@ -49,9 +49,9 @@ int CPlugin::DeleteFiles(PluginPanelItem *panelItems, int numItems,
     if (numItems == 1)
     {
 #ifdef _UNICODE
-			g_StartupInfo.m_FSF.sprintf(msg, g_StartupInfo.GetMsgString(NMessageID::kDeleteFile),	panelItems[0].FindData.lpwszFileName);
+      g_StartupInfo.m_FSF.sprintf(msg, g_StartupInfo.GetMsgString(NMessageID::kDeleteFile), panelItems[0].FindData.lpwszFileName);
 #else
-			g_StartupInfo.m_FSF.sprintf(msg, g_StartupInfo.GetMsgString(NMessageID::kDeleteFile),	panelItems[0].FindData.cFileName);
+      g_StartupInfo.m_FSF.sprintf(msg, g_StartupInfo.GetMsgString(NMessageID::kDeleteFile), panelItems[0].FindData.cFileName);
 #endif
       msgItems[1] = msg;
     }
@@ -111,8 +111,8 @@ int CPlugin::DeleteFiles(PluginPanelItem *panelItems, int numItems,
   CUpdateCallback100Imp *updateCallbackSpec = new CUpdateCallback100Imp;
   CMyComPtr<IFolderArchiveUpdateCallback> updateCallback(updateCallbackSpec );
   
-	UString pass;
-	//CrOm: попытка внедрить пароль на упаковку
+  UString pass;
+  //CrOm: попытка внедрить пароль на упаковку
   updateCallbackSpec->Init(/* m_ArchiveHandler, */ &progressBox, false, pass);
 
 
@@ -132,16 +132,16 @@ int CPlugin::DeleteFiles(PluginPanelItem *panelItems, int numItems,
   _folder.Release();
   m_ArchiveHandler->Close();
 
-	bool bDeleteRes = DeleteFileAlways(m_FileName);
+  bool bDeleteRes = DeleteFileAlways(m_FileName);
   if (!bDeleteRes)
     ShowLastErrorMessage();
-	else
-	{
-		tempFile.DisableDeleting();
-		bDeleteRes = MyMoveFile(tempFileName, m_FileName);
-		if (!bDeleteRes)
-			ShowLastErrorMessage();
-	}
+  else
+  {
+    tempFile.DisableDeleting();
+    bDeleteRes = MyMoveFile(tempFileName, m_FileName);
+    if (!bDeleteRes)
+      ShowLastErrorMessage();
+  }
 
   result = m_ArchiveHandler->ReOpen(NULL);
   if (result != S_OK)
@@ -165,5 +165,5 @@ int CPlugin::DeleteFiles(PluginPanelItem *panelItems, int numItems,
   }
   GetCurrentDir();
 
-	return(bDeleteRes?TRUE:FALSE);
+  return(bDeleteRes?TRUE:FALSE);
 }

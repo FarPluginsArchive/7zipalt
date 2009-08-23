@@ -435,8 +435,8 @@ HRESULT CCodecs::Load()
   }
   #ifdef EXTERNAL_CODECS
   const CSysString baseFolder = GetBaseFolderPrefixFromRegistry();
-	if (LoadDll(baseFolder + kMainDll) != S_OK)
-		RINOK(LoadDll(kMainDll));
+  if (LoadDll(baseFolder + kMainDll) != S_OK)
+    RINOK(LoadDll(kMainDll));
   RINOK(LoadDllsFromFolder(baseFolder + kCodecsFolderName TEXT(STRING_PATH_SEPARATOR)));
   RINOK(LoadDllsFromFolder(baseFolder + kFormatsFolderName TEXT(STRING_PATH_SEPARATOR)));
   #endif

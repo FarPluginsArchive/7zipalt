@@ -51,11 +51,9 @@ STDMETHODIMP CExtractCallBackImp::SetCompleted(const UInt64 *completeValue)
   if (_processedIsDefined)
     _processed = *completeValue;
   if (m_ProgressBox != 0)
-	{
     m_ProgressBox->Progress(
       _totalIsDefined ? &_total: NULL,
       _processedIsDefined ? &_processed: NULL, m_message);
-	}
   return S_OK;
 }
 
@@ -115,21 +113,14 @@ STDMETHODIMP CExtractCallBackImp::PrepareOperation(const wchar_t *name, bool /* 
   if (WasEscPressed())
     return E_ABORT;
   m_CurrentFilePath = name;
-	m_message = GetSystemString(name, CP_OEMCP);
+  m_message = GetSystemString(name, CP_OEMCP);
   return S_OK;
 }
 
 STDMETHODIMP CExtractCallBackImp::MessageError(const wchar_t *message)
 {
-#ifdef _UNICODE
-	if (g_StartupInfo.ShowMessage(message) == -1)
-		return E_ABORT;
-#else
-	AString s = UnicodeStringToMultiByte(message, CP_OEMCP);
-	if (g_StartupInfo.ShowMessage((const char *)s) == -1)
-		return E_ABORT;
-#endif
-  
+  if (g_StartupInfo.ShowMessage(GetSystemString(message, CP_OEMCP)) == -1)
+    return E_ABORT;
   return S_OK;
 }
 
@@ -161,7 +152,7 @@ STDMETHODIMP CExtractCallBackImp::SetOperationResult(INT32 operationResult, bool
           return E_FAIL;
       }
       farChar buffer[512];
-			const CSysString s = GetSystemString(m_CurrentFilePath, m_CodePage);
+      const CSysString s = GetSystemString(m_CurrentFilePath, m_CodePage);
       g_StartupInfo.m_FSF.sprintf(buffer, g_StartupInfo.GetMsgString(idMessage), (const farChar *)s);
       if (g_StartupInfo.ShowMessage(buffer) == -1)
         return E_ABORT;

@@ -201,7 +201,7 @@ public:
 
   UString _archiveFilePath;
 
-	bool showFormatMenu;
+  bool showFormatMenu;
 
   #ifndef EXTRACT_ONLY
   CObjectVector<UString> m_PropNames;
