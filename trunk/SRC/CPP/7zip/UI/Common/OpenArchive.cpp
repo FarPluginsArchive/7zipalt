@@ -143,7 +143,7 @@ HRESULT OpenArchive(
       else
         orderIndices.Add(i);
   
-#ifndef _SFX
+  #ifndef _SFX
   if (numFinded != 1)
   {
     CIntVector orderIndices2;
@@ -235,42 +235,42 @@ HRESULT OpenArchive(
         }
       }
     }
-		//проверка на форсмажор, если обычным архивам вдруг назначат расширения 000, 001, 002 и т.д.
-		UString nextExt, testName;
-		if (extension == L"000")
-			nextExt = L".001";
-		else if (extension == L"001")
-			nextExt = L".002";
+    //проверка на форсмажор, если обычным архивам вдруг назначат расширения 000, 001, 002 и т.д.
+    UString nextExt, testName;
+    if (extension == L"000")
+      nextExt = L".001";
+    else if (extension == L"001")
+      nextExt = L".002";
 
 
-		testName = fileName;
-		int dotPos = testName.ReverseFind(L'.');
-		if (dotPos >= 0)
-			testName.Delete(dotPos, testName.Length());
-		testName += nextExt;
+    testName = fileName;
+    int dotPos = testName.ReverseFind(L'.');
+    if (dotPos >= 0)
+      testName.Delete(dotPos, testName.Length());
+    testName += nextExt;
 
-		NFile::NFind::CFileInfoW fileInfo;
-		if (NFile::NFind::FindFile(testName, fileInfo) && !fileInfo.IsDir())
-		{
-			CArchiveLink link;
-			if (OpenArchive(codecs, CIntVector(), testName, disabledFormats, link, NULL) == S_OK)
-			{
-				if (codecs->Formats[orderIndices[0]].FormatIndex != link.FormatIndex0)
-				{
-					for (int i = 0; i < orderIndices.Size(); i++)
-					{
-						int index = orderIndices[i];
-						const CArcInfoEx &ai = codecs->Formats[index];
-						if (ai.FormatIndex != link.FormatIndex0)
-							continue;
-						orderIndices.Delete(i--);
-						orderIndices.Insert(0, index);
-						break;
-					}
-				}
-				link.Close();
-			}
-		}
+    NFile::NFind::CFileInfoW fileInfo;
+    if (NFile::NFind::FindFile(testName, fileInfo) && !fileInfo.IsDir())
+    {
+      CArchiveLink link;
+      if (OpenArchive(codecs, CIntVector(), testName, disabledFormats, link, NULL) == S_OK)
+      {
+        if (codecs->Formats[orderIndices[0]].FormatIndex != link.FormatIndex0)
+        {
+          for (int i = 0; i < orderIndices.Size(); i++)
+          {
+            int index = orderIndices[i];
+            const CArcInfoEx &ai = codecs->Formats[index];
+            if (ai.FormatIndex != link.FormatIndex0)
+              continue;
+            orderIndices.Delete(i--);
+            orderIndices.Insert(0, index);
+            break;
+          }
+        }
+        link.Close();
+      }
+    }
   }
   if (orderIndices.Size() >= 2)
   {
@@ -289,7 +289,7 @@ HRESULT OpenArchive(
       orderIndices[iIso] = udfIndex;
     }
   }
-#endif
+  #endif
   }
 
   for(int i = 0; i < orderIndices.Size(); i++)
@@ -303,7 +303,7 @@ HRESULT OpenArchive(
     if (!archive)
       continue;
 
-#ifdef EXTERNAL_CODECS
+    #ifdef EXTERNAL_CODECS
     {
       CMyComPtr<ISetCompressCodecsInfo> setCompressCodecsInfo;
       archive.QueryInterface(IID_ISetCompressCodecsInfo, (void **)&setCompressCodecsInfo);
@@ -312,7 +312,7 @@ HRESULT OpenArchive(
         RINOK(setCompressCodecsInfo->SetCompressCodecsInfo(codecs));
       }
     }
-#endif
+    #endif
 
     HRESULT result = archive->Open(inStream, &kMaxCheckStartPosition, openArchiveCallback);
     if (result == S_FALSE)
@@ -543,7 +543,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &archiveName,
-	 	const UStringVector& disabledFormats,
+    const UStringVector& disabledFormats,
     CArchiveLink &archiveLink,
     IArchiveOpenCallback *openCallback)
 {

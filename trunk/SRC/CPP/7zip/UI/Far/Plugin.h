@@ -90,15 +90,15 @@ public:
       bool passwordIsDefined, const UString &password);
 
 #ifdef _UNICODE
-	NFar::NFileOperationReturnCode::EEnum GetFiles(struct PluginPanelItem *aPanelItem, int itemsNumber,
-		int move, const farChar **destPath, int opMode);
-	NFar::NFileOperationReturnCode::EEnum GetFilesReal(struct PluginPanelItem *aPanelItems, 
-		int itemsNumber, int move, const farChar **_aDestPath, int opMode, bool aShowBox);
+  NFar::NFileOperationReturnCode::EEnum GetFiles(struct PluginPanelItem *aPanelItem, int itemsNumber,
+    int move, const farChar **destPath, int opMode);
+  NFar::NFileOperationReturnCode::EEnum GetFilesReal(struct PluginPanelItem *aPanelItems, 
+    int itemsNumber, int move, const farChar **_aDestPath, int opMode, bool aShowBox);
 #else
-	NFar::NFileOperationReturnCode::EEnum GetFiles(struct PluginPanelItem *aPanelItem, int itemsNumber,
-		int move, farChar *destPath, int opMode);
-	NFar::NFileOperationReturnCode::EEnum GetFilesReal(struct PluginPanelItem *aPanelItems, 
-		int itemsNumber, int move, farChar *_aDestPath, int opMode, bool aShowBox);
+  NFar::NFileOperationReturnCode::EEnum GetFiles(struct PluginPanelItem *aPanelItem, int itemsNumber,
+    int move, farChar *destPath, int opMode);
+  NFar::NFileOperationReturnCode::EEnum GetFilesReal(struct PluginPanelItem *aPanelItems, 
+    int itemsNumber, int move, farChar *_aDestPath, int opMode, bool aShowBox);
 #endif
 
   NFar::NFileOperationReturnCode::EEnum PutFiles(struct PluginPanelItem *aPanelItems, int itemsNumber,

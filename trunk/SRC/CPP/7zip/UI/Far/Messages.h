@@ -141,7 +141,7 @@ enum EEnum
   kUpdateModeFreshen,
   kUpdateModeSynchronize,
 
-	kAddExtension,
+  kAddExtension,
 
   kUpdateAdd,
   kUpdateSelectArchiver,
@@ -172,11 +172,11 @@ enum EEnum
   kConfigAvailableMasks,
   kConfigAvailableFormats,
 
-	kSpecifyDirectoryPath,
-	kNoItems,
-	kCantLoad7Zip,
-	kDirWithSuchName,
-	kExistingArchDiffersSpecified,
+  kSpecifyDirectoryPath,
+  kNoItems,
+  kCantLoad7Zip,
+  kDirWithSuchName,
+  kExistingArchDiffersSpecified,
 };
 
 }

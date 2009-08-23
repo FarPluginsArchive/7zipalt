@@ -21,11 +21,11 @@ protected:
   int GetMaxWidth();
 public:
   void Init(const CSysString &title, int width);
-	CSysString GetTitle();
+  CSysString GetTitle();
 #ifdef _UNICODE
-	void ShowMessages(const wchar_t *strings[], int numStrings);
+  void ShowMessages(const wchar_t *strings[], int numStrings);
 #else
-	void ShowMessages(const char *strings[], int numStrings);
+  void ShowMessages(const char *strings[], int numStrings);
 #endif
 };
 

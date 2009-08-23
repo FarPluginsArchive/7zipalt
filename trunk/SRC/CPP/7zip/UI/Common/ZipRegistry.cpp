@@ -216,8 +216,8 @@ void SaveCompressionInfo(const NCompression::CInfo &info)
 
   compressionKey.SetValue(kCompressionShowPasswordValueName, info.ShowPassword);
   compressionKey.SetValue(kCompressionEncryptHeadersValueName, info.EncryptHeaders);
-	//CrOm
-	compressionKey.SetValue(kCompressionAddExtension, info.AddExtension);
+  //CrOm
+  compressionKey.SetValue(kCompressionAddExtension, info.AddExtension);
 }
 
 void ReadCompressionInfo(NCompression::CInfo &info)
@@ -232,7 +232,7 @@ void ReadCompressionInfo(NCompression::CInfo &info)
   info.ArchiveType = L"7z";
   info.ShowPassword = false;
   info.EncryptHeaders = false;
-	info.AddExtension = true;
+  info.AddExtension = true;
 
   NSynchronization::CCriticalSectionLock lock(g_RegistryOperationsCriticalSection);
   CKey compressionKey;
@@ -258,7 +258,7 @@ void ReadCompressionInfo(NCompression::CInfo &info)
     }
   }
 
-	//CrOm
+
   /*
   bool solid = false;
   if (compressionKey.QueryValue(kSolid, solid) == ERROR_SUCCESS)
@@ -286,7 +286,6 @@ void ReadCompressionInfo(NCompression::CInfo &info)
           GetRegString(formatKey, kCompressionMethod, fo.Method);
           GetRegString(formatKey, kEncryptionMethod, fo.EncryptionMethod);
 
-
           GetRegUInt32(formatKey, kCompressionLevel, fo.Level);
           GetRegUInt32(formatKey, kCompressionDictionary, fo.Dictionary);
           GetRegUInt32(formatKey, kCompressionOrder, fo.Order);
@@ -300,8 +299,8 @@ void ReadCompressionInfo(NCompression::CInfo &info)
     }
   }
 
-	if (compressionKey.QueryValue(kCompressionAddExtension, info.AddExtension) != ERROR_SUCCESS)
-		info.AddExtension = true;
+  if (compressionKey.QueryValue(kCompressionAddExtension, info.AddExtension) != ERROR_SUCCESS)
+    info.AddExtension = true;
 
   UInt32 level;
   if (compressionKey.QueryValue(kCompressionLevelValueName, level) == ERROR_SUCCESS)

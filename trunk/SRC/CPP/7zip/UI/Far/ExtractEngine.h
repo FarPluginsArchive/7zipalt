@@ -59,7 +59,7 @@ private:
   bool m_PasswordIsDefined;
   UString m_Password;
 
-	CSysString m_message;
+  CSysString m_message;
 
   void CreateComplexDirectory(const UStringVector &dirPathParts);
   /*

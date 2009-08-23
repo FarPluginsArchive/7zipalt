@@ -24,7 +24,7 @@ struct CFileInfoStrings
 {
   CSysString Size;
   CSysString Time;
-	CSysString Name;
+  CSysString Name;
 };
 
 void SetFileInfoStrings(const CFileInfo &fileInfo,
@@ -55,12 +55,12 @@ void SetFileInfoStrings(const CFileInfo &fileInfo,
     fileInfoStrings.Time += GetSystemString(timeString, CP_OEMCP);
   }
 
-	fileInfoStrings.Name = fileInfo.Name;
-	if (fileInfoStrings.Name.Length() > nMaxNameSize)
-	{
-		g_StartupInfo.m_FSF.TruncPathStr(fileInfoStrings.Name.GetBuffer(fileInfoStrings.Name.Length()), nMaxNameSize);
-		fileInfoStrings.Name.ReleaseBuffer();
-	}
+  fileInfoStrings.Name = fileInfo.Name;
+  if (fileInfoStrings.Name.Length() > nMaxNameSize)
+  {
+    g_StartupInfo.m_FSF.TruncPathStr(fileInfoStrings.Name.GetBuffer(fileInfoStrings.Name.Length()), nMaxNameSize);
+    fileInfoStrings.Name.ReleaseBuffer();
+  }
 }
 
 NResult::EEnum Execute(const CFileInfo &oldFileInfo, const CFileInfo &newFileInfo)
@@ -107,11 +107,11 @@ NResult::EEnum Execute(const CFileInfo &oldFileInfo, const CFileInfo &newFileInf
   g_StartupInfo.InitDialogItems(anInitItems, aDialogItems, kNumDialogItems);
 
 #ifdef _UNICODE
-	HANDLE hDlg = 0;
-	int anAskCode = g_StartupInfo.ShowDialog(kXSize, kYSize, NULL, aDialogItems, kNumDialogItems, hDlg);
-	g_StartupInfo.DialogFree(hDlg);
+  HANDLE hDlg = 0;
+  int anAskCode = g_StartupInfo.ShowDialog(kXSize, kYSize, NULL, aDialogItems, kNumDialogItems, hDlg);
+  g_StartupInfo.DialogFree(hDlg);
 #else
-	int anAskCode = g_StartupInfo.ShowDialog(kXSize, kYSize, NULL, aDialogItems, kNumDialogItems);
+  int anAskCode = g_StartupInfo.ShowDialog(kXSize, kYSize, NULL, aDialogItems, kNumDialogItems);
 #endif
   const int kButtonStartPos = kNumDialogItems - 6;
   if (anAskCode >= kButtonStartPos && anAskCode < kNumDialogItems)
