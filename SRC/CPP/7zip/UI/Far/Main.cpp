@@ -496,7 +496,7 @@ STDMETHODIMP COpenArchiveCallback::CryptoGetTextPassword(BSTR *password)
 
 int CompareNoCase(void *const *a1, void *const *a2, void * /* param */)
 {
-  return g_StartupInfo.m_FSF.LStricmp((**(const CSysString**)a1), (**(const CSysString**)a2));
+  return (**(const CSysString**)a1).CompareNoCase(**(const CSysString**)a2);
 }
 
 STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOpenCallback *openArchiveCallback)
