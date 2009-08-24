@@ -73,6 +73,7 @@ struct CArchiveLink
   int GetNumLevels() const { return ArcList.Size(); }
 
   CArchiveLink(): IsOpen(false), VolumesSize(0) {};
+  ~CArchiveLink() { Close(); }
 
   IInArchive *GetArchive() { return ArcList.Back().Archive; }
   UString GetDefaultItemName()  { return ArcList.Back().DefaultItemName; }
