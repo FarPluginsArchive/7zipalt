@@ -209,66 +209,57 @@ HRESULT OpenArchive(
     }
     orderIndices = orderIndices2;
   }
-  else if (extension == L"000" || extension == L"001")
-  {
-    CByteBuffer byteBuffer;
-    const size_t kBufferSize = (1 << 10);
-    byteBuffer.SetCapacity(kBufferSize);
-    Byte *buffer = byteBuffer;
-    RINOK(inStream->Seek(0, STREAM_SEEK_SET, NULL));
-    size_t processedSize = kBufferSize;
-    RINOK(ReadStream(inStream, buffer, &processedSize));
-    if (processedSize >= 16)
+  else {
+    int splitFormatIndex = codecs->FindFormatForArchiveType(L"Split");
+    if ((orderIndices.Size() >= 2) && (orderIndices[0] == splitFormatIndex))
     {
-      Byte kRarHeader[] = {0x52 , 0x61, 0x72, 0x21, 0x1a, 0x07, 0x00};
-      if (TestSignature(buffer, kRarHeader, 7) && buffer[9] == 0x73 && (buffer[10] & 1) != 0)
+      CByteBuffer byteBuffer;
+      const size_t kBufferSize = (1 << 10);
+      byteBuffer.SetCapacity(kBufferSize);
+      Byte *buffer = byteBuffer;
+      RINOK(inStream->Seek(0, STREAM_SEEK_SET, NULL));
+      size_t processedSize = kBufferSize;
+      RINOK(ReadStream(inStream, buffer, &processedSize));
+      if (processedSize >= 16)
       {
-        for (int i = 0; i < orderIndices.Size(); i++)
-        {
-          int index = orderIndices[i];
-          const CArcInfoEx &ai = codecs->Formats[index];
-          if (ai.Name.CompareNoCase(L"rar") != 0)
-            continue;
-          orderIndices.Delete(i--);
-          orderIndices.Insert(0, index);
-          break;
-        }
-      }
-    }
-    //проверка на форсмажор, если обычным архивам вдруг назначат расширения 000, 001, 002 и т.д.
-    UString nextExt, testName;
-    if (extension == L"000")
-      nextExt = L".001";
-    else if (extension == L"001")
-      nextExt = L".002";
-
-
-    testName = fileName;
-    int dotPos = testName.ReverseFind(L'.');
-    if (dotPos >= 0)
-      testName.Delete(dotPos, testName.Length());
-    testName += nextExt;
-
-    NFile::NFind::CFileInfoW fileInfo;
-    if (NFile::NFind::FindFile(testName, fileInfo) && !fileInfo.IsDir())
-    {
-      CArchiveLink link;
-      if (OpenArchive(codecs, CIntVector(), testName, disabledFormats, link, NULL) == S_OK)
-      {
-        if (codecs->Formats[orderIndices[0]].FormatIndex != link.ArcList[0].FormatIndex)
+        Byte kRarHeader[] = {0x52 , 0x61, 0x72, 0x21, 0x1a, 0x07, 0x00};
+        if (TestSignature(buffer, kRarHeader, 7) && buffer[9] == 0x73 && (buffer[10] & 1) != 0)
         {
           for (int i = 0; i < orderIndices.Size(); i++)
           {
             int index = orderIndices[i];
             const CArcInfoEx &ai = codecs->Formats[index];
-            if (ai.FormatIndex != link.ArcList[0].FormatIndex)
+            if (ai.Name.CompareNoCase(L"rar") != 0)
               continue;
             orderIndices.Delete(i--);
             orderIndices.Insert(0, index);
             break;
           }
         }
-        link.Close();
+      }
+      
+      //проверка на форсмажор, если обычным архивам вдруг назначат расширения 000, 001, 002 и т.д.
+      int extNum = _wtoi(extension) + 1;
+      if ((extNum > 0) && (extNum < 1000))
+      {
+        wchar_t nextExt[5];
+        swprintf(nextExt, ARRAYSIZE(nextExt), L".%.3d", extNum);
+
+        UString testName = fileName;
+        int dotPos = testName.ReverseFind(L'.');
+        if (dotPos >= 0)
+          testName.Delete(dotPos, testName.Length() - dotPos);
+        testName += nextExt;
+
+        NFile::NFind::CFileInfoW fileInfo;
+        if (NFile::NFind::FindFile(testName, fileInfo) && !fileInfo.IsDir())
+        {
+          CArchiveLink link;
+          UStringVector noSplitFormat;
+          noSplitFormat.Add(codecs->Formats[splitFormatIndex].Name);
+          if (OpenArchive(codecs, CIntVector(), testName, noSplitFormat, link, openArchiveCallback) == S_OK)
+            orderIndices.Delete(0);
+        }
       }
     }
   }
@@ -517,9 +508,12 @@ HRESULT MyOpenArchive(
 
 HRESULT CArchiveLink::Close()
 {
-  for (int i = ArcList.Size() - 1; i >= 0; i--)
-    RINOK(ArcList[i].Archive->Close());
-  IsOpen = false;
+  if (IsOpen)
+  {
+    for (int i = ArcList.Size() - 1; i >= 0; i--)
+      RINOK(ArcList[i].Archive->Close());
+    IsOpen = false;
+  }
   return S_OK;
 }
 
