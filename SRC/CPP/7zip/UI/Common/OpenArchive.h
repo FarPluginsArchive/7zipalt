@@ -75,7 +75,7 @@ struct CArchiveLink
   CArchiveLink(): IsOpen(false), VolumesSize(0) {};
   ~CArchiveLink() { Close(); }
 
-  IInArchive *GetArchive() { return ArcList.Back().Archive; }
+  IInArchive *GetArchive() { return ArcList.Size() ? ArcList.Back().Archive : NULL; }
   UString GetDefaultItemName()  { return ArcList.Back().DefaultItemName; }
   int GetArchiverIndex() const { return ArcList.Back().FormatIndex; }
   HRESULT Close();
