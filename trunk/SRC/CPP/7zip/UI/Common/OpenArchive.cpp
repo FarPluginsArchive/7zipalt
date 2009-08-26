@@ -395,13 +395,28 @@ HRESULT OpenArchive(
       continue;
     }
 
+    UInt32 mainSubfile;
+    {
+      NCOM::CPropVariant prop;
+      RINOK(arcInfo.Archive->GetArchiveProperty(kpidMainSubfile, &prop));
+      if (prop.vt == VT_UI4)
+        mainSubfile = prop.ulVal;
+      else
+        break;
+      UInt32 numItems;
+      RINOK(arcInfo.Archive->GetNumberOfItems(&numItems));
+      if (mainSubfile >= numItems)
+        break;
+    }
+
+
     CMyComPtr<IInArchiveGetStream> getStream;
     HRESULT result = arcInfo.Archive->QueryInterface(IID_IInArchiveGetStream, (void **)&getStream);
     if (result != S_OK || !getStream)
       break;
 
     CMyComPtr<ISequentialInStream> subSeqStream;
-    result = getStream->GetStream(0, &subSeqStream);
+    result = getStream->GetStream(mainSubfile, &subSeqStream);
     if (result != S_OK || !subSeqStream)
       break;
 
@@ -416,7 +431,7 @@ HRESULT OpenArchive(
       break;
 
     UString subPath;
-    RINOK(GetArchiveItemPath(arcInfo.Archive, 0, subPath))
+    RINOK(GetArchiveItemPath(arcInfo.Archive, mainSubfile, subPath))
     if (subPath.IsEmpty())
     {
       MakeDefaultName(arcInfo.DefaultItemName);

@@ -6,7 +6,7 @@
 enum
 {
   kpidNoProperty = 0,
-  
+  kpidMainSubfile = 1,
   kpidHandlerItemIndex = 2,
   kpidPath,
   kpidName,
