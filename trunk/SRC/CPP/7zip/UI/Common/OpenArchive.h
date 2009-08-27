@@ -103,5 +103,7 @@ HRESULT ReOpenArchive(
     const UString &fileName,
     IArchiveOpenCallback *openCallback);
 
+HRESULT DetectArchiveType(CCodecs *codecs, const UString &filePath, CObjectVector<CIntVector>& arcIndices, IArchiveOpenCallback *openArchiveCallback);
+
 #endif
 

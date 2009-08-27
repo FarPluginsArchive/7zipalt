@@ -163,6 +163,10 @@ enum EEnum
 
   kOpenArchiveMenuString,
   kCreateArchiveMenuString,
+  kSelectArchiveFormat,
+  kAutoArchiveFormat,
+  kDetectArchiveFormat,
+  kArchiveFormatSeparator,
 
   kConfigTitle,
 
