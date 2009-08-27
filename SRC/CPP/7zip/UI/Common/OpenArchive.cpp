@@ -265,20 +265,10 @@ HRESULT OpenArchive(
   }
   if (orderIndices.Size() >= 2)
   {
-    int isoIndex = codecs->FindFormatForArchiveType(L"iso");
-    int udfIndex = codecs->FindFormatForArchiveType(L"udf");
-    int iIso = -1;
-    int iUdf = -1;
-    for (int i = 0; i < orderIndices.Size(); i++)
-    {
-      if (orderIndices[i] == isoIndex) iIso = i;
-      if (orderIndices[i] == udfIndex) iUdf = i;
-    }
+    int iIso = orderIndices.Find(codecs->FindFormatForArchiveType(L"iso"));
+    int iUdf = orderIndices.Find(codecs->FindFormatForArchiveType(L"udf"));;
     if (iUdf > iIso && iIso >= 0)
-    {
-      orderIndices[iUdf] = isoIndex;
-      orderIndices[iIso] = udfIndex;
-    }
+      orderIndices.Swap(iIso, iUdf);
   }
   #endif
   }
