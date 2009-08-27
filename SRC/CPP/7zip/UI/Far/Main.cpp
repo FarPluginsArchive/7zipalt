@@ -508,7 +508,6 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
     return ::GetLastError();
   if (fileInfo.IsDir())
     return E_FAIL;
-  CArcInfoEx archiverInfo0, archiverInfo1;
 
   _compressCodecsInfo.Release();
   _codecs = new CCodecs;
@@ -523,10 +522,35 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
       formatNames.Add(GetSystemString(_codecs->Formats[i].Name));
     formatNamesSorted = formatNames;
     formatNamesSorted.Sort(CompareNoCase, NULL);
-    int index = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT, g_StartupInfo.GetMsgString(NMessageID::kUpdateSelectArchiverMenuTitle), NULL, formatNamesSorted, 0);
+    formatNamesSorted.Insert(0, g_StartupInfo.GetMsgString(NMessageID::kDetectArchiveFormat));
+    formatNamesSorted.Insert(0, g_StartupInfo.GetMsgString(NMessageID::kAutoArchiveFormat));
+    int index = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT, g_StartupInfo.GetMsgString(NMessageID::kSelectArchiveFormat), NULL, formatNamesSorted, 0);
     if (index == -1)
       return E_ABORT;
-    formats.Add(formatNames.Find(formatNamesSorted[index]));
+    if (index == 1)
+    {
+      CObjectVector<CIntVector> arcIndices;
+      DetectArchiveType(_codecs, _archiveFilePath, arcIndices, openArchiveCallback);
+      if (arcIndices.Size() == 0)
+        return S_FALSE;
+      CSysStringVector formatNames;
+      for (int i = 0; i < arcIndices.Size(); i++)
+      {
+        CSysString strFormat;
+        for (int j = 0; j < arcIndices[i].Size(); j++)
+        {
+          if (j) strFormat += g_StartupInfo.GetMsgString(NMessageID::kArchiveFormatSeparator);
+          strFormat += _codecs->Formats[arcIndices[i][arcIndices[i].Size() - 1 - j]].Name;
+        }
+        formatNames.Add(strFormat);
+      }
+      int index = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT, g_StartupInfo.GetMsgString(NMessageID::kSelectArchiveFormat), NULL, formatNames, 0);
+      if (index == -1)
+        return E_ABORT;
+      formats = arcIndices[index];
+    }
+    else if (index != 0)
+      formats.Add(formatNames.Find(formatNamesSorted[index]));
   }
 
   RINOK(OpenArchive(_codecs, formats, _archiveFilePath, SplitString(GetUnicodeString(g_Options.DisabledFormats), L','), _archiveLink, openArchiveCallback));

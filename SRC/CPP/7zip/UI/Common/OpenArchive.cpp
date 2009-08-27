@@ -370,14 +370,14 @@ HRESULT OpenArchive(
     CObjectVector<CArcInfo>& arcList,
     IArchiveOpenCallback *openArchiveCallback)
 {
-  if (formatIndices.Size() >= 3)
+  if (formatIndices.Size() >= 32)
     return E_NOTIMPL;
   
   CArcInfo arcInfo;
   while (true)
   {
     int arcTypeIndex = -1;
-    if (formatIndices.Size() >= 1)
+    if (formatIndices.Size())
     {
       if (arcList.Size() >= formatIndices.Size())
         break;
@@ -584,4 +584,75 @@ HRESULT ReOpenArchive(CCodecs *codecs, CArchiveLink &archiveLink, const UString 
   HRESULT res = ReOpenArchive(archiveLink.GetArchive(), fileName, openCallbackNew);
   archiveLink.IsOpen = (res == S_OK);
   return res;
+}
+
+struct CArcIndex
+{
+  int index;
+  CObjectVector<CArcIndex> subIndices;
+};
+
+HRESULT DetectArchiveType(CCodecs *codecs, IInStream *inStream, CArcIndex& parentArcIndex, IArchiveOpenCallback *openArchiveCallback)
+{
+  for (int i = 0; i < codecs->Formats.Size(); i++)
+  {
+    inStream->Seek(0, STREAM_SEEK_SET, NULL);
+
+    CMyComPtr<IInArchive> archive;
+    if ((codecs->CreateInArchive(i, archive) != S_OK) || !archive)
+      continue;
+
+    if (archive->Open(inStream, &kMaxCheckStartPosition, openArchiveCallback) != S_OK)
+      continue;
+
+    CArcIndex arcIndex;
+    arcIndex.index = i;
+    parentArcIndex.subIndices.Add(arcIndex);
+
+    NCOM::CPropVariant prop;
+    if ((archive->GetArchiveProperty(kpidMainSubfile, &prop) != S_OK) || (prop.vt != VT_UI4))
+      continue;
+    UInt32 mainSubfile = prop.ulVal;
+    UInt32 numItems;
+    if ((archive->GetNumberOfItems(&numItems) != S_OK) || (mainSubfile >= numItems))
+      continue;
+
+    CMyComPtr<IInArchiveGetStream> getStream;
+    if ((archive->QueryInterface(IID_IInArchiveGetStream, reinterpret_cast<void **>(&getStream)) != S_OK) || !getStream)
+      continue;
+
+    CMyComPtr<ISequentialInStream> subSeqStream;
+    if ((getStream->GetStream(mainSubfile, &subSeqStream) != S_OK) || !subSeqStream)
+      continue;
+
+    CMyComPtr<IInStream> subStream;
+    if ((subSeqStream.QueryInterface(IID_IInStream, &subStream) != S_OK) || !subStream)
+      continue;
+
+    DetectArchiveType(codecs, subStream, parentArcIndex.subIndices.Back(), openArchiveCallback);
+  }
+  return S_OK;
+}
+
+void addSubIndices(CObjectVector<CIntVector>& arcIndices, const CArcIndex& arcIndex, const CIntVector& arcs)
+{
+  for (int i = 0; i < arcIndex.subIndices.Size(); i++)
+  {
+    CIntVector subArcs(arcs);
+    subArcs.Insert(0, arcIndex.subIndices[i].index);
+    arcIndices.Add(subArcs);
+    addSubIndices(arcIndices, arcIndex.subIndices[i], subArcs);
+  }
+}
+
+HRESULT DetectArchiveType(CCodecs *codecs, const UString &filePath, CObjectVector<CIntVector>& arcIndices, IArchiveOpenCallback *openArchiveCallback)
+{
+  CInFileStream *inStreamSpec = new CInFileStream;
+  CMyComPtr<IInStream> inStream(inStreamSpec);
+  if (!inStreamSpec->Open(filePath))
+    return GetLastError();
+  CArcIndex rootIndex;
+  HRESULT result = DetectArchiveType(codecs, inStream, rootIndex, openArchiveCallback);
+  addSubIndices(arcIndices, rootIndex, CIntVector());
+  return result;
 }
