@@ -521,6 +521,7 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
   RINOK(_codecs->Load());
 
   CIntVector formats;
+  int menuIndex;
   if (showFormatMenu)
   {
     CObjectVector<FormatInfo> formatInfos;
@@ -544,10 +545,10 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
           name.Insert(0, _F("&"));
       formatMenuStrings.Add(name);
     }
-    int index = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT, g_StartupInfo.GetMsgString(NMessageID::kSelectArchiveFormat), NULL, formatMenuStrings, 0);
-    if (index == -1)
+    menuIndex = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT, g_StartupInfo.GetMsgString(NMessageID::kSelectArchiveFormat), NULL, formatMenuStrings, 0);
+    if (menuIndex == -1)
       return E_ABORT;
-    if (index == 1)
+    if (menuIndex == 1)
     {
       CObjectVector<CIntVector> arcIndices;
       DetectArchiveType(_codecs, _archiveFilePath, arcIndices, openArchiveCallback);
@@ -569,11 +570,19 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
         return E_ABORT;
       formats = arcIndices[index];
     }
-    else if (index != 0)
-      formats.Add(formatInfos[index - 2].index);
+    else if (menuIndex != 0)
+      formats.Add(formatInfos[menuIndex - 2].index);
   }
 
-  RINOK(OpenArchive(_codecs, formats, _archiveFilePath, SplitString(GetUnicodeString(g_Options.DisabledFormats), L','), _archiveLink, openArchiveCallback));
+  CIntVector disabledFormats;
+  if (!showFormatMenu || (menuIndex == 0))
+  {
+    UStringVector disabledFormatsStr = SplitString(GetUnicodeString(g_Options.DisabledFormats), L',');
+    for (int i = 0; i < disabledFormatsStr.Size(); i++)
+      disabledFormats.Add(_codecs->FindFormatForArchiveType(disabledFormatsStr[i]));
+  }
+
+  RINOK(OpenArchive(_codecs, formats, _archiveFilePath, disabledFormats, _archiveLink, openArchiveCallback));
   DefaultName = _archiveLink.GetDefaultItemName();
   const CArcInfoEx &ai = _codecs->Formats[_archiveLink.GetArchiverIndex()];
 

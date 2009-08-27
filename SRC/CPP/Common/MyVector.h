@@ -78,6 +78,14 @@ public:
     operator[](j) = temp;
   }
 
+  int Find(const T& item) const
+  {
+    for (int i = 0; i < Size(); i++)
+      if (item == (*this)[i])
+        return i;
+    return -1;
+  }
+
   int FindInSorted(const T& item) const
   {
     int left = 0, right = Size();

@@ -115,7 +115,7 @@ HRESULT OpenArchive(
     int arcTypeIndex,
     IInStream *inStream,
     const UString &fileName,
-    const UStringVector& disabledFormats,
+    const CIntVector& disabledFormats,
     IInArchive **archiveResult,
     int &formatIndex,
     UString &defaultItemName,
@@ -137,7 +137,7 @@ HRESULT OpenArchive(
   int i;
   int numFinded = 0;
   for (i = 0; i < codecs->Formats.Size(); i++)
-    if (disabledFormats.Find(codecs->Formats[i].Name) == -1)
+    if (disabledFormats.Find(i) == -1)
       if (codecs->Formats[i].FindExtension(extension) >= 0)
         orderIndices.Insert(numFinded++, i);
       else
@@ -255,8 +255,8 @@ HRESULT OpenArchive(
         if (NFile::NFind::FindFile(testName, fileInfo) && !fileInfo.IsDir())
         {
           CArchiveLink link;
-          UStringVector noSplitFormat;
-          noSplitFormat.Add(codecs->Formats[splitFormatIndex].Name);
+          CIntVector noSplitFormat;
+          noSplitFormat.Add(splitFormatIndex);
           if (OpenArchive(codecs, CIntVector(), testName, noSplitFormat, link, openArchiveCallback) == S_OK)
             orderIndices.Delete(0);
         }
@@ -333,7 +333,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     int arcTypeIndex,
     const UString &filePath,
-    const UStringVector& disabledFormats,
+    const CIntVector& disabledFormats,
     IInArchive **archiveResult,
     int &formatIndex,
     UString &defaultItemName,
@@ -366,7 +366,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &fileName,
-    const UStringVector& disabledFormats,
+    const CIntVector& disabledFormats,
     CObjectVector<CArcInfo>& arcList,
     IArchiveOpenCallback *openArchiveCallback)
 {
@@ -487,7 +487,7 @@ HRESULT MyOpenArchive(
   CMyComPtr<IArchiveOpenCallback> openCallback;
   SetCallback(archiveName, openCallbackUI, NULL, openCallback);
   int formatInfo;
-  return OpenArchive(codecs, arcTypeIndex, archiveName, UStringVector(), archive, formatInfo, defaultItemName, openCallback);
+  return OpenArchive(codecs, arcTypeIndex, archiveName, CIntVector(), archive, formatInfo, defaultItemName, openCallback);
 }
 
 HRESULT MyOpenArchive(
@@ -511,7 +511,7 @@ HRESULT MyOpenArchive(
   UString name = fullName.Mid(fileNamePartStartIndex);
   openCallbackSpec->Init(prefix, name);
 
-  RINOK(OpenArchive(codecs, formatIndices, archiveName, UStringVector(),
+  RINOK(OpenArchive(codecs, formatIndices, archiveName, CIntVector(),
       arcList,
       openCallback));
   volumePaths.Add(prefix + name);
@@ -543,7 +543,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &archiveName,
-    const UStringVector& disabledFormats,
+    const CIntVector& disabledFormats,
     CArchiveLink &archiveLink,
     IArchiveOpenCallback *openCallback)
 {
