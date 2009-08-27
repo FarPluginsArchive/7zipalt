@@ -199,12 +199,12 @@ void CStartupInfo::RestoreScreen(HANDLE handle)
   m_Data.RestoreScreen(handle);
 }
 
-const char kRegestryKeyDelimiter = '\'';
+const char kRegistryKeyDelimiter = '\'';
 
 CSysString CStartupInfo::GetFullKeyName(const CSysString &keyName) const
 {
   return (keyName.IsEmpty()) ? m_RegistryPath:
-    (m_RegistryPath + kRegestryKeyDelimiter + keyName);
+    (m_RegistryPath + kRegistryKeyDelimiter + keyName);
 }
 
 
