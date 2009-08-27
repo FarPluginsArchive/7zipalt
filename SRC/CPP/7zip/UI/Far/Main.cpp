@@ -494,9 +494,15 @@ STDMETHODIMP COpenArchiveCallback::CryptoGetTextPassword(BSTR *password)
   return StringToBstr(Password, password);
 }
 
-int CompareNoCase(void *const *a1, void *const *a2, void * /* param */)
+struct FormatInfo
 {
-  return g_StartupInfo.m_FSF.LStricmp((**(const CSysString**)a1), (**(const CSysString**)a2));
+  int index;
+  CSysString name;
+};
+
+int CompareFormatInfo(void *const *a1, void *const *a2, void * /* param */)
+{
+  return g_StartupInfo.m_FSF.LStricmp((**(const FormatInfo**)a1).name, (**(const FormatInfo**)a2).name);
 }
 
 STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOpenCallback *openArchiveCallback)
@@ -517,14 +523,28 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
   CIntVector formats;
   if (showFormatMenu)
   {
-    CSysStringVector formatNames, formatNamesSorted;
+    CObjectVector<FormatInfo> formatInfos;
+    CSysStringVector formatMenuStrings;
     for (int i = 0; i < _codecs->Formats.Size(); i++)
-      formatNames.Add(GetSystemString(_codecs->Formats[i].Name));
-    formatNamesSorted = formatNames;
-    formatNamesSorted.Sort(CompareNoCase, NULL);
-    formatNamesSorted.Insert(0, g_StartupInfo.GetMsgString(NMessageID::kDetectArchiveFormat));
-    formatNamesSorted.Insert(0, g_StartupInfo.GetMsgString(NMessageID::kAutoArchiveFormat));
-    int index = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT, g_StartupInfo.GetMsgString(NMessageID::kSelectArchiveFormat), NULL, formatNamesSorted, 0);
+    {
+      FormatInfo format;
+      format.index = i;
+      format.name = GetSystemString(_codecs->Formats[i].Name);
+      formatInfos.Add(format);
+    }
+    formatInfos.Sort(CompareFormatInfo, NULL);
+    formatMenuStrings.Add(g_StartupInfo.GetMsgString(NMessageID::kAutoArchiveFormat));
+    formatMenuStrings.Add(g_StartupInfo.GetMsgString(NMessageID::kDetectArchiveFormat));
+    for (int i = 0; i < formatInfos.Size(); i++)
+    {
+      const farChar* prefFormats[] = { _F("7z"), _F("bzip2"), _F("Cab"), _F("gzip"), _F("Iso"), _F("Nsis"), _F("Rar"), _F("tar"), _F("Udf"), _F("zip") };
+      CSysString name = formatInfos[i].name;
+      for (int j = 0; j < ARRAYSIZE(prefFormats); j++)
+        if (name.CompareNoCase(prefFormats[j]) == 0)
+          name.Insert(0, _F("&"));
+      formatMenuStrings.Add(name);
+    }
+    int index = g_StartupInfo.Menu(FMENU_AUTOHIGHLIGHT, g_StartupInfo.GetMsgString(NMessageID::kSelectArchiveFormat), NULL, formatMenuStrings, 0);
     if (index == -1)
       return E_ABORT;
     if (index == 1)
@@ -550,7 +570,7 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
       formats = arcIndices[index];
     }
     else if (index != 0)
-      formats.Add(formatNames.Find(formatNamesSorted[index]));
+      formats.Add(formatInfos[index - 2].index);
   }
 
   RINOK(OpenArchive(_codecs, formats, _archiveFilePath, SplitString(GetUnicodeString(g_Options.DisabledFormats), L','), _archiveLink, openArchiveCallback));
