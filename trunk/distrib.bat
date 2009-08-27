@@ -1,4 +1,4 @@
-set build=20
+set build=21
 rem SRC\Common\FILE_ID.DIZ
 rem SRC\CPP\7zip\MyVersion.h
 

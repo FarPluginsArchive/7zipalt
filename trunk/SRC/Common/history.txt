@@ -1,5 +1,13 @@
 History of the 7-ZipFar Alternative
 -----------------------------------
+Version 4.65  b21  2009-08-27
+ - selected archive formats can be disabled
+ - archive format can be selected manually from plugin menu
+ - ability to detect all archive formats valid for selected file
+ - prefer UDF over ISO
+ - some ISO and TAR archives were opened as PE
+ - Ctrl+F inserts path w/o leading slash
+
 Version 4.65  b20  2009-08-13
  - improve progress box
  - support for Far 2 build 1017
