@@ -34,6 +34,8 @@ using namespace NFar;
 
 const farChar *kCommandPrefix = _F("7-zip");
 
+static const farChar *kPluginNameForRegistry = _F("7-ZIP");
+
 const farChar *kRegistryMainKeyName = _F("");
 
 const farChar *kRegistryValueNameEnabled = _F("UsedByDefault3");
@@ -119,8 +121,6 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID)
   return TRUE;
 }
 
-static const farChar *kPluginNameForRegistry = _F("7-ZIP");
-
 // #define  MY_TRY_BEGIN  MY_TRY_BEGIN NCOM::CComInitializer aComInitializer;
 
 CSysString GetMaskList()
@@ -183,13 +183,13 @@ struct COptions
   {
     Enabled = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameEnabled, kPluginEnabledDefault);
     UseMasks = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameUseMasks, kUseMasksDefault);
-    Masks = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameMasks, (CSysString)_F(""));
-    if (Masks == _F("")) Masks = GetMaskList();
-    DisabledFormats = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameDisabledFormats, (CSysString)_F(""));
+    Masks = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameMasks, CSysString());
+    DisabledFormats = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameDisabledFormats, CSysString());
     PanelMode.ViewMode = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameViewMode, kViewModeDefault);
     PanelMode.SortMode = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameSortMode, kSortModeDefault);
     PanelMode.ReverseSort = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameReverseSort, kReverseSortDefault);
     PanelMode.NumericSort = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameNumericSort, kNumericSortDefault);
+    Validate();
   }
   void Save()
   {
@@ -201,6 +201,13 @@ struct COptions
     g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameSortMode, PanelMode.SortMode);
     g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameReverseSort, PanelMode.ReverseSort);
     g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameNumericSort, PanelMode.NumericSort);
+  }
+  void Validate()
+  {
+    Masks.Trim();
+    if (Masks.IsEmpty())
+      Masks = GetMaskList();
+    DisabledFormats.Trim();
   }
 } g_Options;
 
@@ -561,7 +568,7 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
         for (int j = 0; j < arcIndices[i].Size(); j++)
         {
           if (j) strFormat += g_StartupInfo.GetMsgString(NMessageID::kArchiveFormatSeparator);
-          strFormat += _codecs->Formats[arcIndices[i][arcIndices[i].Size() - 1 - j]].Name;
+          strFormat += GetSystemString(_codecs->Formats[arcIndices[i][arcIndices[i].Size() - 1 - j]].Name);
         }
         formatNames.Add(strFormat);
       }
@@ -864,28 +871,20 @@ int WINAPI Configure(int /* itemNumber */)
   g_StartupInfo.InitDialogItems(initItems, dialogItems, kNumDialogItems);
 
 #ifdef _UNICODE
-  //Nsky
   HANDLE hDlg = 0;
-  int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize,
-    kHelpTopicConfig, dialogItems, kNumDialogItems, hDlg);
-  //\Nsky
+  int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize, kHelpTopicConfig, dialogItems, kNumDialogItems, hDlg);
 
   if (askCode == kOkButtonIndex)
   {
     g_Options.Enabled = BOOLToBool(g_StartupInfo.GetItemSelected(hDlg, kEnabledCheckBoxIndex));
-    //Nsky
     g_Options.UseMasks = BOOLToBool(g_StartupInfo.GetItemSelected(hDlg, kUseMasksCheckBoxIndex));
     g_Options.Masks = g_StartupInfo.GetItemData(hDlg, kMasksIndex);
-    //\Nsky
     g_Options.DisabledFormats = g_StartupInfo.GetItemData(hDlg, kDisabledFormatsIndex);
   }
 
   g_StartupInfo.DialogFree(hDlg);
 #else
-  //Nsky
-  int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize,
-    kHelpTopicConfig, dialogItems, kNumDialogItems);
-  //\Nsky
+  int askCode = g_StartupInfo.ShowDialog(kXSize, kYSize, kHelpTopicConfig, dialogItems, kNumDialogItems);
 #endif
 
   if (askCode != kOkButtonIndex)
@@ -893,18 +892,12 @@ int WINAPI Configure(int /* itemNumber */)
 
 #ifndef _UNICODE
   g_Options.Enabled = BOOLToBool(dialogItems[kEnabledCheckBoxIndex].Selected);
-  //Nsky
   g_Options.UseMasks = BOOLToBool(dialogItems[kUseMasksCheckBoxIndex].Selected);
   g_Options.Masks = dialogItems[kMasksIndex].Data;
-  //\Nsky
   g_Options.DisabledFormats = dialogItems[kDisabledFormatsIndex].Data;
 #endif
 
-  g_Options.Masks.Trim();
-  if (g_Options.Masks.Length() == 0)
-    g_Options.Masks = GetMaskList(); //kMasksDefault;
-  g_Options.DisabledFormats.Trim();
-
+  g_Options.Validate();
   g_Options.Save();
   return(TRUE);
   MY_TRY_END2(_F("Configure"), FALSE);

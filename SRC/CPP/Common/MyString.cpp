@@ -192,9 +192,7 @@ int MyStringCompareNoCase(const wchar_t *s1, const wchar_t *s2)
   }
 }
 
-/*
 int MyStringCompareNoCase(const char *s1, const char *s2)
 {
-  return MyStringCompareNoCase(MultiByteToUnicodeString(s1), MultiByteToUnicodeString(s2));
+  return _stricmp(s1, s2);
 }
-*/
