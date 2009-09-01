@@ -1,5 +1,8 @@
 History of the 7-ZipFar Alternative
 -----------------------------------
+Version 4.65  b22  2009-09-01
+ - some ISO were opened as ZIP
+
 Version 4.65  b21  2009-08-27
  - selected archive formats can be disabled
  - archive format can be selected manually from plugin menu
