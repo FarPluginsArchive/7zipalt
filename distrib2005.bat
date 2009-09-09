@@ -1,12 +1,9 @@
-set build=22
+call prepare.bat
 
 rem you can setup environment for compilation
 rem example for Visual Studio 2005
 rem place it in setenv.bat: "C:\Program Files\Microsoft Visual Studio 8\VC\vcvarsall.bat"
 if exist setenv.bat call setenv.bat
-
-rem SRC\Common\FILE_ID.DIZ
-rem SRC\CPP\7zip\MyVersion.h
 
 call :clean
 
