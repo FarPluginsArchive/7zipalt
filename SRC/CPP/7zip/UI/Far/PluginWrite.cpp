@@ -84,11 +84,11 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
 
   const int kMethodRadioIndex = 2;
   const int kModeRadioIndex = kMethodRadioIndex + 7;
-	const int kPassword = kModeRadioIndex + 5;
-	const int kPassword2 = kPassword + 2;
+  const int kPassword = kModeRadioIndex + 5;
+  const int kPassword2 = kPassword + 2;
 
-	UString password;
-	UString password2;
+  UString password;
+  UString password2;
 
   struct CInitDialogItem initItems[]={
     { DI_DOUBLEBOX, 3, 1, 72, kYSize - 2, false, false, 0, false, NMessageID::kUpdateTitle, NULL, NULL },
@@ -115,14 +115,14 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
         0, false, NMessageID::kUpdateModeFreshen, NULL, NULL },
     { DI_RADIOBUTTON, kXMid + 2, 6, 0, 0, false, false,
         0, false, NMessageID::kUpdateModeSynchronize, NULL, NULL },
-  
-		{ DI_TEXT,     5, 10, 0, 0, false, false, 0, false, NMessageID::kExtractPassword, NULL, NULL },  
-		{ DI_PSWEDIT, 15, 10, 30, 3, true, false, 0, false, -1, NULL, NULL},
-		{ DI_TEXT,    32, 10, 0, 0, false, false, 0, false, NMessageID::kExtractPassword2, NULL, NULL  },  
-		{ DI_PSWEDIT, 42, 10, 57, 3, true, false, 0, false, -1, NULL, NULL},
+
+    { DI_TEXT,     5, 10, 0, 0, false, false, 0, false, NMessageID::kExtractPassword, NULL, NULL },  
+    { DI_PSWEDIT, 15, 10, 30, 3, true, false, 0, false, -1, NULL, NULL},
+    { DI_TEXT,    32, 10, 0, 0, false, false, 0, false, NMessageID::kExtractPassword2, NULL, NULL  },  
+    { DI_PSWEDIT, 42, 10, 57, 3, true, false, 0, false, -1, NULL, NULL},
 
     { DI_TEXT, 3, kYSize - 4, 0, 0, false, false, DIF_BOXCOLOR|DIF_SEPARATOR, false, -1, _F(""), NULL  },  
-    
+
     { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, true, NMessageID::kUpdateAdd, NULL, NULL  },
     { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, false, NMessageID::kCancel, NULL, NULL  }
   };
@@ -144,12 +144,12 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
 	password2 = MultiByteToUnicodeString(p, CP_OEMCP);
 #endif
 
-	if (!password.IsEmpty() && password.Compare(password2) != 0)
-	{
-		g_StartupInfo.ShowMessage(NMessageID::kExtractPasswordsNotSame);
-		return NFileOperationReturnCode::kError;
-	}
-  
+  if (!password.IsEmpty() && password.Compare(password2) != 0)
+  {
+    g_StartupInfo.ShowMessage(NMessageID::kExtractPasswordsNotSame);
+    return NFileOperationReturnCode::kError;
+  }
+
   if (askCode != kOkButtonIndex)
     return NFileOperationReturnCode::kInterruptedByUser;
 
@@ -471,8 +471,8 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     const int kModeRadioIndex = kMethodRadioIndex + 7;
     const int kAddExtensionCheck = kModeRadioIndex + 4;
 
-		const int kPassword = kAddExtensionCheck + 2;
-		const int kPassword2 = kPassword + 2;
+    const int kPassword = kAddExtensionCheck + 2;
+    const int kPassword2 = kPassword + 2;
 
     const CArcInfoEx &arcInfo = codecs->Formats[archiverIndex];
 
@@ -529,13 +529,13 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
 
       { DI_CHECKBOX, 5, 12, 0, 0, false, compressionInfo.AddExtension, 0, false, NMessageID::kAddExtension, NULL, NULL },
 
-			{ DI_TEXT,     5, 14, 0, 0, false, false, 0, false, NMessageID::kExtractPassword, NULL, NULL },  
+      { DI_TEXT,     5, 14, 0, 0, false, false, 0, false, NMessageID::kExtractPassword, NULL, NULL },  
       { DI_PSWEDIT, 15, 14, 30, 3, true, false, 0, false, -1, NULL, NULL},
-			{ DI_TEXT,    32, 14, 0, 0, false, false, 0, false, NMessageID::kExtractPassword2, NULL, NULL  },  
-			{ DI_PSWEDIT, 42, 14, 57, 3, true, false, 0, false, -1, NULL, NULL},
+      { DI_TEXT,    32, 14, 0, 0, false, false, 0, false, NMessageID::kExtractPassword2, NULL, NULL  },  
+      { DI_PSWEDIT, 42, 14, 57, 3, true, false, 0, false, -1, NULL, NULL},
 
-			{ DI_TEXT, 3, kYSize - 4, 0, 0, false, false, DIF_BOXCOLOR|DIF_SEPARATOR, false, -1, _F(""), NULL  },  
-      
+      { DI_TEXT, 3, kYSize - 4, 0, 0, false, false, DIF_BOXCOLOR|DIF_SEPARATOR, false, -1, _F(""), NULL  },  
+
       { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, true, NMessageID::kUpdateAdd, NULL, NULL  },
       { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, false, NMessageID::kUpdateSelectArchiver, NULL, NULL  },
       { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, false, NMessageID::kCancel, NULL, NULL  }
@@ -556,8 +556,8 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     archiveNameA =  g_StartupInfo.GetItemData(hDlg, kArchiveNameIndex);
     archiveNameA.Trim();
     archiveName = archiveNameA;
-		password =  g_StartupInfo.GetItemData(hDlg, kPassword);
-		password2 =  g_StartupInfo.GetItemData(hDlg, kPassword2);
+    password =  g_StartupInfo.GetItemData(hDlg, kPassword);
+    password2 =  g_StartupInfo.GetItemData(hDlg, kPassword2);
 #else
     int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems);
 
@@ -565,17 +565,17 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     archiveNameA.Trim();
     archiveName = MultiByteToUnicodeString(archiveNameA, CP_OEMCP);
 
-		AString p = dialogItems[kPassword].Data;
-		password = MultiByteToUnicodeString(p, CP_OEMCP);
-		p = dialogItems[kPassword2].Data;
-		password2 = MultiByteToUnicodeString(p, CP_OEMCP);
+    AString p = dialogItems[kPassword].Data;
+    password = MultiByteToUnicodeString(p, CP_OEMCP);
+    p = dialogItems[kPassword2].Data;
+    password2 = MultiByteToUnicodeString(p, CP_OEMCP);
 #endif
 
-		if (!password.IsEmpty() && password.Compare(password2) != 0)
-		{
-			g_StartupInfo.ShowMessage(NMessageID::kExtractPasswordsNotSame);
-			continue;
-		}
+    if (!password.IsEmpty() && password.Compare(password2) != 0)
+    {
+      g_StartupInfo.ShowMessage(NMessageID::kExtractPasswordsNotSame);
+      continue;
+    }
 
     compressionInfo.Level = g_MethodMap[0];
 #ifdef _UNICODE

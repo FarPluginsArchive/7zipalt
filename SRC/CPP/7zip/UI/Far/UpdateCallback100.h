@@ -11,8 +11,8 @@
 
 class CUpdateCallback100Imp:
   public IFolderArchiveUpdateCallback,
-	public ICryptoGetTextPassword2,
-	public ICryptoGetTextPassword,
+  public ICryptoGetTextPassword2,
+  public ICryptoGetTextPassword,
   public CMyUnknownImp
 {
   // CMyComPtr<IInFolderArchive> _archiveHandler;
@@ -24,18 +24,18 @@ class CUpdateCallback100Imp:
   UString m_Password;
 
 public:
-	MY_UNKNOWN_IMP3(
-		IFolderArchiveUpdateCallback,
-		ICryptoGetTextPassword2,
-		ICryptoGetTextPassword)
+  MY_UNKNOWN_IMP3(
+    IFolderArchiveUpdateCallback,
+    ICryptoGetTextPassword2,
+    ICryptoGetTextPassword)
 
   //MY_UNKNOWN_IMP;
 
   INTERFACE_IProgress(;)
   INTERFACE_IFolderArchiveUpdateCallback(;)
 
-	STDMETHOD(CryptoGetTextPassword)(BSTR *password);
-	STDMETHOD(CryptoGetTextPassword2)(Int32 *passwordIsDefined, BSTR *password);
+  STDMETHOD(CryptoGetTextPassword)(BSTR *password);
+  STDMETHOD(CryptoGetTextPassword2)(Int32 *passwordIsDefined, BSTR *password);
 
   CUpdateCallback100Imp(): _total(0) {}
   void Init(/* IInFolderArchive *archiveHandler, */ CProgressBox *progressBox,
