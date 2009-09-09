@@ -1,6 +1,4 @@
-set build=22
-rem SRC\Common\FILE_ID.DIZ
-rem SRC\CPP\7zip\MyVersion.h
+call prepare.bat
 
 call :clean
 
