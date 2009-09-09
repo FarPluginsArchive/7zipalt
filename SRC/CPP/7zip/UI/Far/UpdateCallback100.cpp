@@ -60,10 +60,19 @@ STDMETHODIMP CUpdateCallback100Imp::UpdateErrorMessage(const wchar_t *message)
     return E_ABORT;
   return S_OK;
 }
-
-/*STDMETHODIMP CUpdateCallback100Imp::CryptoGetTextPassword2(Int32 *passwordIsDefined, BSTR *password)
+STDMETHODIMP CUpdateCallback100Imp::CryptoGetTextPassword2(Int32 *passwordIsDefined, BSTR *password)
 {
-  COM_TRY_BEGIN
-    return Callback->CryptoGetTextPassword2(passwordIsDefined, password);
-  COM_TRY_END
-}*/
+	*passwordIsDefined = BoolToInt(m_PasswordIsDefined);
+	if (!m_PasswordIsDefined)
+	{
+		return S_OK;
+	}
+	*passwordIsDefined = BoolToInt(m_PasswordIsDefined);
+	return StringToBstr(m_Password, password);
+}
+STDMETHODIMP CUpdateCallback100Imp::CryptoGetTextPassword(BSTR *password)
+{
+	if (!m_PasswordIsDefined)
+		return S_FALSE;
+	return StringToBstr(m_Password, password);
+}

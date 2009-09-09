@@ -88,6 +88,8 @@ enum EEnum
   kExtractFilesAll,
 
   kExtractPassword,
+	kExtractPassword2,
+	kExtractPasswordsNotSame,
 
   kExtractExtract,
   kExtractCancel,
