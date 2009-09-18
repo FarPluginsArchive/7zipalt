@@ -381,7 +381,10 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
       }
       if (newFileSizeDefined)
       {
-        RINOK(_outFileStreamSpec->SetSize(newFileSize));
+        if (_outFileStreamSpec->SetSize(newFileSize) != S_OK)
+        {
+          return GetLastError();
+        }
       }
       if (_isSplit)
       {
