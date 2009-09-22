@@ -727,10 +727,13 @@ HANDLE WINAPI OpenPlugin(int openFrom, int item)
         if (CompressFiles(pluginPanelItem) == S_OK)
         {
           g_StartupInfo.ControlClearPanelSelection();
-          g_StartupInfo.ControlUpdateActivePanel(NULL);
           g_StartupInfo.ControlRedrawActivePanel(NULL);
-          g_StartupInfo.ControlUpdatePassivePanel(NULL);
+          g_StartupInfo.ControlUpdateActivePanel(NULL);
+          /*
+          CrOm: наверное не следует трогать пассивную панель
           g_StartupInfo.ControlRedrawPassivePanel(NULL);
+          g_StartupInfo.ControlUpdatePassivePanel(1);
+          */
         }
         return INVALID_HANDLE_VALUE;
       }
