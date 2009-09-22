@@ -853,8 +853,6 @@ int CPlugin::ProcessKey(int key, unsigned int controlState)
     GetFilesReal(NULL, panelInfo.SelectedItemsNumber, FALSE, &wc, OPM_SILENT, true); 
     g_StartupInfo.Control(this, FCTL_UPDATEPANEL, 0, NULL);
     g_StartupInfo.Control(this, FCTL_REDRAWPANEL, 0, NULL);
-    g_StartupInfo.Control(this, FCTL_UPDATEPANEL, 0, NULL);
-    g_StartupInfo.Control(this, FCTL_REDRAWPANEL, 0, NULL);
 #else
     char wc[MAX_PATH];
     wc[0] = 0;
@@ -864,8 +862,6 @@ int CPlugin::ProcessKey(int key, unsigned int controlState)
       wc, OPM_SILENT, true);  
     g_StartupInfo.Control(this, FCTL_UPDATEPANEL, 0, NULL);
     g_StartupInfo.Control(this, FCTL_REDRAWPANEL, 0, NULL);
-    g_StartupInfo.Control(this, FCTL_UPDATEANOTHERPANEL, 0, NULL);
-    g_StartupInfo.Control(this, FCTL_REDRAWANOTHERPANEL, 0, NULL);
 #endif
     return TRUE;
   }
