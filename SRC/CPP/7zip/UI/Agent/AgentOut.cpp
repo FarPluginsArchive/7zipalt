@@ -268,7 +268,7 @@ STDMETHODIMP CAgent::DoOperation(
   {
     UString resultPath;
     int pos;
-    if(!NFile::NDirectory::MyGetFullPathName(archiveName, resultPath, pos))
+		if(!NFar::g_StartupInfo.GetFullPathName(archiveName, resultPath, pos))
       return E_FAIL;
     NFile::NDirectory::CreateComplexDirectory(resultPath.Left(pos));
   }
@@ -350,7 +350,7 @@ HRESULT CAgent::CommonUpdate(
   {
     UString resultPath;
     int pos;
-    if(!NFile::NDirectory::MyGetFullPathName(archiveName, resultPath, pos))
+		if(!NFar::g_StartupInfo.GetFullPathName(archiveName, resultPath, pos))
       throw 141716;
     NFile::NDirectory::CreateComplexDirectory(resultPath.Left(pos));
   }

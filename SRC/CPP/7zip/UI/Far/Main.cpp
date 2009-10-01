@@ -612,7 +612,7 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
   normalizedName.Trim();
   UString fullName;
   int fileNamePartStartIndex;
-  NFile::NDirectory::MyGetFullPathName(normalizedName, fullName, fileNamePartStartIndex);
+  g_StartupInfo.GetFullPathName((LPCWSTR)normalizedName, fullName, fileNamePartStartIndex);
   NFile::NFind::CFileInfoW fileInfo;
   if (!NFile::NFind::FindFile(fullName, fileInfo))
     return INVALID_HANDLE_VALUE;

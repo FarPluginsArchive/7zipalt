@@ -1,5 +1,9 @@
 History of the 7-ZipFar Alternative
 -----------------------------------
+Version 4.65  b23  2009-10-01
+ - can set password
+ - UNICODE: supporting FAR20b1145
+
 Version 4.65  b22  2009-09-01
  - some ISO were opened as ZIP
 

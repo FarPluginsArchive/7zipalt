@@ -59,8 +59,8 @@ bool GetOnlyDirPrefix(LPCWSTR fileName, UString &resultName);
 
 inline bool MySetCurrentDirectory(LPCTSTR path)
   { return BOOLToBool(::SetCurrentDirectory(path)); }
-bool MyGetCurrentDirectory(CSysString &resultPath);
 #ifndef _UNICODE
+bool MyGetCurrentDirectory(CSysString &resultPath);
 bool MySetCurrentDirectory(LPCWSTR path);
 bool MyGetCurrentDirectory(UString &resultPath);
 #endif

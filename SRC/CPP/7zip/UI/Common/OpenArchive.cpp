@@ -477,7 +477,7 @@ static void SetCallback(const UString &archiveName,
 
   UString fullName;
   int fileNamePartStartIndex;
-  NFile::NDirectory::MyGetFullPathName(archiveName, fullName, fileNamePartStartIndex);
+	NFar::g_StartupInfo.GetFullPathName((LPCWSTR)archiveName, fullName, fileNamePartStartIndex);
   openCallbackSpec->Init(
       fullName.Left(fileNamePartStartIndex),
       fullName.Mid(fileNamePartStartIndex));
@@ -511,7 +511,7 @@ HRESULT MyOpenArchive(
 
   UString fullName;
   int fileNamePartStartIndex;
-  NFile::NDirectory::MyGetFullPathName(archiveName, fullName, fileNamePartStartIndex);
+	NFar::g_StartupInfo.GetFullPathName((LPCWSTR)archiveName, fullName, fileNamePartStartIndex);
   UString prefix = fullName.Left(fileNamePartStartIndex);
   UString name = fullName.Mid(fileNamePartStartIndex);
   openCallbackSpec->Init(prefix, name);

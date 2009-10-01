@@ -1,5 +1,5 @@
-@set build=22
-@set bdata=2009-09-01
+@set build=23
+@set bdata=2009-10-01
 
 @rem ------------------------------
 @rem prepare FILE_ID.DIZ
