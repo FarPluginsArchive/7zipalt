@@ -552,7 +552,7 @@ void CPlugin::GetOpenPluginInfo(struct OpenPluginInfo *info, const CPanelMode& p
   {
     UString fullName;
     int index;
-    NFile::NDirectory::MyGetFullPathName(m_FileName, fullName, index);
+    g_StartupInfo.GetFullPathName((LPCWSTR)m_FileName, fullName, index);
     name = fullName.Mid(index);
   }
 
@@ -844,8 +844,10 @@ int CPlugin::ProcessKey(int key, unsigned int controlState)
   if ((controlState & PKF_ALT) != 0 && key == VK_F6)
   {
     UString folderPath;
-    if (!NFile::NDirectory::GetOnlyDirPrefix(m_FileName, folderPath))
+		int index;
+    if (!g_StartupInfo.GetFullPathName((LPCWSTR)m_FileName, folderPath, index))
       return FALSE;
+		folderPath = folderPath.Left(index);
     PanelInfo panelInfo;
     g_StartupInfo.ControlGetActivePanelInfo(panelInfo);
 #ifdef _UNICODE

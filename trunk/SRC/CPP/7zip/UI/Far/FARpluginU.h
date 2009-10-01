@@ -1,10 +1,11 @@
+#pragma once
 #ifndef __PLUGIN_HPP__
 #define __PLUGIN_HPP__
 
 /*
   plugin.hpp
 
-  Plugin API for FAR Manager 2.0 build 1055
+  Plugin API for FAR Manager 2.0 build 1154
 */
 
 /*
@@ -41,7 +42,7 @@ other possible license with no implications from the above license on them.
 
 #define FARMANAGERVERSION_MAJOR 2
 #define FARMANAGERVERSION_MINOR 0
-#define FARMANAGERVERSION_BUILD 1055
+#define FARMANAGERVERSION_BUILD 1154
 
 #ifndef RC_INVOKED
 
@@ -1452,6 +1453,12 @@ typedef int (WINAPI *FARAPIFILEFILTERCONTROL)(
   LONG_PTR Param2
 );
 
+typedef int (WINAPI *FARAPIREGEXPCONTROL)(
+  HANDLE hHandle,
+  int Command,
+  LONG_PTR Param
+);
+
 // <C&C++>
 typedef int     (WINAPIV *FARSTDSPRINTF)(wchar_t *Buffer,const wchar_t *Format,...);
 typedef int     (WINAPIV *FARSTDSNPRINTF)(wchar_t *Buffer,size_t Sizebuf,const wchar_t *Format,...);
@@ -1540,8 +1547,15 @@ enum MKLINKOP{
   FLINK_DONOTUPDATEPANEL = 0x20000,
 };
 typedef int     (WINAPI *FARSTDMKLINK)(const wchar_t *Src,const wchar_t *Dest,DWORD Flags);
-typedef int     (WINAPI *FARCONVERTNAMETOREAL)(const wchar_t *Src, wchar_t *Dest, int DestSize);
 typedef int     (WINAPI *FARGETREPARSEPOINTINFO)(const wchar_t *Src, wchar_t *Dest,int DestSize);
+
+enum CONVERTPATHMODES
+{
+	CPM_FULL,
+	CPM_REAL,
+};
+
+typedef int (WINAPI *FARCONVERTPATH)(CONVERTPATHMODES Mode, const wchar_t *Src, wchar_t *Dest, int DestSize);
 
 typedef struct FarStandardFunctions
 {
@@ -1600,7 +1614,7 @@ typedef struct FarStandardFunctions
   FARSTDDELETEBUFFER         DeleteBuffer;
   FARSTDPROCESSNAME          ProcessName;
   FARSTDMKLINK               MkLink;
-  FARCONVERTNAMETOREAL       ConvertNameToReal;
+  FARCONVERTPATH             ConvertPath;
   FARGETREPARSEPOINTINFO     GetReparsePointInfo;
 } FARSTANDARDFUNCTIONS;
 
@@ -1641,6 +1655,7 @@ struct PluginStartupInfo
   FARAPIVIEWERCONTROL    ViewerControl;
   FARAPIPLUGINSCONTROL   PluginsControl;
   FARAPIFILEFILTERCONTROL FileFilterControl;
+  FARAPIREGEXPCONTROL    RegExpControl;
 };
 
 
@@ -1783,7 +1798,7 @@ enum OPENPLUGIN_OPENFROM{
   OPEN_VIEWER       = 6,
   OPEN_FILEPANEL    = 7,
   OPEN_DIALOG       = 8,
-  OPEN_ANALYSE      = 9, 
+  OPEN_ANALYSE      = 9,
   OPEN_FROMMACRO    = 0x10000,
 };
 
@@ -1829,6 +1844,31 @@ enum FAR_FILE_FILTER_TYPE
   FFT_FINDFILE,
   FFT_COPY,
   FFT_SELECT,
+};
+
+enum FAR_REGEXP_CONTROL_COMMANDS {
+  RECTL_CREATE=0,
+  RECTL_FREE,
+  RECTL_COMPILE,
+  RECTL_OPTIMIZE,
+  RECTL_MATCHEX,
+  RECTL_SEARCHEX,
+  RECTL_BRACKETSCOUNT
+};
+
+struct RegExpMatch
+{
+  int start,end;
+};
+
+struct RegExpSearch
+{
+  const wchar_t* Text;
+  int Position;
+  int Length;
+  struct RegExpMatch* Match;
+  int Count;
+  void* Reserved;
 };
 
 

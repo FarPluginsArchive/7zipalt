@@ -421,6 +421,7 @@ bool MyGetShortPathName(LPCTSTR longPath, CSysString &shortPath)
   return (needLength > 0 && needLength < MAX_PATH);
 }
 
+#ifndef _UNICODE
 bool MyGetFullPathName(LPCTSTR fileName, CSysString &resultPath, int &fileNamePartStartIndex)
 {
   resultPath.Empty();
@@ -448,7 +449,6 @@ bool MyGetFullPathName(LPCTSTR fileName, CSysString &resultPath, int &fileNamePa
   return true;
 }
 
-#ifndef _UNICODE
 bool MyGetFullPathName(LPCWSTR fileName, UString &resultPath, int &fileNamePartStartIndex)
 {
   resultPath.Empty();
@@ -488,22 +488,17 @@ bool MyGetFullPathName(LPCWSTR fileName, UString &resultPath, int &fileNamePartS
   }
   return true;
 }
-#endif
-
-
 bool MyGetFullPathName(LPCTSTR fileName, CSysString &path)
 {
   int index;
   return MyGetFullPathName(fileName, path, index);
 }
 
-#ifndef _UNICODE
 bool MyGetFullPathName(LPCWSTR fileName, UString &path)
 {
   int index;
   return MyGetFullPathName(fileName, path, index);
 }
-#endif
 
 bool GetOnlyName(LPCTSTR fileName, CSysString &resultName)
 {
@@ -514,7 +509,6 @@ bool GetOnlyName(LPCTSTR fileName, CSysString &resultName)
   return true;
 }
 
-#ifndef _UNICODE
 bool GetOnlyName(LPCWSTR fileName, UString &resultName)
 {
   int index;
@@ -523,7 +517,6 @@ bool GetOnlyName(LPCWSTR fileName, UString &resultName)
   resultName = resultName.Mid(index);
   return true;
 }
-#endif
 
 bool GetOnlyDirPrefix(LPCTSTR fileName, CSysString &resultName)
 {
@@ -534,7 +527,6 @@ bool GetOnlyDirPrefix(LPCTSTR fileName, CSysString &resultName)
   return true;
 }
 
-#ifndef _UNICODE
 bool GetOnlyDirPrefix(LPCWSTR fileName, UString &resultName)
 {
   int index;
@@ -543,7 +535,6 @@ bool GetOnlyDirPrefix(LPCWSTR fileName, UString &resultName)
   resultName = resultName.Left(index);
   return true;
 }
-#endif
 
 bool MyGetCurrentDirectory(CSysString &path)
 {
@@ -551,8 +542,6 @@ bool MyGetCurrentDirectory(CSysString &path)
   path.ReleaseBuffer();
   return (needLength > 0 && needLength <= MAX_PATH);
 }
-
-#ifndef _UNICODE
 bool MySetCurrentDirectory(LPCWSTR path)
 {
   if (g_IsNT)

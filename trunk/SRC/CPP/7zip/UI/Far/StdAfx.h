@@ -7,6 +7,7 @@
 #include <windows.h>
 #include <stdio.h>
 
+#include "FarUtils.h"
 #include "Common/NewHandler.h"
 
 #endif

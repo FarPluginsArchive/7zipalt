@@ -393,7 +393,8 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     if (panelItem.strFileName == _F(".") && 
         NFind::NAttributes::IsDir(panelItem.dwAttributes))
       return E_FAIL;
-    if (!MyGetFullPathName(GetUnicodeString(panelItem.strFileName, CP_OEMCP), fullName))
+    int index;
+    if (!g_StartupInfo.GetFullPathName((LPCWSTR)GetUnicodeString(panelItem.strFileName, CP_OEMCP), fullName, index))
       return E_FAIL;
     fileNames.Add(fullName);
   }
@@ -699,7 +700,8 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
   ReadWorkDirInfo(workDirInfo);
 
   UString fullArchiveName;
-  if (!MyGetFullPathName(archiveName, fullArchiveName))
+  int index;
+  if (!g_StartupInfo.GetFullPathName((LPCWSTR)archiveName, fullArchiveName, index))
     return E_FAIL;
    
   UString workDir = GetWorkDir(workDirInfo, fullArchiveName);

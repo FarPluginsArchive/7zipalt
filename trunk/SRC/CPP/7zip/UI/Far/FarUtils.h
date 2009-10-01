@@ -189,6 +189,8 @@ public:
       const CSysStringVector &items,
       int selectedItem);
 
+	bool GetCurrentDirectory(UString &resultPath);
+	bool GetFullPathName(LPCWSTR fileName, UString &resultPath, int &fnStartIndex);
   int Editor(const farChar *fileName, const farChar *title,
       int X1, int Y1, int X2, int Y2, DWORD flags, int startLine, int startChar)
       { return m_Data.Editor((farChar *)fileName, (farChar *)title, X1, Y1, X2, Y2,

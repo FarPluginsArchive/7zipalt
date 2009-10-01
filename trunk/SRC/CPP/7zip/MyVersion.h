@@ -1,7 +1,7 @@
 #define MY_VER_MAJOR 4 
 #define MY_VER_MINOR 65 
-#define MY_VER_BUILD 22 
-#define MY_VER_BUILDS "22" 
+#define MY_VER_BUILD 23 
+#define MY_VER_BUILDS "23" 
 #ifdef _UNICODE 
 #define MY_VER_TYPE " Unicode " 
 #else 
@@ -14,6 +14,6 @@
 #endif 
 #define MY_VERSION "4.65 Alt b" MY_VER_BUILDS MY_VER_TYPE MY_VER_PLF 
 #define MY_7ZIP_VERSION "7-Zip 4.65" 
-#define MY_DATE "2009-09-01" 
+#define MY_DATE "2009-10-01" 
 #define MY_COPYRIGHT "Copyright (c) 1999-2009 Igor Pavlov" 
 #define MY_VERSION_COPYRIGHT_DATE MY_VERSION "  " MY_COPYRIGHT "  " MY_DATE 

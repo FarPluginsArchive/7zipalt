@@ -8,6 +8,7 @@
 #include "Windows/Defs.h"
 #include "Windows/Console.h"
 #include "Windows/Error.h"
+#include "Windows/FileDir.h"
 #include "Messages.h"
 
 using namespace NWindows;
@@ -625,6 +626,38 @@ int CStartupInfo::Menu(
   return Menu(flags, title, helpTopic, &farMenuItems.Front(), farMenuItems.Size());
 }
 
+bool CStartupInfo::GetFullPathName(LPCWSTR fileName, UString &resultPath, int &fnStartIndex)
+{
+#ifdef _UNICODE
+  DWORD needLength = m_FSF.ConvertPath(CPM_FULL, fileName, NULL, 0);
+  LPTSTR buffer = resultPath.GetBuffer(needLength);
+  m_FSF.ConvertPath(CPM_FULL, fileName, buffer, needLength);
+  resultPath.ReleaseBuffer();
+
+  fnStartIndex = resultPath.ReverseFind('\\');
+  if (fnStartIndex == -1)
+    fnStartIndex = lstrlen(fileName);
+  return true;
+#else
+	return NFile::NDirectory::MyGetFullPathName(fileName, resultPath, fnStartIndex);
+#endif
+}
+bool CStartupInfo::GetCurrentDirectory( UString &resultPath )
+{
+#ifdef _UNICODE
+  LONG_PTR size = Control(PANEL_ACTIVE, FCTL_GETCURRENTDIRECTORY, NULL, 0);
+  if (size > 0)
+  {
+    LPTSTR buffer = resultPath.GetBuffer(size);
+    Control(PANEL_ACTIVE, FCTL_GETCURRENTDIRECTORY, size, (LONG_PTR)buffer);
+    resultPath.ReleaseBuffer();
+    return true;
+  }
+  return false;
+#else
+  return NFile::NDirectory::MyGetCurrentDirectory(resultPath);
+#endif
+}
 //////////////////////////////////
 // CScreenRestorer
 
