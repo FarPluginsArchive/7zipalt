@@ -216,10 +216,13 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
       destPath.Trim();
       if (destPath.IsEmpty() || destPath.Compare(_F(".")) == 0)
       {
-				UString str = GetUnicodeString(destPath, CP_OEMCP);
-        if(!g_StartupInfo.GetCurrentDirectory(str))
-          throw 318016;
-				destPath = GetSystemString(str, CP_OEMCP);
+#ifdef _UNICODE
+        NFile::NDirectory::GetOnlyDirPrefix(m_FileName, destPath);
+#else
+        UString str = GetUnicodeString(destPath, CP_OEMCP);
+        NFile::NDirectory::GetOnlyDirPrefix(m_FileName, str);
+        destPath = GetSystemString(str, CP_OEMCP);
+#endif
         NFile::NName::NormalizeDirPathPrefix(destPath);
         break;
       }

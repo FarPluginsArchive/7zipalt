@@ -134,14 +134,14 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
 #ifdef _UNICODE
   HANDLE hDlg = 0;
   int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems, hDlg);
-	password =  g_StartupInfo.GetItemData(hDlg, kPassword);
-	password2 =  g_StartupInfo.GetItemData(hDlg, kPassword2);
+  password =  g_StartupInfo.GetItemData(hDlg, kPassword);
+  password2 =  g_StartupInfo.GetItemData(hDlg, kPassword2);
 #else
   int askCode = g_StartupInfo.ShowDialog(76, kYSize, kHelpTopic, dialogItems, kNumDialogItems);
-	AString p = dialogItems[kPassword].Data;
-	password = MultiByteToUnicodeString(p, CP_OEMCP);
-	p = dialogItems[kPassword2].Data;
-	password2 = MultiByteToUnicodeString(p, CP_OEMCP);
+  AString p = dialogItems[kPassword].Data;
+  password = MultiByteToUnicodeString(p, CP_OEMCP);
+  p = dialogItems[kPassword2].Data;
+  password2 = MultiByteToUnicodeString(p, CP_OEMCP);
 #endif
 
   if (!password.IsEmpty() && password.Compare(password2) != 0)
@@ -240,7 +240,11 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   }
   outArchive->SetFolder(_folder);
 
-  outArchive->SetFiles(L"", &fileNamePointers.Front(), fileNamePointers.Size());
+	UString folderPrefix;
+#ifdef _UNICODE
+	g_StartupInfo.GetCurrentDirectory(PANEL_ACTIVE, folderPrefix);
+#endif
+  outArchive->SetFiles(folderPrefix, &fileNamePointers.Front(), fileNamePointers.Size());
   BYTE actionSetByte[NUpdateArchive::NPairState::kNumValues];
   for (i = 0; i < NUpdateArchive::NPairState::kNumValues; i++)
     actionSetByte[i] = (BYTE)actionSet->StateActions[i];

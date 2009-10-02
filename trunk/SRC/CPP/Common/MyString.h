@@ -23,6 +23,9 @@ inline int MyStringLen(const T *s)
 template <class T>
 inline T * MyStringCopy(T *dest, const T *src)
 {
+  if (!src)
+    return dest;
+
   T *destStart = dest;
   while ((*dest++ = *src++) != 0);
   return destStart;

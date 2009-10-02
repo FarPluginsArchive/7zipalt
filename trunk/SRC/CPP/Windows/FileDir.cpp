@@ -421,7 +421,6 @@ bool MyGetShortPathName(LPCTSTR longPath, CSysString &shortPath)
   return (needLength > 0 && needLength < MAX_PATH);
 }
 
-#ifndef _UNICODE
 bool MyGetFullPathName(LPCTSTR fileName, CSysString &resultPath, int &fileNamePartStartIndex)
 {
   resultPath.Empty();
@@ -448,7 +447,13 @@ bool MyGetFullPathName(LPCTSTR fileName, CSysString &resultPath, int &fileNamePa
     fileNamePartStartIndex = (int)(fileNamePointer - buffer);
   return true;
 }
+bool MyGetFullPathName(LPCTSTR fileName, CSysString &path)
+{
+  int index;
+  return MyGetFullPathName(fileName, path, index);
+}
 
+#ifndef _UNICODE
 bool MyGetFullPathName(LPCWSTR fileName, UString &resultPath, int &fileNamePartStartIndex)
 {
   resultPath.Empty();
@@ -488,18 +493,12 @@ bool MyGetFullPathName(LPCWSTR fileName, UString &resultPath, int &fileNamePartS
   }
   return true;
 }
-bool MyGetFullPathName(LPCTSTR fileName, CSysString &path)
-{
-  int index;
-  return MyGetFullPathName(fileName, path, index);
-}
-
 bool MyGetFullPathName(LPCWSTR fileName, UString &path)
 {
   int index;
   return MyGetFullPathName(fileName, path, index);
 }
-
+#endif
 bool GetOnlyName(LPCTSTR fileName, CSysString &resultName)
 {
   int index;
@@ -508,22 +507,22 @@ bool GetOnlyName(LPCTSTR fileName, CSysString &resultName)
   resultName = resultName.Mid(index);
   return true;
 }
-
-bool GetOnlyName(LPCWSTR fileName, UString &resultName)
-{
-  int index;
-  if (!MyGetFullPathName(fileName, resultName, index))
-    return false;
-  resultName = resultName.Mid(index);
-  return true;
-}
-
 bool GetOnlyDirPrefix(LPCTSTR fileName, CSysString &resultName)
 {
   int index;
   if (!MyGetFullPathName(fileName, resultName, index))
     return false;
   resultName = resultName.Left(index);
+  return true;
+}
+
+#ifndef _UNICODE
+bool GetOnlyName(LPCWSTR fileName, UString &resultName)
+{
+  int index;
+  if (!MyGetFullPathName(fileName, resultName, index))
+    return false;
+  resultName = resultName.Mid(index);
   return true;
 }
 
@@ -535,7 +534,6 @@ bool GetOnlyDirPrefix(LPCWSTR fileName, UString &resultName)
   resultName = resultName.Left(index);
   return true;
 }
-
 bool MyGetCurrentDirectory(CSysString &path)
 {
   DWORD needLength = ::GetCurrentDirectory(MAX_PATH + 1, path.GetBuffer(MAX_PATH + 1));
