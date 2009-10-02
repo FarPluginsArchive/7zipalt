@@ -176,6 +176,7 @@ void CStartupInfo::InitDialogItems(const CInitDialogItem  *srcItems,
 #endif
     else
 #ifndef _UNICODE
+      destItem.Data[0] = 0;
       MyStringCopy(destItem.Data, srcItem.DataString);
 #else
       destItem.PtrData = srcItem.DataString;
@@ -642,14 +643,14 @@ bool CStartupInfo::GetFullPathName(LPCWSTR fileName, UString &resultPath, int &f
 	return NFile::NDirectory::MyGetFullPathName(fileName, resultPath, fnStartIndex);
 #endif
 }
-bool CStartupInfo::GetCurrentDirectory( UString &resultPath )
+bool CStartupInfo::GetCurrentDirectory(HANDLE hPanel, UString &resultPath )
 {
 #ifdef _UNICODE
-  LONG_PTR size = Control(PANEL_ACTIVE, FCTL_GETCURRENTDIRECTORY, NULL, 0);
+  LONG_PTR size = Control2(hPanel, FCTL_GETCURRENTDIRECTORY, NULL, 0);
   if (size > 0)
   {
     LPTSTR buffer = resultPath.GetBuffer(size);
-    Control(PANEL_ACTIVE, FCTL_GETCURRENTDIRECTORY, size, (LONG_PTR)buffer);
+    Control(hPanel, FCTL_GETCURRENTDIRECTORY, size, (LONG_PTR)buffer);
     resultPath.ReleaseBuffer();
     return true;
   }
