@@ -8,7 +8,8 @@ $^#Modification by Alexander Nesterovsky#
 $^#Additional supporting by Vladimir Kubyshev#
     This FAR module performs transparent #archive# processing.
 Files in the archive are handled in the same manner as if they
-were in a folder.
+were in a folder. Prefix call for this module from the command line
+is #7-Zip#.
 
    ~Extracting from the archive~@Extract@
 
@@ -85,9 +86,13 @@ This dialog allows you to specify options for process of updating archive.
 
 @Config
 $ #7-Zip Plugin configuration#
+    
     In this dialog you may change following parameters:
 
- #Plugin is used by default#  Archives is opened by this plugin.
+ #Plugin is used by default#   Archives is opened by this plugin.
+
+ #Disabled formats#   comma-separated list of banned formats of string "Available formats:". Strict adherence to the register required!
 
  #Use masks#   List of file extensions, used by this plugin.
+ 
  If do empty editbox and press OK, will be used full list from 7z.dll
