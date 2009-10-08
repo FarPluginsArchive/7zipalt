@@ -637,7 +637,7 @@ bool CStartupInfo::GetFullPathName(LPCWSTR fileName, UString &resultPath, int &f
 
   fnStartIndex = resultPath.ReverseFind('\\');
   if (fnStartIndex == -1)
-    fnStartIndex = lstrlen(fileName);
+    fnStartIndex = 0;
   else
     fnStartIndex++;
   return true;

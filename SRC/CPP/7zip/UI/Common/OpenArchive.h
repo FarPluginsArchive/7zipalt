@@ -34,7 +34,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     int arcTypeIndex,
     IInStream *inStream,
-    const UString &fileName,
+    const UString &filePath,
     const CIntVector& disabledFormats,
     IInArchive **archiveResult,
     int &formatIndex,
