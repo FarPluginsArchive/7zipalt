@@ -30,7 +30,8 @@ vcbuild /clean /nologo SRC\CPP\7zip\UI\Far\Far_VC9.vcproj "ReleaseA x64|x64"
 :package
 @mkdir .tmp
 @copy SRC\Common\* .tmp\
-@copy SRC\%1\* .tmp\
+@copy SRC\%1\7-ZipFar.dll .tmp\
+@copy SRC\%1\7-ZipFar.map .tmp\
 7z a -mx=9 -tzip %2 .\.tmp\*
 @del /q .tmp\*
 @rmdir .tmp
