@@ -240,9 +240,9 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   }
   outArchive->SetFolder(_folder);
 
-	UString folderPrefix;
+  UString folderPrefix;
 #ifdef _UNICODE
-	g_StartupInfo.GetCurrentDirectory(PANEL_ACTIVE, folderPrefix);
+  g_StartupInfo.GetCurrentDirectory(PANEL_ACTIVE, folderPrefix);
 #endif
   outArchive->SetFiles(folderPrefix, &fileNamePointers.Front(), fileNamePointers.Size());
   BYTE actionSetByte[NUpdateArchive::NPairState::kNumValues];
@@ -458,8 +458,8 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
   archiveName += arcInfo.GetMainExt();
   
   const CActionSet *actionSet = &kAddActionSet;
-	UString password;
-	UString password2;
+  UString password;
+  UString password2;
 
   for (;;)
   {

@@ -844,10 +844,10 @@ int CPlugin::ProcessKey(int key, unsigned int controlState)
   if ((controlState & PKF_ALT) != 0 && key == VK_F6)
   {
     UString folderPath;
-		int index;
+    int index;
     if (!g_StartupInfo.GetFullPathName((LPCWSTR)m_FileName, folderPath, index))
       return FALSE;
-		folderPath = folderPath.Left(index);
+    folderPath = folderPath.Left(index);
     PanelInfo panelInfo;
     g_StartupInfo.ControlGetActivePanelInfo(panelInfo);
 #ifdef _UNICODE

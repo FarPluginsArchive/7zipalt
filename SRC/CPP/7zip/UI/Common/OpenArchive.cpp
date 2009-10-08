@@ -348,7 +348,9 @@ HRESULT OpenArchive(
   CMyComPtr<IInStream> inStream(inStreamSpec);
   if (!inStreamSpec->Open(filePath))
     return GetLastError();
-  return OpenArchive(codecs, arcTypeIndex, inStream, ExtractFileNameFromPath(filePath), disabledFormats,
+  return OpenArchive(codecs, arcTypeIndex, inStream, 
+    //ExtractFileNameFromPath(filePath), disabledFormats,
+    filePath, disabledFormats,
     archiveResult, formatIndex,
     defaultItemName, openArchiveCallback);
 }
@@ -477,7 +479,7 @@ static void SetCallback(const UString &archiveName,
 
   UString fullName;
   int fileNamePartStartIndex;
-	NFar::g_StartupInfo.GetFullPathName((LPCWSTR)archiveName, fullName, fileNamePartStartIndex);
+  NFar::g_StartupInfo.GetFullPathName((LPCWSTR)archiveName, fullName, fileNamePartStartIndex);
   openCallbackSpec->Init(
       fullName.Left(fileNamePartStartIndex),
       fullName.Mid(fileNamePartStartIndex));
@@ -511,7 +513,7 @@ HRESULT MyOpenArchive(
 
   UString fullName;
   int fileNamePartStartIndex;
-	NFar::g_StartupInfo.GetFullPathName((LPCWSTR)archiveName, fullName, fileNamePartStartIndex);
+  NFar::g_StartupInfo.GetFullPathName((LPCWSTR)archiveName, fullName, fileNamePartStartIndex);
   UString prefix = fullName.Left(fileNamePartStartIndex);
   UString name = fullName.Mid(fileNamePartStartIndex);
   openCallbackSpec->Init(prefix, name);
