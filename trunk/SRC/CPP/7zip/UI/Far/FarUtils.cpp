@@ -638,9 +638,11 @@ bool CStartupInfo::GetFullPathName(LPCWSTR fileName, UString &resultPath, int &f
   fnStartIndex = resultPath.ReverseFind('\\');
   if (fnStartIndex == -1)
     fnStartIndex = lstrlen(fileName);
+  else
+    fnStartIndex++;
   return true;
 #else
-	return NFile::NDirectory::MyGetFullPathName(fileName, resultPath, fnStartIndex);
+  return NFile::NDirectory::MyGetFullPathName(fileName, resultPath, fnStartIndex);
 #endif
 }
 bool CStartupInfo::GetCurrentDirectory(HANDLE hPanel, UString &resultPath )
