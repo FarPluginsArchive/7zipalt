@@ -215,8 +215,10 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
       destPath.Trim();
       if (destPath.IsEmpty())
         destPath = _F(".");
+#ifdef _UNICODE
       int pos;
       if (g_StartupInfo.GetFullPathName(UString(destPath), destPath, pos))
+#endif
         break;
       g_StartupInfo.ShowMessage(NMessageID::kSpecifyDirectoryPath);
 #ifdef _UNICODE
