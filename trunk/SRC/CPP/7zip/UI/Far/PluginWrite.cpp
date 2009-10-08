@@ -221,11 +221,16 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   UStringVector fileNames;
   fileNames.Reserve(numItems);
   for(i = 0; i < numItems; i++)
+  {
 #ifdef _UNICODE
-    fileNames.Add(panelItems[i].FindData.lpwszFileName);
+    UString fullName;
+    int index;
+    g_StartupInfo.GetFullPathName(panelItems[i].FindData.lpwszFileName, fullName, index);
+    fileNames.Add(fullName);
 #else
     fileNames.Add(MultiByteToUnicodeString(panelItems[i].FindData.cFileName, CP_OEMCP));
 #endif
+  }
   CRecordVector<const wchar_t *> fileNamePointers;
   fileNamePointers.Reserve(numItems);
   for(i = 0; i < numItems; i++)
