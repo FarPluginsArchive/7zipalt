@@ -114,7 +114,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     int arcTypeIndex,
     IInStream *inStream,
-    const UString &fileName,
+    const UString &filePath,
     const CIntVector& disabledFormats,
     IInArchive **archiveResult,
     int &formatIndex,
@@ -124,9 +124,9 @@ HRESULT OpenArchive(
   *archiveResult = NULL;
   UString extension;
   {
-    int dotPos = fileName.ReverseFind(L'.');
+    int dotPos = filePath.ReverseFind(L'.');
     if (dotPos >= 0)
-      extension = fileName.Mid(dotPos + 1);
+      extension = filePath.Mid(dotPos + 1);
   }
   CIntVector orderIndices;
   if (arcTypeIndex >= 0)
@@ -267,7 +267,7 @@ HRESULT OpenArchive(
         wchar_t nextExt[5];
         swprintf(nextExt, ARRAYSIZE(nextExt), L".%.3d", extNum);
 
-        UString testName = fileName;
+        UString testName = filePath;
         int dotPos = testName.ReverseFind(L'.');
         if (dotPos >= 0)
           testName.Delete(dotPos, testName.Length() - dotPos);
@@ -318,14 +318,14 @@ HRESULT OpenArchive(
     const CArcInfoEx &format = codecs->Formats[formatIndex];
     if (format.Exts.Size() == 0)
     {
-      defaultItemName = GetDefaultName2(fileName, L"", L"");
+      defaultItemName = GetDefaultName2(ExtractFileNameFromPath(filePath), L"", L"");
     }
     else
     {
       int subExtIndex = format.FindExtension(extension);
       if (subExtIndex < 0)
         subExtIndex = 0;
-      defaultItemName = GetDefaultName2(fileName,
+      defaultItemName = GetDefaultName2(ExtractFileNameFromPath(filePath),
           format.Exts[subExtIndex].Ext,
           format.Exts[subExtIndex].AddExt);
     }
@@ -348,8 +348,7 @@ HRESULT OpenArchive(
   CMyComPtr<IInStream> inStream(inStreamSpec);
   if (!inStreamSpec->Open(filePath))
     return GetLastError();
-  return OpenArchive(codecs, arcTypeIndex, inStream, 
-    //ExtractFileNameFromPath(filePath), disabledFormats,
+  return OpenArchive(codecs, arcTypeIndex, inStream,
     filePath, disabledFormats,
     archiveResult, formatIndex,
     defaultItemName, openArchiveCallback);
