@@ -212,25 +212,12 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
         return NFileOperationReturnCode::kInterruptedByUser;
       destPath = dialogItems[kPathIndex].Data;
 #endif
-      
       destPath.Trim();
-      if (destPath.IsEmpty() || destPath.Compare(_F(".")) == 0)
-      {
-#ifdef _UNICODE
-        NFile::NDirectory::GetOnlyDirPrefix(m_FileName, destPath);
-#else
-        UString str = GetUnicodeString(destPath, CP_OEMCP);
-        NFile::NDirectory::GetOnlyDirPrefix(m_FileName, str);
-        destPath = GetSystemString(str, CP_OEMCP);
-#endif
-        NFile::NName::NormalizeDirPathPrefix(destPath);
+      if (destPath.IsEmpty())
+        destPath = _F(".");
+      int pos;
+      if (g_StartupInfo.GetFullPathName(UString(destPath), destPath, pos))
         break;
-      }
-      else
-      {
-        if(destPath[destPath.Length() - 1] == kDirDelimiter)
-          break;
-      }
       g_StartupInfo.ShowMessage(NMessageID::kSpecifyDirectoryPath);
 #ifdef _UNICODE
       g_StartupInfo.DialogFree(hDlg);
