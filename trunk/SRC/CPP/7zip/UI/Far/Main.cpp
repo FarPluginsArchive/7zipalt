@@ -214,7 +214,7 @@ struct COptions
 #ifdef _UNICODE
 int WINAPI _export GetMinFarVersionW(void)
 {
-  return MAKEFARVERSION(2,0,1017);//тут был breaking change
+  return MAKEFARVERSION(2,0,1148);//тут был breaking change
 }
 #endif
 
