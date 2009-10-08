@@ -245,11 +245,7 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   }
   outArchive->SetFolder(_folder);
 
-  UString folderPrefix;
-#ifdef _UNICODE
-  g_StartupInfo.GetCurrentDirectory(PANEL_ACTIVE, folderPrefix);
-#endif
-  outArchive->SetFiles(folderPrefix, &fileNamePointers.Front(), fileNamePointers.Size());
+  outArchive->SetFiles(L"", &fileNamePointers.Front(), fileNamePointers.Size());
   BYTE actionSetByte[NUpdateArchive::NPairState::kNumValues];
   for (i = 0; i < NUpdateArchive::NPairState::kNumValues; i++)
     actionSetByte[i] = (BYTE)actionSet->StateActions[i];
