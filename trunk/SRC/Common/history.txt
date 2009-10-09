@@ -1,5 +1,8 @@
 History of the 7-ZipFar Alternative
 -----------------------------------
+Version 4.65  b24  2009-10-08
+ - more Far 2 build 1145 compatibility fixes
+
 Version 4.65  b23  2009-10-01
  - can set password
  - UNICODE: supporting FAR20b1145
