@@ -94,9 +94,9 @@ bool MyGetTempPath(CSysString &resultPath);
 bool MyGetTempPath(UString &resultPath);
 #endif
 
-UINT MyGetTempFileName(LPCTSTR dirPath, LPCTSTR prefix, CSysString &resultPath);
+bool MyGetTempFileName(LPCTSTR dirPath, LPCTSTR prefix, CSysString &resultPath);
 #ifndef _UNICODE
-UINT MyGetTempFileName(LPCWSTR dirPath, LPCWSTR prefix, UString &resultPath);
+bool MyGetTempFileName(LPCWSTR dirPath, LPCWSTR prefix, UString &resultPath);
 #endif
 
 class CTempFile
@@ -107,7 +107,7 @@ public:
   CTempFile(): _mustBeDeleted(false) {}
   ~CTempFile() { Remove(); }
   void DisableDeleting() { _mustBeDeleted = false; }
-  UINT Create(LPCTSTR dirPath, LPCTSTR prefix, CSysString &resultPath);
+  bool Create(LPCTSTR dirPath, LPCTSTR prefix, CSysString &resultPath);
   bool Create(LPCTSTR prefix, CSysString &resultPath);
   bool Remove();
 };
@@ -123,7 +123,7 @@ public:
   CTempFileW(): _mustBeDeleted(false) {}
   ~CTempFileW() { Remove(); }
   void DisableDeleting() { _mustBeDeleted = false; }
-  UINT Create(LPCWSTR dirPath, LPCWSTR prefix, UString &resultPath);
+  bool Create(LPCWSTR dirPath, LPCWSTR prefix, UString &resultPath);
   bool Create(LPCWSTR prefix, UString &resultPath);
   bool Remove();
 };

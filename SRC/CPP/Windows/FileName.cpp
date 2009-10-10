@@ -47,4 +47,22 @@ void SplitNameToPureNameAndExtension(const UString &fullName,
   }
 }
 
+#ifdef _UNICODE
+UString NtPath(const UString& path) {
+  UString prefix = path.Left(4);
+  if ((prefix == L"\\\\?\\") || (prefix == L"\\\\.\\")) return path;
+  UString newPath(path);
+  if (path.Left(2) == L"\\\\")
+  {
+    newPath.Delete(0, 2);
+    newPath.Insert(0, L"\\\\?\\UNC\\");
+  }
+  else
+  {
+    newPath.Insert(0, L"\\\\?\\");
+  }
+  return newPath;
+}
+#endif
+
 }}}

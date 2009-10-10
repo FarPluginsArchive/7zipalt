@@ -3,12 +3,17 @@
 #include "StdAfx.h"
 
 #include "FileIO.h"
+#include "FileName.h"
 #include "Defs.h"
 #ifdef WIN_LONG_PATH
 #include "../Common/MyString.h"
 #endif
 #ifndef _UNICODE
 #include "../Common/StringConvert.h"
+#endif
+
+#ifdef _UNICODE
+using NWindows::NFile::NName::NtPath;
 #endif
 
 #ifndef _UNICODE
@@ -65,9 +70,9 @@ bool CFileBase::Create(LPCTSTR fileName, DWORD desiredAccess,
 {
   if (!Close())
     return false;
-  _handle = ::CreateFile(fileName, desiredAccess, shareMode,
+  _handle = ::CreateFile(NtPath(fileName), desiredAccess, shareMode,
       (LPSECURITY_ATTRIBUTES)NULL, creationDisposition,
-      flagsAndAttributes, (HANDLE)NULL);
+      flagsAndAttributes | FILE_FLAG_POSIX_SEMANTICS, (HANDLE)NULL);
   #ifdef WIN_LONG_PATH2
   if (_handle == INVALID_HANDLE_VALUE)
   {
@@ -75,7 +80,7 @@ bool CFileBase::Create(LPCTSTR fileName, DWORD desiredAccess,
     if (GetLongPath(fileName, longPath))
       _handle = ::CreateFileW(longPath, desiredAccess, shareMode,
         (LPSECURITY_ATTRIBUTES)NULL, creationDisposition,
-        flagsAndAttributes, (HANDLE)NULL);
+        flagsAndAttributes | FILE_FLAG_POSIX_SEMANTICS, (HANDLE)NULL);
   }
   #endif
   return (_handle != INVALID_HANDLE_VALUE);
@@ -90,9 +95,9 @@ bool CFileBase::Create(LPCWSTR fileName, DWORD desiredAccess,
       desiredAccess, shareMode, creationDisposition, flagsAndAttributes);
   if (!Close())
     return false;
-  _handle = ::CreateFileW(fileName, desiredAccess, shareMode,
+  _handle = ::CreateFileW(NtPath(fileName), desiredAccess, shareMode,
     (LPSECURITY_ATTRIBUTES)NULL, creationDisposition,
-    flagsAndAttributes, (HANDLE)NULL);
+    flagsAndAttributes | FILE_FLAG_POSIX_SEMANTICS, (HANDLE)NULL);
   #ifdef WIN_LONG_PATH
   if (_handle == INVALID_HANDLE_VALUE)
   {
@@ -100,7 +105,7 @@ bool CFileBase::Create(LPCWSTR fileName, DWORD desiredAccess,
     if (GetLongPath(fileName, longPath))
       _handle = ::CreateFileW(longPath, desiredAccess, shareMode,
         (LPSECURITY_ATTRIBUTES)NULL, creationDisposition,
-        flagsAndAttributes, (HANDLE)NULL);
+        flagsAndAttributes | FILE_FLAG_POSIX_SEMANTICS, (HANDLE)NULL);
   }
   #endif
   return (_handle != INVALID_HANDLE_VALUE);
