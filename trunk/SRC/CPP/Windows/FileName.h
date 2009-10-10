@@ -20,6 +20,12 @@ void NormalizeDirPathPrefix(UString &dirPath); // ensures that it ended with '\\
 void SplitNameToPureNameAndExtension(const UString &fullName,
     UString &pureName, UString &extensionDelimiter, UString &extension);
 
+#ifdef _UNICODE
+UString NtPath(const UString& path);
+#else
+#define NtPath(path) path
+#endif
+
 }}}
 
 #endif

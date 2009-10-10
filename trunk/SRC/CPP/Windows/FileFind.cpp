@@ -11,6 +11,10 @@
 extern bool g_IsNT;
 #endif
 
+#ifdef _UNICODE
+using NWindows::NFile::NName::NtPath;
+#endif
+
 namespace NWindows {
 namespace NFile {
 
@@ -113,7 +117,7 @@ bool CFindFile::FindFirst(LPCTSTR wildcard, CFileInfo &fileInfo)
   if (!Close())
     return false;
   WIN32_FIND_DATA fd;
-  _handle = ::FindFirstFile(wildcard, &fd);
+  _handle = ::FindFirstFile(NtPath(wildcard), &fd);
   #ifdef WIN_LONG_PATH2
   if (_handle == INVALID_HANDLE_VALUE)
   {
@@ -136,7 +140,7 @@ bool CFindFile::FindFirst(LPCWSTR wildcard, CFileInfoW &fileInfo)
   if (g_IsNT)
   {
     WIN32_FIND_DATAW fd;
-    _handle = ::FindFirstFileW(wildcard, &fd);
+    _handle = ::FindFirstFileW(NtPath(wildcard), &fd);
     #ifdef WIN_LONG_PATH
     if (_handle == INVALID_HANDLE_VALUE)
     {
@@ -300,7 +304,7 @@ bool CFindChangeNotification::Close()
            
 HANDLE CFindChangeNotification::FindFirst(LPCTSTR pathName, bool watchSubtree, DWORD notifyFilter)
 {
-  _handle = ::FindFirstChangeNotification(pathName, BoolToBOOL(watchSubtree), notifyFilter);
+  _handle = ::FindFirstChangeNotification(NtPath(pathName), BoolToBOOL(watchSubtree), notifyFilter);
   #ifdef WIN_LONG_PATH2
   if (!IsHandleAllocated())
   {
@@ -317,7 +321,7 @@ HANDLE CFindChangeNotification::FindFirst(LPCWSTR pathName, bool watchSubtree, D
 {
   if (!g_IsNT)
     return FindFirst(UnicodeStringToMultiByte(pathName, GetCurrentCodePage()), watchSubtree, notifyFilter);
-  _handle = ::FindFirstChangeNotificationW(pathName, BoolToBOOL(watchSubtree), notifyFilter);
+  _handle = ::FindFirstChangeNotificationW(NtPath(pathName), BoolToBOOL(watchSubtree), notifyFilter);
   #ifdef WIN_LONG_PATH
   if (!IsHandleAllocated())
   {

@@ -6,12 +6,14 @@
 #include "FileName.h"
 #include "FileFind.h"
 #include "Defs.h"
-#ifndef _UNICODE
 #include "../Common/StringConvert.h"
-#endif
 
 #ifndef _UNICODE
 extern bool g_IsNT;
+#endif
+
+#ifdef _UNICODE
+using NWindows::NFile::NName::NtPath;
 #endif
 
 namespace NWindows {
@@ -93,9 +95,9 @@ bool SetDirTime(LPCWSTR fileName, const FILETIME *cTime, const FILETIME *aTime, 
     return false;
   }
   #endif
-  HANDLE hDir = ::CreateFileW(fileName, GENERIC_WRITE,
+  HANDLE hDir = ::CreateFileW(NtPath(fileName), GENERIC_WRITE,
       FILE_SHARE_READ | FILE_SHARE_WRITE,
-      NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+      NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_POSIX_SEMANTICS, NULL);
   #ifdef WIN_LONG_PATH
   if (hDir == INVALID_HANDLE_VALUE)
   {
@@ -103,7 +105,7 @@ bool SetDirTime(LPCWSTR fileName, const FILETIME *cTime, const FILETIME *aTime, 
     if (GetLongPath(fileName, longPath))
       hDir = ::CreateFileW(longPath, GENERIC_WRITE,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
-        NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+        NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_POSIX_SEMANTICS, NULL);
   }
   #endif
 
@@ -118,7 +120,7 @@ bool SetDirTime(LPCWSTR fileName, const FILETIME *cTime, const FILETIME *aTime, 
 
 bool MySetFileAttributes(LPCTSTR fileName, DWORD fileAttributes)
 {
-  if (::SetFileAttributes(fileName, fileAttributes))
+  if (::SetFileAttributes(NtPath(fileName), fileAttributes))
     return true;
   #ifdef WIN_LONG_PATH2
   UString longPath;
@@ -130,7 +132,7 @@ bool MySetFileAttributes(LPCTSTR fileName, DWORD fileAttributes)
 
 bool MyRemoveDirectory(LPCTSTR pathName)
 {
-  if (::RemoveDirectory(pathName))
+  if (::RemoveDirectory(NtPath(pathName)))
     return true;
   #ifdef WIN_LONG_PATH2
   UString longPath;
@@ -154,7 +156,7 @@ bool GetLongPaths(LPCWSTR s1, LPCWSTR s2, UString &d1, UString &d2)
 
 bool MyMoveFile(LPCTSTR existFileName, LPCTSTR newFileName)
 {
-  if (::MoveFile(existFileName, newFileName))
+  if (::MoveFile(NtPath(existFileName), NtPath(newFileName)))
     return true;
   #ifdef WIN_LONG_PATH2
   UString d1, d2;
@@ -169,7 +171,7 @@ bool MySetFileAttributes(LPCWSTR fileName, DWORD fileAttributes)
 {
   if (!g_IsNT)
     return MySetFileAttributes(GetSysPath(fileName), fileAttributes);
-  if (::SetFileAttributesW(fileName, fileAttributes))
+  if (::SetFileAttributesW(NtPath(fileName), fileAttributes))
     return true;
   #ifdef WIN_LONG_PATH
   UString longPath;
@@ -184,7 +186,7 @@ bool MyRemoveDirectory(LPCWSTR pathName)
 {
   if (!g_IsNT)
     return MyRemoveDirectory(GetSysPath(pathName));
-  if (::RemoveDirectoryW(pathName))
+  if (::RemoveDirectoryW(NtPath(pathName)))
     return true;
   #ifdef WIN_LONG_PATH
   UString longPath;
@@ -198,7 +200,7 @@ bool MyMoveFile(LPCWSTR existFileName, LPCWSTR newFileName)
 {
   if (!g_IsNT)
     return MyMoveFile(GetSysPath(existFileName), GetSysPath(newFileName));
-  if (::MoveFileW(existFileName, newFileName))
+  if (::MoveFileW(NtPath(existFileName), NtPath(newFileName)))
     return true;
   #ifdef WIN_LONG_PATH
   UString d1, d2;
@@ -211,7 +213,7 @@ bool MyMoveFile(LPCWSTR existFileName, LPCWSTR newFileName)
 
 bool MyCreateDirectory(LPCTSTR pathName)
 {
-  if (::CreateDirectory(pathName, NULL))
+  if (::CreateDirectory(NtPath(pathName), NULL))
     return true;
   #ifdef WIN_LONG_PATH2
   if (::GetLastError() != ERROR_ALREADY_EXISTS)
@@ -229,7 +231,7 @@ bool MyCreateDirectory(LPCWSTR pathName)
 {
   if (!g_IsNT)
     return MyCreateDirectory(GetSysPath(pathName));
-  if (::CreateDirectoryW(pathName, NULL))
+  if (::CreateDirectoryW(NtPath(pathName), NULL))
     return true;
   #ifdef WIN_LONG_PATH
   if (::GetLastError() != ERROR_ALREADY_EXISTS)
@@ -339,7 +341,7 @@ bool DeleteFileAlways(LPCTSTR name)
 {
   if (!MySetFileAttributes(name, 0))
     return false;
-  if (::DeleteFile(name))
+  if (::DeleteFile(NtPath(name)))
     return true;
   #ifdef WIN_LONG_PATH2
   UString longPath;
@@ -356,7 +358,7 @@ bool DeleteFileAlways(LPCWSTR name)
     return DeleteFileAlways(GetSysPath(name));
   if (!MySetFileAttributes(name, 0))
     return false;
-  if (::DeleteFileW(name))
+  if (::DeleteFileW(NtPath(name)))
     return true;
   #ifdef WIN_LONG_PATH
   UString longPath;
@@ -628,42 +630,60 @@ bool MyGetTempPath(UString &path)
 }
 #endif
 
-UINT MyGetTempFileName(LPCTSTR dirPath, LPCTSTR prefix, CSysString &path)
+#ifdef _UNICODE
+#define RPC_TSTR RPC_WSTR
+#else
+#define RPC_TSTR RPC_CSTR
+#endif
+
+bool MyGetTempFileName(LPCTSTR dirPath, LPCTSTR prefix, CSysString &path)
 {
-  UINT number = ::GetTempFileName(dirPath, prefix, 0, path.GetBuffer(MAX_PATH + 1));
-  path.ReleaseBuffer();
-  return number;
+  UUID uuid;
+  if (::UuidCreate(&uuid) != RPC_S_OK)
+    return false;
+  RPC_TSTR uuidStr;
+  if (::UuidToString(&uuid, &uuidStr) != RPC_S_OK)
+    return false;
+  CSysString uniqueStr(reinterpret_cast<farChar*>(uuidStr));
+  ::RpcStringFree(&uuidStr);
+
+  path = dirPath;
+  NName::NormalizeDirPathPrefix(path);
+  path += prefix;
+  path += uniqueStr;
+  path += _F(".tmp");
+
+  HANDLE handle = ::CreateFile(NtPath(path), 0, 0, NULL, CREATE_NEW, FILE_FLAG_POSIX_SEMANTICS, NULL);
+  if (handle == INVALID_HANDLE_VALUE)
+    return false;
+  ::CloseHandle(handle);
+  return true;
 }
 
 #ifndef _UNICODE
-UINT MyGetTempFileName(LPCWSTR dirPath, LPCWSTR prefix, UString &path)
+bool MyGetTempFileName(LPCWSTR dirPath, LPCWSTR prefix, UString &path)
 {
-  if (g_IsNT)
-  {
-    UINT number = ::GetTempFileNameW(dirPath, prefix, 0, path.GetBuffer(MAX_PATH));
-    path.ReleaseBuffer();
-    return number;
-  }
   CSysString sysPath;
-  UINT number = MyGetTempFileName(
+  if (!MyGetTempFileName(
       dirPath ? (LPCTSTR)GetSysPath(dirPath): 0,
       prefix ? (LPCTSTR)GetSysPath(prefix): 0,
-      sysPath);
+      sysPath))
+    return false;
   path = GetUnicodePath(sysPath);
-  return number;
+  return true;
 }
 #endif
 
-UINT CTempFile::Create(LPCTSTR dirPath, LPCTSTR prefix, CSysString &resultPath)
+bool CTempFile::Create(LPCTSTR dirPath, LPCTSTR prefix, CSysString &resultPath)
 {
   Remove();
-  UINT number = MyGetTempFileName(dirPath, prefix, resultPath);
-  if (number != 0)
+  if (MyGetTempFileName(dirPath, prefix, resultPath))
   {
     _fileName = resultPath;
     _mustBeDeleted = true;
+    return true;
   }
-  return number;
+  return false;
 }
 
 bool CTempFile::Create(LPCTSTR prefix, CSysString &resultPath)
@@ -688,16 +708,16 @@ bool CTempFile::Remove()
 
 #ifndef _UNICODE
 
-UINT CTempFileW::Create(LPCWSTR dirPath, LPCWSTR prefix, UString &resultPath)
+bool CTempFileW::Create(LPCWSTR dirPath, LPCWSTR prefix, UString &resultPath)
 {
   Remove();
-  UINT number = MyGetTempFileName(dirPath, prefix, resultPath);
-  if (number != 0)
+  if (MyGetTempFileName(dirPath, prefix, resultPath))
   {
     _fileName = resultPath;
     _mustBeDeleted = true;
+    return true;
   }
-  return number;
+  return false;
 }
 
 bool CTempFileW::Create(LPCWSTR prefix, UString &resultPath)
