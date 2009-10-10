@@ -853,18 +853,16 @@ int CPlugin::ProcessKey(int key, unsigned int controlState)
 #ifdef _UNICODE
     const wchar_t * wc = folderPath;
     GetFilesReal(NULL, panelInfo.SelectedItemsNumber, FALSE, &wc, OPM_SILENT, true); 
-    g_StartupInfo.Control(this, FCTL_UPDATEPANEL, 0, NULL);
-    g_StartupInfo.Control(this, FCTL_REDRAWPANEL, 0, NULL);
 #else
     char wc[MAX_PATH];
     wc[0] = 0;
     lstrcpy(wc, UnicodeStringToMultiByte(folderPath, CP_OEMCP));
-    GetFilesReal(panelInfo.SelectedItems,
-      panelInfo.SelectedItemsNumber, FALSE, 
-      wc, OPM_SILENT, true);  
-    g_StartupInfo.Control(this, FCTL_UPDATEPANEL, 0, NULL);
-    g_StartupInfo.Control(this, FCTL_REDRAWPANEL, 0, NULL);
+    GetFilesReal(panelInfo.SelectedItems, panelInfo.SelectedItemsNumber, FALSE, wc, OPM_SILENT, true);
 #endif
+    g_StartupInfo.ControlUpdateActivePanel(NULL);
+    g_StartupInfo.ControlRedrawActivePanel(NULL);
+    g_StartupInfo.ControlUpdatePassivePanel(1);
+    g_StartupInfo.ControlRedrawPassivePanel(NULL);
     return TRUE;
   }
 
