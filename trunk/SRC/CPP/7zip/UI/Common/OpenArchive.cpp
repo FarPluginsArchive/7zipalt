@@ -260,27 +260,30 @@ HRESULT OpenArchive(
         }
       }
       
-      //проверка на форсмажор, если обычным архивам вдруг назначат расширения 000, 001, 002 и т.д.
-      int extNum = _wtoi(extension) + 1;
-      if ((extNum > 0) && (extNum < 1000))
+      if (orderIndices[0] == splitFormatIndex)
       {
-        wchar_t nextExt[5];
-        swprintf(nextExt, ARRAYSIZE(nextExt), L".%.3d", extNum);
-
-        UString testName = filePath;
-        int dotPos = testName.ReverseFind(L'.');
-        if (dotPos >= 0)
-          testName.Delete(dotPos, testName.Length() - dotPos);
-        testName += nextExt;
-
-        NFile::NFind::CFileInfoW fileInfo;
-        if (NFile::NFind::FindFile(testName, fileInfo) && !fileInfo.IsDir())
+        //проверка на форсмажор, если обычным архивам вдруг назначат расширения 000, 001, 002 и т.д.
+        int extNum = _wtoi(extension) + 1;
+        if ((extNum > 0) && (extNum < 1000))
         {
-          CArchiveLink link;
-          CIntVector noSplitFormat;
-          noSplitFormat.Add(splitFormatIndex);
-          if (OpenArchive(codecs, CIntVector(), testName, noSplitFormat, link, openArchiveCallback) == S_OK)
-            orderIndices.Delete(0);
+          wchar_t nextExt[5];
+          swprintf(nextExt, ARRAYSIZE(nextExt), L".%.3d", extNum);
+
+          UString testName = filePath;
+          int dotPos = testName.ReverseFind(L'.');
+          if (dotPos >= 0)
+            testName.Delete(dotPos, testName.Length() - dotPos);
+          testName += nextExt;
+
+          NFile::NFind::CFileInfoW fileInfo;
+          if (NFile::NFind::FindFile(testName, fileInfo) && !fileInfo.IsDir())
+          {
+            CArchiveLink link;
+            CIntVector noSplitFormat;
+            noSplitFormat.Add(splitFormatIndex);
+            if (OpenArchive(codecs, CIntVector(), testName, noSplitFormat, link, openArchiveCallback) == S_OK)
+              orderIndices.Delete(0);
+          }
         }
       }
     }
