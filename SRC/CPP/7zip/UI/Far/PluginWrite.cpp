@@ -56,6 +56,9 @@ static HRESULT SetOutProperties(IOutFolderArchive *outArchive, UINT32 method)
 }
 
 NFileOperationReturnCode::EEnum CPlugin::PutFiles(
+#ifdef _UNICODE
+  const wchar_t* srcPath,
+#endif
   struct PluginPanelItem *panelItems, int numItems,
   int moveMode, int opMode)
 {
@@ -218,15 +221,17 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   UStringVector aPathVector;
   GetPathParts(aPathVector);
 
+#ifdef _UNICODE
+  UString panelPath(srcPath);
+  NName::NormalizeDirPathPrefix(panelPath);
+#endif
+
   UStringVector fileNames;
   fileNames.Reserve(numItems);
   for(i = 0; i < numItems; i++)
   {
 #ifdef _UNICODE
-    UString fullName;
-    int index;
-    g_StartupInfo.GetFullPathName(panelItems[i].FindData.lpwszFileName, fullName, index);
-    fileNames.Add(fullName);
+    fileNames.Add(panelPath + panelItems[i].FindData.lpwszFileName);
 #else
     fileNames.Add(MultiByteToUnicodeString(panelItems[i].FindData.cFileName, CP_OEMCP));
 #endif

@@ -55,47 +55,6 @@ const bool kNumericSortDefault = true;
 
 const farChar *kHelpTopicConfig =  _F("Config");
 
-extern "C"
-{
-#ifndef _UNICODE
-  void WINAPI SetStartupInfo(const struct PluginStartupInfo *Info);
-  HANDLE WINAPI OpenFilePlugin(char *Name,const unsigned char *Data,int DataSize);
-  HANDLE WINAPI OpenPlugin(int OpenFrom,INT_PTR Item);
-  void WINAPI ClosePlugin(HANDLE plugin);
-  int WINAPI GetFindData(HANDLE plugin, struct PluginPanelItem **panelItems,
-    int *itemsNumber, int OpMode);
-  void WINAPI FreeFindData(HANDLE plugin, struct PluginPanelItem *panelItems,
-    int itemsNumber);
-  int WINAPI GetFiles(HANDLE plugin, struct PluginPanelItem *panelItems,
-    int itemsNumber, int move, char *destPath, int opMode);
-  int WINAPI SetDirectory(HANDLE plugin, const char *dir, int opMode);
-  void WINAPI GetPluginInfo(struct PluginInfo *info);
-  int WINAPI Configure(int itemNumber);
-  void WINAPI GetOpenPluginInfo(HANDLE plugin, struct OpenPluginInfo *info);
-  int WINAPI PutFiles(HANDLE plugin, struct PluginPanelItem *panelItems,
-    int itemsNumber, int move, int opMode);
-  int WINAPI DeleteFiles(HANDLE plugin, PluginPanelItem *panelItems,
-    int itemsNumber, int opMode);
-  int WINAPI ProcessKey(HANDLE plugin, int key, unsigned int controlState);
-#else
-  int WINAPI GetMinFarVersionW(void);
-  void WINAPI SetStartupInfoW(const struct PluginStartupInfo *info);
-  HANDLE WINAPI OpenFilePluginW(const wchar_t *name,const unsigned char *Data,int DataSize,int OpMode);
-  HANDLE WINAPI OpenPluginW(int openFrom, INT_PTR item);
-  void WINAPI ClosePluginW(HANDLE plugin);
-  int WINAPI GetFindDataW(HANDLE plugin, struct PluginPanelItem **panelItems, int *itemsNumber, int OpMode);
-  void WINAPI FreeFindDataW(HANDLE plugin, struct PluginPanelItem *panelItems, int itemsNumber);
-  int WINAPI GetFilesW(HANDLE plugin, struct PluginPanelItem *panelItems, int itemsNumber, int move, const wchar_t **destPath, int opMode);
-  int WINAPI SetDirectoryW(HANDLE plugin,const wchar_t *dir, int opMode);
-  void WINAPI GetPluginInfoW(struct PluginInfo *info);
-  int WINAPI ConfigureW(int itemNumber);
-  void WINAPI GetOpenPluginInfoW(HANDLE plugin, struct OpenPluginInfo *info);
-  int WINAPI PutFilesW(HANDLE plugin, struct PluginPanelItem *panelItems, int itemsNumber, int move, int opMode);
-  int WINAPI DeleteFilesW(HANDLE plugin, PluginPanelItem *panelItems, int itemsNumber, int opMode);
-  int WINAPI ProcessKeyW(HANDLE plugin, int key, unsigned int controlState);
-#endif
-};
-
 HINSTANCE g_hInstance;
 #ifndef _UNICODE
 bool g_IsNT = false;
@@ -214,7 +173,7 @@ struct COptions
 #ifdef _UNICODE
 int WINAPI _export GetMinFarVersionW(void)
 {
-  return MAKEFARVERSION(2,0,1148);//тут был breaking change
+  return MAKEFARVERSION(2,0,1160);//тут был breaking change
 }
 #endif
 
@@ -915,14 +874,17 @@ void WINAPI GetOpenPluginInfo(HANDLE plugin,struct OpenPluginInfo *info)
 }
 
 #ifdef _UNICODE
-int WINAPI PutFilesW(HANDLE plugin, struct PluginPanelItem *panelItems,
+int WINAPI PutFilesW(HANDLE plugin, struct PluginPanelItem *panelItems, int itemsNumber, int move, const wchar_t *srcPath, int opMode)
 #else
-int WINAPI PutFiles(HANDLE plugin, struct PluginPanelItem *panelItems,
+int WINAPI PutFiles(HANDLE plugin, struct PluginPanelItem *panelItems, int itemsNumber, int move, int opMode)
 #endif
-                   int itemsNumber, int move, int opMode)
 {
   MY_TRY_BEGIN;
+#ifdef _UNICODE
+  return(((CPlugin *)plugin)->PutFiles(srcPath, panelItems, itemsNumber, move, opMode));
+#else
   return(((CPlugin *)plugin)->PutFiles(panelItems, itemsNumber, move, opMode));
+#endif
   MY_TRY_END2(_F("PutFiles"), NFileOperationReturnCode::kError);
 }
 
