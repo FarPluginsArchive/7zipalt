@@ -101,7 +101,11 @@ public:
     int itemsNumber, int move, farChar *_aDestPath, int opMode, bool aShowBox);
 #endif
 
-  NFar::NFileOperationReturnCode::EEnum PutFiles(struct PluginPanelItem *aPanelItems, int itemsNumber,
+  NFar::NFileOperationReturnCode::EEnum PutFiles(
+#ifdef _UNICODE
+    const wchar_t* srcPath,
+#endif
+    struct PluginPanelItem *aPanelItems, int itemsNumber,
     int move, int opMode);
 
   HRESULT ShowAttributesWindow();
