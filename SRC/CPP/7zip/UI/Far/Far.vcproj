@@ -81,6 +81,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="rpcrt4.lib"
 				OutputFile="..\..\..\..\PluginW\7-ZipFar.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -281,6 +282,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="rpcrt4.lib"
 				OutputFile="..\..\..\..\PluginW\7-ZipFar.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -481,6 +483,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="rpcrt4.lib"
 				OutputFile="..\..\..\..\PluginA\7-ZipFar.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -681,6 +684,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="rpcrt4.lib"
 				OutputFile="..\..\..\..\PluginA\7-ZipFar.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -981,6 +985,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="rpcrt4.lib"
 				OutputFile="..\..\..\..\PluginW64\7-ZipFar.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -1181,6 +1186,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
+				AdditionalDependencies="rpcrt4.lib"
 				OutputFile="..\..\..\..\PluginA64\7-ZipFar.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
