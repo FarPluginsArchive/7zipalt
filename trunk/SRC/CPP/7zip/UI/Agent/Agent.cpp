@@ -441,7 +441,7 @@ STDMETHODIMP CAgent::ReOpen(IArchiveOpenCallback *openArchiveCallback)
     delete _proxyArchive;
     _proxyArchive = NULL;
   }
-  RINOK(ReOpenArchive(_codecs, _archiveLink, _archiveFilePath, openArchiveCallback));
+  RINOK(ReOpenArchive(_codecs, _archiveLink, _archiveFilePath, maxCheckSize, openArchiveCallback));
   return ReadItems();
   COM_TRY_END
 }

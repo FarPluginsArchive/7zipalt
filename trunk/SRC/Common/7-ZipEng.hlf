@@ -87,12 +87,13 @@ This dialog allows you to specify options for process of updating archive.
 @Config
 $ #7-Zip Plugin configuration#
     
-    In this dialog you may change following parameters:
+    In this dialog you can change following parameters:
 
- #Plugin is used by default#   Archives is opened by this plugin.
+ #Plugin is used by default#   Archives are opened by this plugin.
 
- #Disabled formats#   comma-separated list of banned formats of string "Available formats:". Strict adherence to the register required!
+ #Use masks#   List of file extensions used by this plugin.
+ Standard list of extensions will be used when set empty.
 
- #Use masks#   List of file extensions, used by this plugin.
- 
- If do empty editbox and press OK, will be used full list from 7z.dll
+ #Disabled formats#   Comma-separated list of disabled archive formats.
+
+ #Check first N kB#   Number of kilobytes to read when determining archive format.

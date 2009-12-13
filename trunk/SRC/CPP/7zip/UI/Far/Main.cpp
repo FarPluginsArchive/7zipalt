@@ -12,6 +12,7 @@
 #include "Common/StringConvert.h"
 #include "Common/Defs.h"
 #include "Common/ComTry.h"
+#include "Common/IntToString.h"
 
 #include "Windows/FileFind.h"
 #include "Windows/FileIO.h"
@@ -52,6 +53,8 @@ const farChar *kRegistryValueNameReverseSort = _F("ReverseSort");
 const bool kReverseSortDefault = false;
 const farChar *kRegistryValueNameNumericSort = _F("NumericSort");
 const bool kNumericSortDefault = true;
+const farChar *kRegistryValueNameMaxCheckSize = _F("MaxCheckSize");
+const int kMaxCheckSizeDefault = 2 * 1024 * 1024;
 
 const farChar *kHelpTopicConfig =  _F("Config");
 
@@ -138,6 +141,7 @@ struct COptions
   CSysString Masks;
   CSysString DisabledFormats;
   CPanelMode PanelMode;
+  int MaxCheckSize;
   void Load()
   {
     Enabled = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameEnabled, kPluginEnabledDefault);
@@ -148,6 +152,7 @@ struct COptions
     PanelMode.SortMode = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameSortMode, kSortModeDefault);
     PanelMode.ReverseSort = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameReverseSort, kReverseSortDefault);
     PanelMode.NumericSort = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameNumericSort, kNumericSortDefault);
+    MaxCheckSize = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameMaxCheckSize, kMaxCheckSizeDefault);
     Validate();
   }
   void Save()
@@ -160,6 +165,7 @@ struct COptions
     g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameSortMode, PanelMode.SortMode);
     g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameReverseSort, PanelMode.ReverseSort);
     g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameNumericSort, PanelMode.NumericSort);
+    g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameMaxCheckSize, MaxCheckSize);
   }
   void Validate()
   {
@@ -167,6 +173,8 @@ struct COptions
     if (Masks.IsEmpty())
       Masks = GetMaskList();
     DisabledFormats.Trim();
+    if ((MaxCheckSize <= 0) || (MaxCheckSize > 4 * 1024 * 1024))
+      MaxCheckSize = kMaxCheckSizeDefault;
   }
 } g_Options;
 
@@ -475,6 +483,7 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
 {
   COM_TRY_BEGIN
   _archiveFilePath = filePath;
+  maxCheckSize = g_Options.MaxCheckSize;
   NFile::NFind::CFileInfoW fileInfo;
   if (!NFile::NFind::FindFile(_archiveFilePath, fileInfo))
     return ::GetLastError();
@@ -517,7 +526,7 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
     if (menuIndex == 1)
     {
       CObjectVector<CIntVector> arcIndices;
-      DetectArchiveType(_codecs, _archiveFilePath, arcIndices, openArchiveCallback);
+      DetectArchiveType(_codecs, _archiveFilePath, g_Options.MaxCheckSize, arcIndices, openArchiveCallback);
       if (arcIndices.Size() == 0)
         return S_FALSE;
       CSysStringVector formatNames;
@@ -548,7 +557,7 @@ STDMETHODIMP CAgent::Open(const wchar_t *filePath, BSTR *archiveType, IArchiveOp
       disabledFormats.Add(_codecs->FindFormatForArchiveType(disabledFormatsStr[i]));
   }
 
-  RINOK(OpenArchive(_codecs, formats, _archiveFilePath, disabledFormats, _archiveLink, openArchiveCallback));
+  RINOK(OpenArchive(_codecs, formats, _archiveFilePath, g_Options.MaxCheckSize, disabledFormats, _archiveLink, openArchiveCallback));
   DefaultName = _archiveLink.GetDefaultItemName();
   const CArcInfoEx &ai = _codecs->Formats[_archiveLink.GetArchiverIndex()];
 
@@ -798,12 +807,18 @@ int WINAPI Configure(int /* itemNumber */)
   const int kUseMasksCheckBoxIndex = 2;
   const int kMasksIndex = 3;
   const int kDisabledFormatsIndex = 5;
+  const int kMaxCheckSizeIndex = 7;
 
-  const int kYSize = 16;
+  const int kYSize = 17;
   const int kXSize = 76;
 
   CSysString AvailableMasks = GetMaskList();
   CSysString AvailableFormats = GetFormatList();
+
+  farChar s[32];
+  ConvertUInt64ToString(g_Options.MaxCheckSize / 1024, s);
+  CSysString MaxCheckSize = s;
+  int MaxCheckSizePos = 5 + lstrlenF(g_StartupInfo.GetMsgString(NMessageID::kConfigMaxCheckSize1));
 
   struct CInitDialogItem initItems[]=
   {
@@ -813,12 +828,15 @@ int WINAPI Configure(int /* itemNumber */)
     { DI_EDIT, 5, 4, kXSize - 6, 0, false, false, 0, false, -1, g_Options.Masks, NULL },
     { DI_TEXT, 5, 5, 0, 0, false, false, 0, false, NMessageID::kConfigDisabledFormats, NULL, NULL },
     { DI_EDIT, 5, 6, kXSize - 6, 0, false, false, 0, false, -1, g_Options.DisabledFormats, NULL },
-    { DI_TEXT, 5, 7, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
-    { DI_TEXT, 5, 8, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableMasks, NULL, NULL },
-    { DI_EDIT, 5, 9, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableMasks, NULL },
-    { DI_TEXT, 5, 10, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableFormats, NULL, NULL },
-    { DI_EDIT, 5, 11, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableFormats, NULL },
-    { DI_TEXT, 5, 12, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
+    { DI_TEXT, 5, 7, 0, 0, false, false, 0, false, NMessageID::kConfigMaxCheckSize1, NULL, NULL },
+    { DI_EDIT, MaxCheckSizePos, 7, MaxCheckSizePos + 4, 0, false, false, 0, false, -1, MaxCheckSize, NULL },
+    { DI_TEXT, MaxCheckSizePos + 4 + 2, 7, 0, 0, false, false, 0, false, NMessageID::kConfigMaxCheckSize2, NULL, NULL },
+    { DI_TEXT, 5, 8, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
+    { DI_TEXT, 5, 9, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableMasks, NULL, NULL },
+    { DI_EDIT, 5, 10, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableMasks, NULL },
+    { DI_TEXT, 5, 11, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableFormats, NULL, NULL },
+    { DI_EDIT, 5, 12, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableFormats, NULL },
+    { DI_TEXT, 5, 13, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
     { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, true, NMessageID::kOk, NULL, NULL },
     { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, false, NMessageID::kCancel, NULL, NULL },
   };
@@ -839,6 +857,7 @@ int WINAPI Configure(int /* itemNumber */)
     g_Options.UseMasks = BOOLToBool(g_StartupInfo.GetItemSelected(hDlg, kUseMasksCheckBoxIndex));
     g_Options.Masks = g_StartupInfo.GetItemData(hDlg, kMasksIndex);
     g_Options.DisabledFormats = g_StartupInfo.GetItemData(hDlg, kDisabledFormatsIndex);
+    MaxCheckSize = g_StartupInfo.GetItemData(hDlg, kMaxCheckSizeIndex);
   }
 
   g_StartupInfo.DialogFree(hDlg);
@@ -854,8 +873,10 @@ int WINAPI Configure(int /* itemNumber */)
   g_Options.UseMasks = BOOLToBool(dialogItems[kUseMasksCheckBoxIndex].Selected);
   g_Options.Masks = dialogItems[kMasksIndex].Data;
   g_Options.DisabledFormats = dialogItems[kDisabledFormatsIndex].Data;
+  MaxCheckSize = dialogItems[kMaxCheckSizeIndex].Data;
 #endif
 
+  g_Options.MaxCheckSize = g_StartupInfo.m_FSF.atoi(MaxCheckSize) * 1024;
   g_Options.Validate();
   g_Options.Save();
   return(TRUE);
