@@ -200,6 +200,8 @@ public:
   CAgentFolder *_agentFolder;
 
   UString _archiveFilePath;
+  
+  UInt64 maxCheckSize;
 
   bool showFormatMenu;
 

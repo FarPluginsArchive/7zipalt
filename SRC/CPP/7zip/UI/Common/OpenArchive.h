@@ -34,6 +34,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     int arcTypeIndex,
     IInStream *inStream,
+    UInt64 maxCheckSize,
     const UString &filePath,
     const CIntVector& disabledFormats,
     IInArchive **archiveResult,
@@ -45,6 +46,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     int arcTypeIndex,
     const UString &filePath,
+    UInt64 maxCheckSize,
     const CIntVector& disabledFormats,
     IInArchive **archive,
     int &formatIndex,
@@ -55,11 +57,12 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &filePath,
+    UInt64 maxCheckSize,
     const CIntVector& disabledFormats,
     CObjectVector<CArcInfo>& arcList,
     IArchiveOpenCallback *openArchiveCallback);
 
-HRESULT ReOpenArchive(IInArchive *archive, const UString &fileName, IArchiveOpenCallback *openArchiveCallback);
+HRESULT ReOpenArchive(IInArchive *archive, const UString &fileName, UInt64 maxCheckSize, IArchiveOpenCallback *openArchiveCallback);
 
 struct CArchiveLink
 {
@@ -86,6 +89,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &archiveName,
+    UInt64 maxCheckSize,
     const CIntVector& disabledFormats,
     CArchiveLink &archiveLink,
     IArchiveOpenCallback *openCallback);
@@ -94,6 +98,7 @@ HRESULT MyOpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &archiveName,
+    UInt64 maxCheckSize,
     CArchiveLink &archiveLink,
     IOpenCallbackUI *openCallbackUI);
 
@@ -101,9 +106,10 @@ HRESULT ReOpenArchive(
     CCodecs *codecs,
     CArchiveLink &archiveLink,
     const UString &fileName,
+    UInt64 maxCheckSize,
     IArchiveOpenCallback *openCallback);
 
-HRESULT DetectArchiveType(CCodecs *codecs, const UString &filePath, CObjectVector<CIntVector>& arcIndices, IArchiveOpenCallback *openArchiveCallback);
+HRESULT DetectArchiveType(CCodecs *codecs, const UString &filePath, UInt64 maxCheckSize, CObjectVector<CIntVector>& arcIndices, IArchiveOpenCallback *openArchiveCallback);
 
 #endif
 

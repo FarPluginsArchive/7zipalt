@@ -175,6 +175,8 @@ enum EEnum
   kConfigPluginEnabled,
   kConfigUseMasks,
   kConfigDisabledFormats,
+  kConfigMaxCheckSize1,
+  kConfigMaxCheckSize2,
   kConfigAvailableMasks,
   kConfigAvailableFormats,
 

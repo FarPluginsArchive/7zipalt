@@ -89,15 +89,12 @@ HRESULT IsArchiveItemAnti(IInArchive *archive, UInt32 index, bool &result)
   return IsArchiveItemProp(archive, index, kpidIsAnti, result);
 }
 
-// Static-SFX (for Linux) can be big.
-const UInt64 kMaxCheckStartPosition = 1 << 22;
-
-HRESULT ReOpenArchive(IInArchive *archive, const UString &fileName, IArchiveOpenCallback *openArchiveCallback)
+HRESULT ReOpenArchive(IInArchive *archive, const UString &fileName, UInt64 maxCheckSize, IArchiveOpenCallback *openArchiveCallback)
 {
   CInFileStream *inStreamSpec = new CInFileStream;
   CMyComPtr<IInStream> inStream(inStreamSpec);
   inStreamSpec->Open(fileName);
-  return archive->Open(inStream, &kMaxCheckStartPosition, openArchiveCallback);
+  return archive->Open(inStream, &maxCheckSize, openArchiveCallback);
 }
 
 #ifndef _SFX
@@ -114,6 +111,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     int arcTypeIndex,
     IInStream *inStream,
+    UInt64 maxCheckSize,
     const UString &filePath,
     const CIntVector& disabledFormats,
     IInArchive **archiveResult,
@@ -152,7 +150,7 @@ HRESULT OpenArchive(
   {
     CIntVector orderIndices2;
     CByteBuffer byteBuffer;
-    const size_t kBufferSize = (1 << 21);
+    const size_t kBufferSize = static_cast<size_t>(maxCheckSize);
     byteBuffer.SetCapacity(kBufferSize);
     RINOK(inStream->Seek(0, STREAM_SEEK_SET, NULL));
     size_t processedSize = kBufferSize;
@@ -281,7 +279,7 @@ HRESULT OpenArchive(
             CArchiveLink link;
             CIntVector noSplitFormat;
             noSplitFormat.Add(splitFormatIndex);
-            if (OpenArchive(codecs, CIntVector(), testName, noSplitFormat, link, openArchiveCallback) == S_OK)
+            if (OpenArchive(codecs, CIntVector(), testName, maxCheckSize, noSplitFormat, link, openArchiveCallback) == S_OK)
               orderIndices.Delete(0);
           }
         }
@@ -313,7 +311,7 @@ HRESULT OpenArchive(
     }
     #endif
 
-    HRESULT result = archive->Open(inStream, &kMaxCheckStartPosition, openArchiveCallback);
+    HRESULT result = archive->Open(inStream, &maxCheckSize, openArchiveCallback);
     if (result == S_FALSE)
       continue;
     RINOK(result);
@@ -341,6 +339,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     int arcTypeIndex,
     const UString &filePath,
+    UInt64 maxCheckSize,
     const CIntVector& disabledFormats,
     IInArchive **archiveResult,
     int &formatIndex,
@@ -351,7 +350,7 @@ HRESULT OpenArchive(
   CMyComPtr<IInStream> inStream(inStreamSpec);
   if (!inStreamSpec->Open(filePath))
     return GetLastError();
-  return OpenArchive(codecs, arcTypeIndex, inStream,
+  return OpenArchive(codecs, arcTypeIndex, inStream, maxCheckSize,
     filePath, disabledFormats,
     archiveResult, formatIndex,
     defaultItemName, openArchiveCallback);
@@ -375,6 +374,7 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &fileName,
+    UInt64 maxCheckSize,
     const CIntVector& disabledFormats,
     CObjectVector<CArcInfo>& arcList,
     IArchiveOpenCallback *openArchiveCallback)
@@ -397,7 +397,7 @@ HRESULT OpenArchive(
     
     if (arcList.IsEmpty())
     {
-      HRESULT result = OpenArchive(codecs, arcTypeIndex, fileName, disabledFormats,
+      HRESULT result = OpenArchive(codecs, arcTypeIndex, fileName, maxCheckSize, disabledFormats,
         &arcInfo.Archive, arcInfo.FormatIndex, arcInfo.DefaultItemName, openArchiveCallback);
       RINOK(result);
       arcList.Add(arcInfo);
@@ -460,7 +460,7 @@ HRESULT OpenArchive(
     if (setSubArchiveName)
       setSubArchiveName->SetSubArchiveName(subPath);
 
-    result = OpenArchive(codecs, arcTypeIndex, subStream, subPath, disabledFormats,
+    result = OpenArchive(codecs, arcTypeIndex, subStream, maxCheckSize, subPath, disabledFormats,
         &arcInfo.Archive, arcInfo.FormatIndex, arcInfo.DefaultItemName, openArchiveCallback);
     if (result != S_OK)
       break;
@@ -491,18 +491,20 @@ HRESULT MyOpenArchive(
     CCodecs *codecs,
     int arcTypeIndex,
     const UString &archiveName,
+    UInt64 maxCheckSize,
     IInArchive **archive, UString &defaultItemName, IOpenCallbackUI *openCallbackUI)
 {
   CMyComPtr<IArchiveOpenCallback> openCallback;
   SetCallback(archiveName, openCallbackUI, NULL, openCallback);
   int formatInfo;
-  return OpenArchive(codecs, arcTypeIndex, archiveName, CIntVector(), archive, formatInfo, defaultItemName, openCallback);
+  return OpenArchive(codecs, arcTypeIndex, archiveName, maxCheckSize, CIntVector(), archive, formatInfo, defaultItemName, openCallback);
 }
 
 HRESULT MyOpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &archiveName,
+    UInt64 maxCheckSize,
     CObjectVector<CArcInfo>& arcList,
     UStringVector &volumePaths,
     UInt64 &volumesSize,
@@ -520,9 +522,7 @@ HRESULT MyOpenArchive(
   UString name = fullName.Mid(fileNamePartStartIndex);
   openCallbackSpec->Init(prefix, name);
 
-  RINOK(OpenArchive(codecs, formatIndices, archiveName, CIntVector(),
-      arcList,
-      openCallback));
+  RINOK(OpenArchive(codecs, formatIndices, archiveName, maxCheckSize, CIntVector(), arcList, openCallback));
   volumePaths.Add(prefix + name);
   for (int i = 0; i < openCallbackSpec->FileNames.Size(); i++)
     volumePaths.Add(prefix + openCallbackSpec->FileNames[i]);
@@ -552,13 +552,12 @@ HRESULT OpenArchive(
     CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &archiveName,
+    UInt64 maxCheckSize,
     const CIntVector& disabledFormats,
     CArchiveLink &archiveLink,
     IArchiveOpenCallback *openCallback)
 {
-  HRESULT res = OpenArchive(codecs, formatIndices, archiveName, disabledFormats,
-    archiveLink.ArcList,
-    openCallback);
+  HRESULT res = OpenArchive(codecs, formatIndices, archiveName, maxCheckSize, disabledFormats, archiveLink.ArcList, openCallback);
   archiveLink.IsOpen = (res == S_OK);
   return res;
 }
@@ -566,31 +565,27 @@ HRESULT OpenArchive(
 HRESULT MyOpenArchive(CCodecs *codecs,
     const CIntVector &formatIndices,
     const UString &archiveName,
+    UInt64 maxCheckSize,
     CArchiveLink &archiveLink,
     IOpenCallbackUI *openCallbackUI)
 {
-  HRESULT res = MyOpenArchive(codecs, formatIndices, archiveName,
-    archiveLink.ArcList,
-    archiveLink.VolumePaths,
-    archiveLink.VolumesSize,
-    openCallbackUI);
+  HRESULT res = MyOpenArchive(codecs, formatIndices, archiveName, maxCheckSize, archiveLink.ArcList, archiveLink.VolumePaths, archiveLink.VolumesSize, openCallbackUI);
   archiveLink.IsOpen = (res == S_OK);
   return res;
 }
 
-HRESULT ReOpenArchive(CCodecs *codecs, CArchiveLink &archiveLink, const UString &fileName,
-    IArchiveOpenCallback *openCallback)
+HRESULT ReOpenArchive(CCodecs *codecs, CArchiveLink &archiveLink, const UString &fileName, UInt64 maxCheckSize, IArchiveOpenCallback *openCallback)
 {
   if (archiveLink.GetNumLevels() > 1)
     return E_NOTIMPL;
 
   if (archiveLink.GetNumLevels() == 0)
-    return MyOpenArchive(codecs, CIntVector(), fileName, archiveLink, 0);
+    return MyOpenArchive(codecs, CIntVector(), fileName, maxCheckSize, archiveLink, 0);
 
   CMyComPtr<IArchiveOpenCallback> openCallbackNew;
   SetCallback(fileName, NULL, openCallback, openCallbackNew);
 
-  HRESULT res = ReOpenArchive(archiveLink.GetArchive(), fileName, openCallbackNew);
+  HRESULT res = ReOpenArchive(archiveLink.GetArchive(), fileName, maxCheckSize, openCallbackNew);
   archiveLink.IsOpen = (res == S_OK);
   return res;
 }
@@ -601,7 +596,7 @@ struct CArcIndex
   CObjectVector<CArcIndex> subIndices;
 };
 
-HRESULT DetectArchiveType(CCodecs *codecs, IInStream *inStream, CArcIndex& parentArcIndex, IArchiveOpenCallback *openArchiveCallback)
+HRESULT DetectArchiveType(CCodecs *codecs, IInStream *inStream, UInt64 maxCheckSize, CArcIndex& parentArcIndex, IArchiveOpenCallback *openArchiveCallback)
 {
   for (int i = 0; i < codecs->Formats.Size(); i++)
   {
@@ -611,7 +606,7 @@ HRESULT DetectArchiveType(CCodecs *codecs, IInStream *inStream, CArcIndex& paren
     if ((codecs->CreateInArchive(i, archive) != S_OK) || !archive)
       continue;
 
-    if (archive->Open(inStream, &kMaxCheckStartPosition, openArchiveCallback) != S_OK)
+    if (archive->Open(inStream, &maxCheckSize, openArchiveCallback) != S_OK)
       continue;
 
     CArcIndex arcIndex;
@@ -638,7 +633,7 @@ HRESULT DetectArchiveType(CCodecs *codecs, IInStream *inStream, CArcIndex& paren
     if ((subSeqStream.QueryInterface(IID_IInStream, &subStream) != S_OK) || !subStream)
       continue;
 
-    DetectArchiveType(codecs, subStream, parentArcIndex.subIndices.Back(), openArchiveCallback);
+    DetectArchiveType(codecs, subStream, maxCheckSize, parentArcIndex.subIndices.Back(), openArchiveCallback);
   }
   return S_OK;
 }
@@ -654,14 +649,14 @@ void addSubIndices(CObjectVector<CIntVector>& arcIndices, const CArcIndex& arcIn
   }
 }
 
-HRESULT DetectArchiveType(CCodecs *codecs, const UString &filePath, CObjectVector<CIntVector>& arcIndices, IArchiveOpenCallback *openArchiveCallback)
+HRESULT DetectArchiveType(CCodecs *codecs, const UString &filePath, UInt64 maxCheckSize, CObjectVector<CIntVector>& arcIndices, IArchiveOpenCallback *openArchiveCallback)
 {
   CInFileStream *inStreamSpec = new CInFileStream;
   CMyComPtr<IInStream> inStream(inStreamSpec);
   if (!inStreamSpec->Open(filePath))
     return GetLastError();
   CArcIndex rootIndex;
-  HRESULT result = DetectArchiveType(codecs, inStream, rootIndex, openArchiveCallback);
+  HRESULT result = DetectArchiveType(codecs, inStream, maxCheckSize, rootIndex, openArchiveCallback);
   addSubIndices(arcIndices, rootIndex, CIntVector());
   return result;
 }
