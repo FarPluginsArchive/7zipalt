@@ -285,8 +285,7 @@ void CPlugin::GetCurrentDir()
   GetPathParts(pathParts);
   for (int i = 0; i < pathParts.Size(); i++)
   {
-    if (i != 0)
-      m_CurrentDir += WCHAR_PATH_SEPARATOR;
+    m_CurrentDir += WCHAR_PATH_SEPARATOR;
     m_CurrentDir += pathParts[i];
   }
 }
@@ -546,7 +545,7 @@ void CPlugin::GetOpenPluginInfo(struct OpenPluginInfo *info, const CPanelMode& p
 #endif
   info->HostFile = m_FileNameBuffer;
   info->CurDir = m_CurrentDirBuffer;
-   info->Format = kPluginFormatName;
+  info->Format = kPluginFormatName;
 
   UString name;
   {
