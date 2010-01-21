@@ -102,6 +102,11 @@ CSysString CMessageBox::GetTitle()
 
 // ---------- CProgressBox ----------
 
+CProgressBox::~CProgressBox() {
+  if (_wasShown)
+    NFar::g_StartupInfo.SetProgressState(TBPF_NOPROGRESS);
+}
+
 void CProgressBox::Init(const CSysString &title, int width, bool lazy)
 {
   CMessageBox::Init(title, width);
@@ -145,7 +150,9 @@ void CProgressBox::Progress(const UInt64 *total, const UInt64 *completed, const 
     _wasShown = true;
 
     CSysString TitleMessage;
-    TitleMessage = _F("{") + percentMessage +  _F("} ") + _title + _F(": ") + message;
+    TitleMessage = _F("{") + percentMessage + _F("} ") + _title + _F(": ") + message;
     SetConsoleTitle(TitleMessage);
+    NFar::g_StartupInfo.SetProgressState(TBPF_NORMAL);
+    NFar::g_StartupInfo.SetProgressValue(*completed, *total);
   }
 }

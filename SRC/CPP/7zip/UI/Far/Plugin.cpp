@@ -80,7 +80,7 @@ if (oemString == _F(".."))
     oemString = kDotsReplaceString;
 #ifdef _UNICODE
   panelItem.FindData.lpwszFileName = (farChar*)HeapAlloc(GetProcessHeap(),HEAP_ZERO_MEMORY, sizeof(farChar)*(oemString.Length() + 1));
-  lstrcpy(panelItem.FindData.lpwszFileName, (const farChar *)oemString);
+  lstrcpy((farChar *)panelItem.FindData.lpwszFileName, (const farChar *)oemString);
 #else
   lstrcpy(panelItem.FindData.cFileName, (const farChar *)oemString);
 #endif
@@ -193,12 +193,12 @@ void CPlugin::FreeFindData(PluginPanelItem *panelItems,
 #ifdef _UNICODE
     if (panelItems[i].FindData.lpwszFileName != NULL)
     {
-      HeapFree(GetProcessHeap(),0,panelItems[i].FindData.lpwszFileName);
+      HeapFree(GetProcessHeap(),0,(LPVOID)panelItems[i].FindData.lpwszFileName);
       panelItems[i].FindData.lpwszFileName = 0;
     }
 #endif
     if (panelItems[i].Description != NULL)
-      HeapFree(GetProcessHeap(),0,panelItems[i].Description);
+      HeapFree(GetProcessHeap(),0,(LPVOID)panelItems[i].Description);
   }
 
   if (panelItems)
