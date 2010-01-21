@@ -648,19 +648,31 @@ bool CStartupInfo::GetFullPathName(LPCWSTR fileName, UString &resultPath, int &f
 bool CStartupInfo::GetCurrentDirectory(HANDLE hPanel, UString &resultPath )
 {
 #ifdef _UNICODE
-  LONG_PTR size = Control2(hPanel, FCTL_GETCURRENTDIRECTORY, NULL, 0);
-  if (size > 0)
-  {
-    LPTSTR buffer = resultPath.GetBuffer(size);
-    Control(hPanel, FCTL_GETCURRENTDIRECTORY, size, (LONG_PTR)buffer);
-    resultPath.ReleaseBuffer();
-    return true;
-  }
-  return false;
+  DWORD size = m_FSF.GetCurrentDirectory(0, NULL);
+  LPTSTR buffer = resultPath.GetBuffer(size);
+  m_FSF.GetCurrentDirectory(size, buffer);
+  resultPath.ReleaseBuffer();
+  return true;
 #else
   return NFile::NDirectory::MyGetCurrentDirectory(resultPath);
 #endif
 }
+
+void CStartupInfo::SetProgressState(TBPFLAG state) {
+#ifdef _UNICODE
+  m_Data.AdvControl(m_Data.ModuleNumber, ACTL_SETPROGRESSSTATE, reinterpret_cast<void*>(state));
+#endif
+}
+
+void CStartupInfo::SetProgressValue(unsigned __int64 completed, unsigned __int64 total) {
+#ifdef _UNICODE
+  PROGRESSVALUE pv;
+  pv.Completed = completed;
+  pv.Total = total;
+  m_Data.AdvControl(m_Data.ModuleNumber, ACTL_SETPROGRESSVALUE, &pv);
+#endif
+}
+
 //////////////////////////////////
 // CScreenRestorer
 

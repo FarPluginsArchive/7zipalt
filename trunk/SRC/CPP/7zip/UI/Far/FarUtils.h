@@ -211,6 +211,8 @@ public:
       ); }
   int Viewer(const farChar *fileName)
       { return Viewer(fileName, NULL, 0, 0, -1, -1, VF_NONMODAL); }
+  void SetProgressState(TBPFLAG state);
+  void SetProgressValue(unsigned __int64 completed, unsigned __int64 total);
 };
 
 class CScreenRestorer

@@ -37,6 +37,7 @@ class CProgressBox: public CMessageBox
   unsigned __int64 TmNext;
   unsigned __int64 TmFreq;
 public:
+  ~CProgressBox();
   void Init(const CSysString &title, int width, bool lazy);
   void Progress(const UInt64 *total, const UInt64 *completed, const CSysString &message);
 };
