@@ -36,12 +36,7 @@ HRESULT CPlugin::ExtractFiles(
     const UString &destPath,
     bool passwordIsDefined, const UString &password)
 {
-  CScreenRestorer screenRestorer;
   CProgressBox progressBox;
-
-  screenRestorer.Save();
-
-  CProgressBox *progressBoxPointer = &progressBox;
   progressBox.Init(g_StartupInfo.GetMsgString(NMessageID::kExtracting), 48, silent);
 
   CExtractCallBackImp *extractCallbackSpec = new CExtractCallBackImp;
@@ -49,7 +44,7 @@ HRESULT CPlugin::ExtractFiles(
   
   extractCallbackSpec->Init(
       CP_OEMCP,
-      progressBoxPointer,
+      &progressBox,
       /*
       GetDefaultName(m_FileName, m_ArchiverInfo.Extension),
       m_FileInfo.MTime, m_FileInfo.Attributes,

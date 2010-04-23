@@ -215,18 +215,6 @@ public:
   void SetProgressValue(unsigned __int64 completed, unsigned __int64 total);
 };
 
-class CScreenRestorer
-{
-  bool m_Saved;
-  HANDLE m_HANDLE;
-public:
-  CScreenRestorer(): m_Saved(false){};
-  ~CScreenRestorer();
-  void Save();
-  void Restore();
-};
-
-
 extern CStartupInfo g_StartupInfo;
 
 void PrintErrorMessage(const farChar *message, int code);
