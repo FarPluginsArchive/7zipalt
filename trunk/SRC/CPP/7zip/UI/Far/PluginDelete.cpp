@@ -65,13 +65,7 @@ int CPlugin::DeleteFiles(PluginPanelItem *panelItems, int numItems,
       return (FALSE);
   }
 
-  CScreenRestorer screenRestorer;
   CProgressBox progressBox;
-  CProgressBox *progressBoxPointer = NULL;
-
-  screenRestorer.Save();
-
-  progressBoxPointer = &progressBox;
   progressBox.Init(g_StartupInfo.GetMsgString(NMessageID::kDeleting), 48, opMode & OPM_SILENT);
 
   NWorkDir::CInfo workDirInfo;

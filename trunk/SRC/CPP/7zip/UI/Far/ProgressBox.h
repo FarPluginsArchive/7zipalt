@@ -34,6 +34,7 @@ class CProgressBox: public CMessageBox
   CSysString _prevMessage;
   CSysString _prevPercentMessage;
   bool _wasShown;
+  HANDLE hScreen;
   unsigned __int64 TmNext;
   unsigned __int64 TmFreq;
 public:

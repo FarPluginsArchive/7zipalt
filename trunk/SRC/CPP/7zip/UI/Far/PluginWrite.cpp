@@ -207,13 +207,7 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   if (tempFile.Create(workDir, kTempArcivePrefix, tempFileName) == 0)
     return NFileOperationReturnCode::kError;
 
-  CScreenRestorer screenRestorer;
   CProgressBox progressBox;
-  CProgressBox *progressBoxPointer = NULL;
-
-  screenRestorer.Save();
-
-  progressBoxPointer = &progressBox;
   progressBox.Init(g_StartupInfo.GetMsgString(NMessageID::kUpdating), 48, opMode & OPM_SILENT);
  
   ////////////////////////////
@@ -723,13 +717,8 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     return E_FAIL;
 
 
-  CScreenRestorer screenRestorer;
   CProgressBox progressBox;
-  CProgressBox *progressBoxPointer = NULL;
-
-  screenRestorer.Save();
-
-  progressBoxPointer = &progressBox;
+  CProgressBox *progressBoxPointer = &progressBox;
   progressBox.Init(g_StartupInfo.GetMsgString(NMessageID::kUpdating), 48, false);
 
   NFind::CFileInfoW fileInfo;

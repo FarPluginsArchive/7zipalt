@@ -599,9 +599,6 @@ static HANDLE MyOpenFilePlugin(const UString name, int CallLocation)
 
   CMyComPtr<IInFolderArchive> archiveHandler;
 
-  CScreenRestorer screenRestorer;
-  screenRestorer.Save();
-
   COpenArchiveCallback *openArchiveCallbackSpec = new COpenArchiveCallback;
   CMyComPtr<IArchiveOpenCallback> openArchiveCallback = openArchiveCallbackSpec;
 

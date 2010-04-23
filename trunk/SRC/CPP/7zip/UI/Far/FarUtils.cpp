@@ -673,30 +673,6 @@ void CStartupInfo::SetProgressValue(unsigned __int64 completed, unsigned __int64
 #endif
 }
 
-//////////////////////////////////
-// CScreenRestorer
-
-CScreenRestorer::~CScreenRestorer()
-{
-  Restore();
-}
-void CScreenRestorer::Save()
-{
-  if(m_Saved)
-    return;
-  m_HANDLE = g_StartupInfo.SaveScreen();
-  m_Saved = true;
-}
-
-void CScreenRestorer::Restore()
-{
-  if(m_Saved)
-  {
-    g_StartupInfo.RestoreScreen(m_HANDLE);
-    m_Saved = false;
-  }
-};
-
 static CSysString DWORDToString(DWORD number)
 {
   farChar buffer[32];

@@ -4,9 +4,9 @@
 
 #include <stdio.h>
 
+#include "FarUtils.h"
 #include "ProgressBox.h"
 #include "Common/IntToString.h"
-#include "FarUtils.h"
 
 static void CopySpaces(farChar *dest, int numSpaces)
 {
@@ -104,7 +104,10 @@ CSysString CMessageBox::GetTitle()
 
 CProgressBox::~CProgressBox() {
   if (_wasShown)
+  {
+    NFar::g_StartupInfo.RestoreScreen(hScreen);
     NFar::g_StartupInfo.SetProgressState(TBPF_NOPROGRESS);
+  }
 }
 
 void CProgressBox::Init(const CSysString &title, int width, bool lazy)
@@ -143,11 +146,16 @@ void CProgressBox::Progress(const UInt64 *total, const UInt64 *completed, const 
   }
   if (message != _prevMessage || percentMessage != _prevPercentMessage || !_wasShown)
   {
+    if (!_wasShown)
+    {
+      hScreen = NFar::g_StartupInfo.SaveScreen();
+      _wasShown = true;
+    }
+
     _prevMessage = message;
     _prevPercentMessage = percentMessage;
     const farChar *strings[] = { message, percentMessage };
     ShowMessages(strings, sizeof(strings) / sizeof(strings[0]));
-    _wasShown = true;
 
     CSysString TitleMessage;
     TitleMessage = _F("{") + percentMessage + _F("} ") + _title + _F(": ") + message;
