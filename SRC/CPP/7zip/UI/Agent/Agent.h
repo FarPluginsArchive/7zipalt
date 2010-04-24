@@ -72,6 +72,7 @@ public:
   STDMETHOD(Extract)(const UINT32 *indices, UINT32 numItems,
       NExtract::NPathMode::EEnum pathMode,
       NExtract::NOverwriteMode::EEnum overwriteMode,
+      bool useTempFiles,
       const wchar_t *path,
       INT32 testMode,
       IFolderArchiveExtractCallback *extractCallback);

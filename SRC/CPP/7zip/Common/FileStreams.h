@@ -89,6 +89,11 @@ public:
     ProcessedSize = 0;
     return File.Open(fileName, creationDisposition);
   }
+  bool Open(LPCTSTR fileName, DWORD shareMode, DWORD creationDisposition, DWORD flagsAndAttributes)
+  {
+    ProcessedSize = 0;
+    return File.Open(fileName, shareMode, creationDisposition, flagsAndAttributes);
+  }
   #ifdef USE_WIN_FILE
   #ifndef _UNICODE
   bool Create(LPCWSTR fileName, bool createAlways)
@@ -100,6 +105,11 @@ public:
   {
     ProcessedSize = 0;
     return File.Open(fileName, creationDisposition);
+  }
+  bool Open(LPCWSTR fileName, DWORD shareMode, DWORD creationDisposition, DWORD flagsAndAttributes)
+  {
+    ProcessedSize = 0;
+    return File.Open(fileName, shareMode, creationDisposition, flagsAndAttributes);
   }
   #endif
   #endif

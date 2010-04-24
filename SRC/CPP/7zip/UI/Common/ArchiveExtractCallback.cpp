@@ -370,7 +370,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
     {
       _outFileStreamSpec = new COutFileStream;
       CMyComPtr<ISequentialOutStream> outStreamLoc(_outFileStreamSpec);
-      if (!_outFileStreamSpec->Open(fullProcessedPath, _isSplit ? OPEN_ALWAYS: CREATE_ALWAYS))
+      if (!_outFileStreamSpec->Open(fullProcessedPath, FILE_SHARE_READ, _isSplit ? OPEN_ALWAYS : CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL | (_useTempFiles ? FILE_ATTRIBUTE_TEMPORARY : 0)))
       {
         // if (::GetLastError() != ERROR_FILE_EXISTS || !isSplit)
         {
