@@ -86,6 +86,7 @@ public:
       bool silent,
       NExtract::NPathMode::EEnum pathMode,
       NExtract::NOverwriteMode::EEnum overwriteMode,
+      bool useTempFiles,
       const UString &destPath,
       bool passwordIsDefined, const UString &password);
 

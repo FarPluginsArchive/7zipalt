@@ -44,6 +44,7 @@ private:
   UString _directoryPath;
   NExtract::NPathMode::EEnum _pathMode;
   NExtract::NOverwriteMode::EEnum _overwriteMode;
+  bool _useTempFiles;
 
   UString _filePath;
   UInt64 _position;
@@ -109,11 +110,13 @@ public:
   
   void InitForMulti(bool multiArchives,
       NExtract::NPathMode::EEnum pathMode,
-      NExtract::NOverwriteMode::EEnum overwriteMode)
+      NExtract::NOverwriteMode::EEnum overwriteMode,
+      bool useTempFiles)
   {
     _multiArchives = multiArchives; NumFolders = NumFiles = UnpackSize = 0;
     _pathMode = pathMode;
     _overwriteMode = overwriteMode;
+    _useTempFiles = useTempFiles;
   }
 
   void Init(

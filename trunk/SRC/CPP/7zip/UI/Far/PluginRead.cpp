@@ -33,6 +33,7 @@ HRESULT CPlugin::ExtractFiles(
     bool silent,
     NExtract::NPathMode::EEnum pathMode,
     NExtract::NOverwriteMode::EEnum overwriteMode,
+    bool useTempFiles,
     const UString &destPath,
     bool passwordIsDefined, const UString &password)
 {
@@ -52,14 +53,14 @@ HRESULT CPlugin::ExtractFiles(
       passwordIsDefined, password);
 
   if (decompressAllItems)
-    return m_ArchiveHandler->Extract(pathMode, overwriteMode,
+    return m_ArchiveHandler->Extract(pathMode, overwriteMode, useTempFiles,
         destPath, BoolToInt(false), extractCallback);
   else
   {
     CMyComPtr<IArchiveFolder> archiveFolder;
     _folder.QueryInterface(IID_IArchiveFolder, &archiveFolder);
 
-    return archiveFolder->Extract(indices, numIndices, pathMode, overwriteMode,
+    return archiveFolder->Extract(indices, numIndices, pathMode, overwriteMode, useTempFiles,
         destPath, BoolToInt(false), extractCallback);
   }
 }
@@ -325,16 +326,17 @@ NFileOperationReturnCode::EEnum CPlugin::GetFilesReal(struct PluginPanelItem *pa
     for (int i = 0; i < itemsNumber; i++)
       indices.Add((UInt32)panelItems[i].UserData);
 
+  bool useTempFiles = (opMode & (OPM_FIND | OPM_VIEW | OPM_QUICKVIEW)) != 0;
 #ifdef _UNICODE
   *_aDestPath = destPath;
   HRESULT result = ExtractFiles(decompressAllItems, &indices.Front(), itemsNumber, 
-    !showBox, extractionInfo.PathMode, extractionInfo.OverwriteMode, 
+    !showBox, extractionInfo.PathMode, extractionInfo.OverwriteMode, useTempFiles,
     destPath, passwordIsDefined, password);
 #else
   _aDestPath[0] = 0;
   lstrcpy(_aDestPath, destPath);
   HRESULT result = ExtractFiles(decompressAllItems, &indices.Front(), itemsNumber, 
-    !showBox, extractionInfo.PathMode, extractionInfo.OverwriteMode, 
+    !showBox, extractionInfo.PathMode, extractionInfo.OverwriteMode, useTempFiles,
     MultiByteToUnicodeString(destPath, CP_OEMCP), 
     passwordIsDefined, password);
 #endif

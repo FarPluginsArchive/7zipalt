@@ -377,6 +377,7 @@ STDMETHODIMP CAgentFolder::Extract(const UInt32 *indices,
     UInt32 numItems,
     NExtract::NPathMode::EEnum pathMode,
     NExtract::NOverwriteMode::EEnum overwriteMode,
+    bool useTempFiles,
     const wchar_t *path,
     INT32 testMode,
     IFolderArchiveExtractCallback *extractCallback2)
@@ -397,7 +398,7 @@ STDMETHODIMP CAgentFolder::Extract(const UInt32 *indices,
     pathMode = NExtract::NPathMode::kNoPathnames;
   */
 
-  extractCallbackSpec->InitForMulti(false, pathMode, overwriteMode);
+  extractCallbackSpec->InitForMulti(false, pathMode, overwriteMode, useTempFiles);
 
   extractCallbackSpec->Init(_agentSpec->GetArchive(),
       extractCallback2,
@@ -494,6 +495,7 @@ STDMETHODIMP CAgent::BindToRootFolder(IFolderFolder **resultFolder)
 STDMETHODIMP CAgent::Extract(
     NExtract::NPathMode::EEnum pathMode,
     NExtract::NOverwriteMode::EEnum overwriteMode,
+    bool useTempFiles,
     const wchar_t *path,
     INT32 testMode,
     IFolderArchiveExtractCallback *extractCallback2)
@@ -501,7 +503,7 @@ STDMETHODIMP CAgent::Extract(
   COM_TRY_BEGIN
   CArchiveExtractCallback *extractCallbackSpec = new CArchiveExtractCallback;
   CMyComPtr<IArchiveExtractCallback> extractCallback = extractCallbackSpec;
-  extractCallbackSpec->InitForMulti(false, pathMode, overwriteMode);
+  extractCallbackSpec->InitForMulti(false, pathMode, overwriteMode, useTempFiles);
   extractCallbackSpec->Init(GetArchive(),
       extractCallback2,
       false,

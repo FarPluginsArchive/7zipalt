@@ -19,6 +19,7 @@
   STDMETHOD(Extract)(const UInt32 *indices, UInt32 numItems, \
       NExtract::NPathMode::EEnum pathMode, \
       NExtract::NOverwriteMode::EEnum overwriteMode, \
+      bool useTempFiles, \
       const wchar_t *path, Int32 testMode, \
       IFolderArchiveExtractCallback *extractCallback2) x; \
 
@@ -35,7 +36,7 @@ FOLDER_ARCHIVE_INTERFACE(IArchiveFolder, 0x05)
   STDMETHOD(GetPropertyInfo)(UInt32 index, BSTR *name, PROPID *propID, VARTYPE *varType) x; \
   STDMETHOD(BindToRootFolder)(IFolderFolder **resultFolder) x; \
   STDMETHOD(Extract)(NExtract::NPathMode::EEnum pathMode, \
-      NExtract::NOverwriteMode::EEnum overwriteMode, const wchar_t *path, \
+      NExtract::NOverwriteMode::EEnum overwriteMode, bool useTempFiles, const wchar_t *path, \
       Int32 testMode, IFolderArchiveExtractCallback *extractCallback2) x; \
 
 FOLDER_ARCHIVE_INTERFACE(IInFolderArchive, 0x06)
