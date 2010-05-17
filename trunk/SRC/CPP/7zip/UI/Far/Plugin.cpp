@@ -94,6 +94,8 @@ if (oemString == _F(".."))
     panelItem.FindData.dwFileAttributes = m_FileInfo.Attrib;
   else
     throw 21631;
+  // leave common attributes only
+  panelItem.FindData.dwFileAttributes &= FILE_ATTRIBUTE_ARCHIVE | FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM;
 
   if (_folder->GetProperty(itemIndex, kpidIsDir, &prop) != S_OK)
     throw 271932;
