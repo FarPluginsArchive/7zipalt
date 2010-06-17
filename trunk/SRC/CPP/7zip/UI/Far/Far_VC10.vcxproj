@@ -244,6 +244,8 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='ReleaseA|Win32'">7-ZipFar</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='ReleaseA x64|x64'">7-ZipFar</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release x64|x64'">7-ZipFar</TargetName>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='DebugA|Win32'">false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -776,6 +778,8 @@
     <Bscmake />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\Common\StringToInt.cpp" />
+    <ClCompile Include="..\Common\SetProperties.cpp" />
     <ClCompile Include="CLSIDConst.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugA|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='DebugA|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -2297,7 +2301,10 @@
     <None Include="Far18.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Common\StringToInt.h" />
     <ClInclude Include="..\..\MyVersion.h" />
+    <ClInclude Include="..\Common\Property.h" />
+    <ClInclude Include="..\Common\SetProperties.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="..\..\..\Common\IntToString.h" />
     <ClInclude Include="..\..\..\Common\MyString.h" />

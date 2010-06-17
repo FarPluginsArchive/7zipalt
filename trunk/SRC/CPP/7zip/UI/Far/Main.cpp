@@ -56,6 +56,15 @@ const bool kNumericSortDefault = true;
 const farChar *kRegistryValueNameMaxCheckSize = _F("MaxCheckSize");
 const int kMaxCheckSizeDefault = 2 * 1024 * 1024;
 
+const farChar *kRegistryValueNameArchiveType = _F("ArchiveType");
+const farChar *kArchiveTypeDefault = _F("7z");
+const farChar *kRegistryValueNameLevel = _F("Level");
+const int kLevelDefault = 7;
+const farChar *kRegistryValueNameMethod = _F("Method");
+const farChar *kMethodDefault = _F("LZMA");
+const farChar *kRegistryValueNameAddExtension = _F("AddExtension");
+const bool kAddExtensionDefault = true;
+
 const farChar *kHelpTopicConfig =  _F("Config");
 
 HINSTANCE g_hInstance;
@@ -177,6 +186,22 @@ struct COptions
       MaxCheckSize = kMaxCheckSizeDefault;
   }
 } g_Options;
+
+void CCompressionInfo::Load()
+{
+  ArchiveType = GetUnicodeString(g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameArchiveType, CSysString(kArchiveTypeDefault)));
+  Level = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameLevel, kLevelDefault);
+  Method = GetUnicodeString(g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameMethod, CSysString(kMethodDefault)));
+  AddExtension = g_StartupInfo.QueryRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameAddExtension, kAddExtensionDefault);
+}
+
+void CCompressionInfo::Save()
+{
+  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameArchiveType, GetSystemString(ArchiveType));
+  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameLevel, static_cast<int>(Level));
+  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameMethod, GetSystemString(Method));
+  g_StartupInfo.SetRegKeyValue(HKEY_CURRENT_USER, kRegistryMainKeyName, kRegistryValueNameAddExtension, AddExtension);
+}
 
 #ifdef _UNICODE
 int WINAPI _export GetMinFarVersionW(void)
