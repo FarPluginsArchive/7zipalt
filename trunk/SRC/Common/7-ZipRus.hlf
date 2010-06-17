@@ -1,11 +1,12 @@
 .Language=Russian,Russian (Русский)
-.PluginContents=Плагин 7-Zip
+.PluginContents=7-Zip Alternative
 
 @Contents
 $^#7-Zip Plugin 4.65 Alternative#
 $^#Copyright (c) 1999-2007 Igor Pavlov#
 $^#Первоначальная модификация Alexander Nesterovsky#
 $^#Дополнительная поддержка Vladimir Kubyshev#
+$^#Дополнительная модификация Олег Маковский#
     Этот модуль FAR позволяет работать с #архивами#. Для пользователя
 файлы в архивах не отличаются от файлов в папках. Префикс для вызова модуля
 из командной строки #7-Zip#. 
@@ -17,7 +18,7 @@ $^#Дополнительная поддержка Vladimir Kubyshev#
    ~Параметры работы с архивами~@Config@
 
 
- Web site:  #www.7-zip.org#
+ Web site:  ~7zipalt.googlecode.com~@http://7zipalt.googlecode.com@
 
 @Extract
 $ #Распаковка файлов из архива#

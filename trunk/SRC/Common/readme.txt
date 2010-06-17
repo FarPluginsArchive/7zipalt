@@ -1,17 +1,11 @@
-7-ZipFar 4.65 Alternative
--------------------------------------------
-7-ZipFar Alternative is based on original 7-ZipFar by
-Igor Pavlov, http://www.7-zip.org
+7-Zip Alternative plugin for Far Manager
+http://7zipalt.googlecode.com
+----------------------------------------
 
+Based on original 7-ZipFar by Igor Pavlov
+http://www.7-zip.org
 
-Differences from orginal 7-ZipFar
----------------------------------
-I was disappointed with the fact, that 7-ZipFar tries to open all
-files, when you press Enter. It may take a long time for plugin
-to realize, that file is not archive, and to open it in normal way.
-So I added ability to work with file masks.
-I hope it's not the last addition to plugin, and people
-will continue it's development.
+Modifications by:
 
 Alexander Nesterovsky <Nsky@users.sourceforge.net>
 http://www.bigfoot.com/~Nsky/
@@ -19,6 +13,21 @@ http://www.bigfoot.com/~Nsky/
 FAR 2.0 supporting by Vladimir Kubyshev
 <crom83@mail.ru>
 http://vovan.dankov.net
+
+Oleg Makovski
+<farplug@gmail.com>
+
+
+Differences from original 7-Zip plugin
+--------------------------------------
+ * Supports Far 2 and Far x64.
+ * Opens only files matching a list of file masks.
+ * Saves plugin panel mode and sorting order.
+ * Allocates disk space to avoid file fragmentation when extracting archives.
+ * Specific archive formats can be disabled (PE for example).
+ * Archive format can be selected manually.
+ * Other minor improvements. 
+
 
 How to use it?
 --------------

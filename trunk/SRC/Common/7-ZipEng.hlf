@@ -1,11 +1,12 @@
 .Language=English,English
-.PluginContents=7-Zip Plugin
+.PluginContents=7-Zip Alternative
 
 @Contents
 $^#7-Zip Plugin 4.65 Alternative#
 $^#Copyright (c) 1999-2007 Igor Pavlov#
 $^#Modification by Alexander Nesterovsky#
 $^#Additional supporting by Vladimir Kubyshev#
+$^#Additional modifications by Oleg Makovski#
     This FAR module performs transparent #archive# processing.
 Files in the archive are handled in the same manner as if they
 were in a folder. Prefix call for this module from the command line
@@ -18,7 +19,7 @@ is #7-Zip#.
    ~7-Zip Plugin configuration~@Config@
 
 
- Web site:  #www.7-zip.org#
+ Web site:  ~7zipalt.googlecode.com~@http://7zipalt.googlecode.com@
 
 @Extract
 $ #Extracting from the archive#
