@@ -4,10 +4,10 @@
 @rem ------------------------------
 @rem prepare FILE_ID.DIZ
 @rem ------------------------------
-@echo Generating FILE_ID.DIZ
-@echo 7-ZipFar 4.65 Alternative build %build% %bdata% > SRC\COMMON\FILE_ID.DIZ
-@echo All features of original 7-ZipFar  >> SRC\COMMON\FILE_ID.DIZ
-@echo with some additions (see readme and help)  >> SRC\COMMON\FILE_ID.DIZ
+@echo Generating file_id.diz
+@echo 7-Zip Alternative 4.65 build %build% %bdata% > SRC\Common\file_id.diz
+@echo All features of original 7-ZipFar  >> SRC\Common\file_id.diz
+@echo with some additions (see readme and help)  >> SRC\Common\file_id.diz
 
 @rem ------------------------------
 @rem prepare MyVersion.h
