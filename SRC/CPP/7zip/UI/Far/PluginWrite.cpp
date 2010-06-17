@@ -6,6 +6,7 @@
 
 #include "Common/Wildcard.h"
 #include "Common/StringConvert.h"
+#include "Common/IntToString.h"
 
 #include "Windows/FileDir.h"
 #include "Windows/FileName.h"
@@ -16,13 +17,13 @@
 #include "../Common/ZipRegistry.h"
 #include "../Common/WorkDir.h"
 #include "../Common/OpenArchive.h"
+#include "../Common/SetProperties.h"
 
 #include "../Agent/Agent.h"
 
 #include "ProgressBox.h"
 #include "Messages.h"
 #include "UpdateCallback100.h"
-
 
 using namespace NWindows;
 using namespace NFile;
@@ -37,22 +38,30 @@ static LPCWSTR kTempArcivePrefix = L"7zA";
 
 static const farChar *kArchiveHistoryKeyName = _F("7-ZipArcName"); 
 
-static UINT32 g_MethodMap[] = { 0, 1, 3, 5, 7, 9 };
+static UINT32 g_LevelMap[] = { 0, 1, 3, 5, 7, 9 };
 
-static HRESULT SetOutProperties(IOutFolderArchive *outArchive, UINT32 method)
+static wchar_t* g_MethodMap[] = { L"LZMA", L"LZMA2", L"PPMD" };
+
+static UString ConvertToString(UInt64 num)
 {
-  CMyComPtr<ISetProperties> setProperties;
-  if (outArchive->QueryInterface(IID_ISetProperties, (void **)&setProperties) == S_OK)
-  {
-    UStringVector realNames;
-    realNames.Add(UString(L"x"));
-    NCOM::CPropVariant value = (UInt32)method;
-    CRecordVector<const wchar_t *> names;
-    for(int i = 0; i < realNames.Size(); i++)
-      names.Add(realNames[i]);
-    RINOK(setProperties->SetProperties(&names.Front(), &value, names.Size()));
+  wchar_t s[32];
+  ConvertUInt64ToString(num, s);
+  return s;
+}
+
+static HRESULT SetOutProperties(IOutFolderArchive *outArchive, const CCompressionInfo& compressionInfo, bool is_7z)
+{
+  CProperty prop;
+  CObjectVector<CProperty> properties;
+  prop.Name = L"x";
+  prop.Value = ConvertToString(compressionInfo.Level);
+  properties.Add(prop);
+  if (is_7z) {
+    prop.Name = L"0";
+    prop.Value = compressionInfo.Method;
+    properties.Add(prop);
   }
-  return S_OK;
+  return SetProperties(outArchive, properties);
 }
 
 NFileOperationReturnCode::EEnum CPlugin::PutFiles(
@@ -73,20 +82,31 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   const int kYSize = 15;
   const int kXMid = 38;
 
-  NCompression::CInfo compressionInfo;
-  ReadCompressionInfo(compressionInfo);
+  CCompressionInfo compressionInfo;
+  compressionInfo.Load();
 
-  int methodIndex = 0;
+  bool is_7z = _archiveTypeName == L"7z";
+
+  int levelIndex = 0;
   int i;
-  for (i = sizeof(g_MethodMap) / sizeof(g_MethodMap[0]) - 1; i >= 0; i--)
-    if (compressionInfo.Level >= g_MethodMap[i])
+  for (i = ARRAYSIZE(g_LevelMap) - 1; i >= 0; i--)
+    if (compressionInfo.Level >= g_LevelMap[i])
     {
-      methodIndex = i;
+      levelIndex = i;
       break;
     }
 
-  const int kMethodRadioIndex = 2;
-  const int kModeRadioIndex = kMethodRadioIndex + 7;
+    int methodIndex = 0;
+    for (i = ARRAYSIZE(g_MethodMap) - 1; i >= 0; i--)
+      if (compressionInfo.Method == g_MethodMap[i])
+      {
+        methodIndex = i;
+        break;
+      }
+
+  const int kLevelRadioIndex = 2;
+  const int kMethodRadioIndex = kLevelRadioIndex + 6;
+  const int kModeRadioIndex = kMethodRadioIndex + 4;
   const int kPassword = kModeRadioIndex + 5;
   const int kPassword2 = kPassword + 2;
 
@@ -95,19 +115,23 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
 
   struct CInitDialogItem initItems[]={
     { DI_DOUBLEBOX, 3, 1, 72, kYSize - 2, false, false, 0, false, NMessageID::kUpdateTitle, NULL, NULL },
-    { DI_SINGLEBOX, 4, 2, kXMid - 2, 2 + 7, false, false, 0, false, NMessageID::kUpdateMethod, NULL, NULL },
-    { DI_RADIOBUTTON, 6, 3, 0, 0, methodIndex == 0, methodIndex == 0,
-        DIF_GROUP, false, NMessageID::kUpdateMethodStore, NULL, NULL },
-    { DI_RADIOBUTTON, 6, 4, 0, 0, methodIndex == 1, methodIndex == 1,
-        0, false, NMessageID::kUpdateMethodFastest, NULL, NULL },
-    { DI_RADIOBUTTON, 6, 5, 0, 0, methodIndex == 2, methodIndex == 2,
-        0, false, NMessageID::kUpdateMethodFast, NULL, NULL },
-    { DI_RADIOBUTTON, 6, 6, 0, 0, methodIndex == 3, methodIndex == 3,
-        0, false, NMessageID::kUpdateMethodNormal, NULL, NULL },
-    { DI_RADIOBUTTON, 6, 7, 0, 0, methodIndex == 4, methodIndex == 4,
-        0, false, NMessageID::kUpdateMethodMaximum, NULL, NULL },
-    { DI_RADIOBUTTON, 6, 8, 0, 0, methodIndex == 5, methodIndex == 5,
-        0, false, NMessageID::kUpdateMethodUltra, NULL, NULL },
+    { DI_SINGLEBOX, 4, 2, kXMid - 2, 2 + 7, false, false, 0, false, NMessageID::kUpdateLevel, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 3, 0, 0, levelIndex == 0, levelIndex == 0,
+        DIF_GROUP, false, NMessageID::kUpdateLevelStore, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 4, 0, 0, levelIndex == 1, levelIndex == 1,
+        0, false, NMessageID::kUpdateLevelFastest, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 5, 0, 0, levelIndex == 2, levelIndex == 2,
+        0, false, NMessageID::kUpdateLevelFast, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 6, 0, 0, levelIndex == 3, levelIndex == 3,
+        0, false, NMessageID::kUpdateLevelNormal, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 7, 0, 0, levelIndex == 4, levelIndex == 4,
+        0, false, NMessageID::kUpdateLevelMaximum, NULL, NULL },
+    { DI_RADIOBUTTON, 6, 8, 0, 0, levelIndex == 5, levelIndex == 5,
+        0, false, NMessageID::kUpdateLevelUltra, NULL, NULL },
+
+    { DI_RADIOBUTTON, 26, 5, 0, 0, false, methodIndex == 0, DIF_GROUP | (is_7z ? 0 : DIF_HIDDEN), false, NMessageID::kUpdateMethodLZMA, NULL, NULL },
+    { DI_RADIOBUTTON, 26, 6, 0, 0, false, methodIndex == 1, is_7z ? 0 : DIF_HIDDEN, false, NMessageID::kUpdateMethodLZMA2, NULL, NULL },
+    { DI_RADIOBUTTON, 26, 7, 0, 0, false, methodIndex == 2, is_7z ? 0 : DIF_HIDDEN, false, NMessageID::kUpdateMethodPPMD, NULL, NULL },
     
     { DI_SINGLEBOX, kXMid, 2, 70, 2 + 5, false, false, 0, false, NMessageID::kUpdateMode, NULL, NULL },
     { DI_RADIOBUTTON, kXMid + 2, 3, 0, 0, false, true,
@@ -156,11 +180,15 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
   if (askCode != kOkButtonIndex)
     return NFileOperationReturnCode::kInterruptedByUser;
 
-  compressionInfo.Level = g_MethodMap[0];
+  compressionInfo.Level = g_LevelMap[0];
 #ifdef _UNICODE
-  for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
+  for (i = 0; i < ARRAYSIZE(g_LevelMap); i++)
+    if (g_StartupInfo.GetItemSelected(hDlg, kLevelRadioIndex + i))
+      compressionInfo.Level = g_LevelMap[i];
+
+  for (i = 0; i < ARRAYSIZE(g_MethodMap); i++)
     if (g_StartupInfo.GetItemSelected(hDlg, kMethodRadioIndex + i))
-      compressionInfo.Level = g_MethodMap[i];
+      compressionInfo.Method = g_MethodMap[i];
 
   const CActionSet *actionSet;
 
@@ -177,9 +205,13 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
 
   g_StartupInfo.DialogFree(hDlg);
 #else
-  for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
-    if (dialogItems[kMethodRadioIndex + i].Selected)
-      compressionInfo.Level = g_MethodMap[i];
+  for (i = 0; i < ARRAYSIZE(g_LevelMap); i++)
+    if (dialogItems[kLevelRadioIndex + i].Selected)
+      compressionInfo.Level = g_LevelMap[i];
+
+    for (i = 0; i < ARRAYSIZE(g_MethodMap); i++)
+      if (dialogItems[kMethodRadioIndex + i].Selected)
+        compressionInfo.Method = g_MethodMap[i];
 
   const CActionSet *actionSet;
 
@@ -195,7 +227,7 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
     throw 51751;
 #endif
 
-  SaveCompressionInfo(compressionInfo);
+  compressionInfo.Save();
 
   NWorkDir::CInfo workDirInfo;
   ReadWorkDirInfo(workDirInfo);
@@ -254,7 +286,7 @@ NFileOperationReturnCode::EEnum CPlugin::PutFiles(
 
   updateCallbackSpec->Init(/* m_ArchiveHandler, */ &progressBox, !password.IsEmpty(), password);
 
-  if (SetOutProperties(outArchive, compressionInfo.Level) != S_OK)
+  if (SetOutProperties(outArchive, compressionInfo, is_7z) != S_OK)
     return NFileOperationReturnCode::kError;
 
   result = outArchive->DoOperation2(tempFileName, actionSetByte, NULL, updateCallback);
@@ -403,9 +435,10 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     fileNames.Add(fullName);
   }
 
-  NCompression::CInfo compressionInfo;
-  ReadCompressionInfo(compressionInfo);
+  CCompressionInfo compressionInfo;
+  compressionInfo.Load();
 
+  bool is_7z;
   int archiverIndex = 0;
 
   CCodecs *codecs = new CCodecs;
@@ -472,8 +505,9 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     const int kXMid = 38;
   
     const int kArchiveNameIndex = 2;
-    const int kMethodRadioIndex = kArchiveNameIndex + 2;
-    const int kModeRadioIndex = kMethodRadioIndex + 7;
+    const int kLevelRadioIndex = kArchiveNameIndex + 2;
+    const int kMethodRadioIndex = kLevelRadioIndex + 6;
+    const int kModeRadioIndex = kMethodRadioIndex + 4;
     const int kAddExtensionCheck = kModeRadioIndex + 4;
 
     const int kPassword = kAddExtensionCheck + 2;
@@ -487,10 +521,20 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
     g_StartupInfo.m_FSF.sprintf(updateAddToArchiveString, 
         g_StartupInfo.GetMsgString(NMessageID::kUpdateAddToArchive), (const farChar *)s);
 
-    int methodIndex = 0;
+    is_7z = codecs->Formats[archiverIndex].Name == L"7z";
+
+    int levelIndex = 0;
     int i;
-    for (i = sizeof(g_MethodMap) / sizeof(g_MethodMap[0]) - 1; i >= 0; i--)
-      if (compressionInfo.Level >= g_MethodMap[i])
+    for (i = ARRAYSIZE(g_LevelMap) - 1; i >= 0; i--)
+      if (compressionInfo.Level >= g_LevelMap[i])
+      {
+        levelIndex = i;
+        break;
+      }
+
+    int methodIndex = 0;
+    for (i = ARRAYSIZE(g_MethodMap) - 1; i >= 0; i--)
+      if (compressionInfo.Method == g_MethodMap[i])
       {
         methodIndex = i;
         break;
@@ -504,20 +548,24 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
 
       { DI_EDIT, 5, 3, 70, 3, true, false, DIF_HISTORY, false, -1, archiveNameA, kArchiveHistoryKeyName},
 
-      { DI_SINGLEBOX, 4, 4, kXMid - 2, 4 + 7, false, false, 0, false, NMessageID::kUpdateMethod, NULL, NULL },
-      { DI_RADIOBUTTON, 6, 5, 0, 0, false, methodIndex == 0,
-          DIF_GROUP, false, NMessageID::kUpdateMethodStore, NULL, NULL },
-      { DI_RADIOBUTTON, 6, 6, 0, 0, false, methodIndex == 1,
-          0, false, NMessageID::kUpdateMethodFastest, NULL, NULL },
-      { DI_RADIOBUTTON, 6, 7, 0, 0, false, methodIndex == 2,
-          0, false, NMessageID::kUpdateMethodFast, NULL, NULL },
-      { DI_RADIOBUTTON, 6, 8, 0, 0, false, methodIndex == 3,
-          0, false, NMessageID::kUpdateMethodNormal, NULL, NULL },
-      { DI_RADIOBUTTON, 6, 9, 0, 0, false, methodIndex == 4,
-          false, 0, NMessageID::kUpdateMethodMaximum, NULL, NULL },
-      { DI_RADIOBUTTON, 6, 10, 0, 0, false, methodIndex == 5,
-          false, 0, NMessageID::kUpdateMethodUltra, NULL, NULL },
-      
+      { DI_SINGLEBOX, 4, 4, kXMid - 2, 4 + 7, false, false, 0, false, NMessageID::kUpdateLevel, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 5, 0, 0, false, levelIndex == 0,
+          DIF_GROUP, false, NMessageID::kUpdateLevelStore, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 6, 0, 0, false, levelIndex == 1,
+          0, false, NMessageID::kUpdateLevelFastest, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 7, 0, 0, false, levelIndex == 2,
+          0, false, NMessageID::kUpdateLevelFast, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 8, 0, 0, false, levelIndex == 3,
+          0, false, NMessageID::kUpdateLevelNormal, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 9, 0, 0, false, levelIndex == 4,
+          false, 0, NMessageID::kUpdateLevelMaximum, NULL, NULL },
+      { DI_RADIOBUTTON, 6, 10, 0, 0, false, levelIndex == 5,
+          false, 0, NMessageID::kUpdateLevelUltra, NULL, NULL },
+
+      { DI_RADIOBUTTON, 26, 5, 0, 0, false, methodIndex == 0, DIF_GROUP | (is_7z ? 0 : DIF_HIDDEN), false, NMessageID::kUpdateMethodLZMA, NULL, NULL },
+      { DI_RADIOBUTTON, 26, 6, 0, 0, false, methodIndex == 1, is_7z ? 0 : DIF_HIDDEN, false, NMessageID::kUpdateMethodLZMA2, NULL, NULL },
+      { DI_RADIOBUTTON, 26, 7, 0, 0, false, methodIndex == 2, is_7z ? 0 : DIF_HIDDEN, false, NMessageID::kUpdateMethodPPMD, NULL, NULL },
+
       { DI_SINGLEBOX, kXMid, 4, 70, 4 + 5, false, false, 0, false, NMessageID::kUpdateMode, NULL, NULL },
       { DI_RADIOBUTTON, kXMid + 2, 5, 0, 0, false,
           actionSet == &kAddActionSet,
@@ -582,11 +630,16 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
       continue;
     }
 
-    compressionInfo.Level = g_MethodMap[0];
+    compressionInfo.Level = g_LevelMap[0];
 #ifdef _UNICODE
-    for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
+    for (i = 0; i < ARRAYSIZE(g_LevelMap); i++)
+      if (g_StartupInfo.GetItemSelected(hDlg, kLevelRadioIndex + i))
+        compressionInfo.Level = g_LevelMap[i];
+
+    for (i = 0; i < ARRAYSIZE(g_MethodMap); i++)
       if (g_StartupInfo.GetItemSelected(hDlg, kMethodRadioIndex + i))
-        compressionInfo.Level = g_MethodMap[i];
+        compressionInfo.Method = g_MethodMap[i];
+
     if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex))
       actionSet = &kAddActionSet;
     else if (g_StartupInfo.GetItemSelected(hDlg, kModeRadioIndex + 1))
@@ -602,9 +655,14 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
 
     g_StartupInfo.DialogFree(hDlg);
 #else
-    for (i = 0; i < sizeof(g_MethodMap)/ sizeof(g_MethodMap[0]); i++)
+    for (i = 0; i < ARRAYSIZE(g_LevelMap); i++)
+      if (dialogItems[kLevelRadioIndex + i].Selected)
+        compressionInfo.Level = g_LevelMap[i];
+
+    for (i = 0; i < ARRAYSIZE(g_MethodMap); i++)
       if (dialogItems[kMethodRadioIndex + i].Selected)
-        compressionInfo.Level = g_MethodMap[i];
+        compressionInfo.Method = g_MethodMap[i];
+
     if (dialogItems[kModeRadioIndex].Selected)
       actionSet = &kAddActionSet;
     else if (dialogItems[kModeRadioIndex + 1].Selected)
@@ -698,7 +756,7 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
 
   const CArcInfoEx &archiverInfoFinal = codecs->Formats[archiverIndex];
   compressionInfo.ArchiveType = archiverInfoFinal.Name;
-  SaveCompressionInfo(compressionInfo);
+  compressionInfo.Save();
 
   NWorkDir::CInfo workDirInfo;
   ReadWorkDirInfo(workDirInfo);
@@ -773,8 +831,7 @@ HRESULT CompressFiles(const CObjectVector<MyPluginPanelItem> &pluginPanelItems)
 
   updateCallbackSpec->Init(/* archiveHandler, */ &progressBox, !password.IsEmpty(), password);
 
-
-  RINOK(SetOutProperties(outArchive, compressionInfo.Level));
+  RINOK(SetOutProperties(outArchive, compressionInfo, is_7z));
 
   HRESULT result = outArchive->DoOperation(
       codecs, archiverIndex,

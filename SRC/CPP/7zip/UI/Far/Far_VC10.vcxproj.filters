@@ -201,6 +201,12 @@
     <ClCompile Include="..\..\..\..\C\Threads.c">
       <Filter>C</Filter>
     </ClCompile>
+    <ClCompile Include="..\Common\SetProperties.cpp">
+      <Filter>UI Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Common\StringToInt.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Far.def">
@@ -387,6 +393,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\C\Threads.h">
       <Filter>C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Property.h">
+      <Filter>UI Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\SetProperties.h">
+      <Filter>UI Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\Common\StringToInt.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

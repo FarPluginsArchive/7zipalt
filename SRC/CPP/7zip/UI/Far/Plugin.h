@@ -116,6 +116,16 @@ public:
   void GetPanelMode(CPanelMode& panelMode);
 };
 
+struct CCompressionInfo
+{
+  UString ArchiveType;
+  UInt32 Level;
+  UString Method;
+  bool AddExtension;
+  void Load();
+  void Save();
+};
+
 HRESULT CompressFiles(const CObjectVector<NFar::MyPluginPanelItem> &aPluginPanelItems);
 
 #endif
