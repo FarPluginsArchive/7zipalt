@@ -303,6 +303,7 @@ struct CPROPIDToName
 
 static CPROPIDToName kPROPIDToName[] =
 {
+  { kpidPath, NMessageID::kPath },
   { kpidName, NMessageID::kName },
   { kpidExtension, NMessageID::kExtension },
   { kpidIsDir, NMessageID::kIsFolder },
@@ -346,7 +347,18 @@ static CPROPIDToName kPROPIDToName[] =
   { kpidHeadersSize, NMessageID::kHeadersSize },
   { kpidChecksum, NMessageID::kChecksum },
   { kpidCharacts, NMessageID::kCharacts },
-  { kpidVa, NMessageID::kVa }
+  { kpidVa, NMessageID::kVa },
+  { kpidId, NMessageID::kId },
+  { kpidShortName, NMessageID::kShortName},
+  { kpidCreatorApp, NMessageID::kCreatorApp },
+  { kpidSectorSize, NMessageID::kSectorSize },
+  { kpidPosixAttrib, NMessageID::kPosixAttrib },
+  { kpidLink, NMessageID::kLink },
+
+  { kpidTotalSize, NMessageID::kTotalSize },
+  { kpidFreeSpace, NMessageID::kFreeSpace },
+  { kpidClusterSize, NMessageID::kClusterSize },
+  { kpidVolumeName, NMessageID::kLabel }
 };
 
 static const int kNumPROPIDToName = sizeof(kPROPIDToName) /  sizeof(kPROPIDToName[0]);
