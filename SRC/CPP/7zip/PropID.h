@@ -54,6 +54,12 @@ enum
   kpidChecksum,
   kpidCharacts,
   kpidVa,
+  kpidId,
+  kpidShortName,
+  kpidCreatorApp,
+  kpidSectorSize,
+  kpidPosixAttrib,
+  kpidLink,
 
   kpidTotalSize = 0x1100,
   kpidFreeSpace,
