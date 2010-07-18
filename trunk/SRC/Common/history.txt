@@ -1,5 +1,12 @@
 History of the 7-ZipFar Alternative
 -----------------------------------
+Version 4.65  b26  2010-07-18
+ - create archive using LZMA2 compression method
+ - filter out invalid file attributes
+ - show operation progress using Windows 7 task bar
+ - support for new archive attributes from recent version of 7z.dll
+ - new option: number of kB to read when determining archive format
+
 Version 4.65  b25  2009-10-12
  - support for Far 2 build 1160
 

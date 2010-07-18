@@ -1,5 +1,5 @@
-@set build=25
-@set bdate=2009-10-12
+@set build=26
+@set bdate=2010-07-18
 @set min_far=2.0.1309
 
 @rem ------------------------------
