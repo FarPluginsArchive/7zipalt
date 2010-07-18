@@ -143,6 +143,8 @@ void CProgressBox::Progress(const UInt64 *total, const UInt64 *completed, const 
     ConvertUInt64ToStringAligned(*completed * 100 / totalVal, buf, 3);
     lstrcat(buf, _F("%"));
     percentMessage = buf;
+    NFar::g_StartupInfo.SetProgressState(TBPF_NORMAL);
+    NFar::g_StartupInfo.SetProgressValue(*completed, *total);
   }
   if (message != _prevMessage || percentMessage != _prevPercentMessage || !_wasShown)
   {
@@ -160,7 +162,5 @@ void CProgressBox::Progress(const UInt64 *total, const UInt64 *completed, const 
     CSysString TitleMessage;
     TitleMessage = _F("{") + percentMessage + _F("} ") + _title + _F(": ") + message;
     SetConsoleTitle(TitleMessage);
-    NFar::g_StartupInfo.SetProgressState(TBPF_NORMAL);
-    NFar::g_StartupInfo.SetProgressValue(*completed, *total);
   }
 }
