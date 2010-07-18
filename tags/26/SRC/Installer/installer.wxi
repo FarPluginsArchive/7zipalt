@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?if $(var.Platform) = x86 ?>
+  <?define Win64 = "no" ?>
+  <?define FarManager = "Far Manager 2" ?>
+  <?define Guid.FarUpgradeCode = "67A59013-488F-4388-81F3-828A1DCEDA32" ?>
+  <?define InstallDir = "InstallDir" ?>
+<?endif?>
+<?if $(var.Platform) = x64 ?>
+  <?define Win64 = "yes" ?>
+  <?define FarManager = "Far Manager 2 x64" ?>
+  <?define Guid.FarUpgradeCode = "83140F3F-1457-42EB-8053-233293664714" ?>
+  <?define InstallDir = "InstallDir_x64" ?>
+<?endif?>
+<Include />

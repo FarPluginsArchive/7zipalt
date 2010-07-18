@@ -1,0 +1,132 @@
+History of the 7-ZipFar Alternative
+-----------------------------------
+Version 4.65  b26  2010-07-18
+ - create archive using LZMA2 compression method
+ - filter out invalid file attributes
+ - show operation progress using Windows 7 task bar
+ - support for new archive attributes from recent version of 7z.dll
+ - new option: number of kB to read when determining archive format
+
+Version 4.65  b25  2009-10-12
+ - support for Far 2 build 1160
+
+Version 4.65  b24  2009-10-08
+ - more Far 2 build 1145 compatibility fixes
+
+Version 4.65  b23  2009-10-01
+ - can set password
+ - UNICODE: supporting FAR20b1145
+
+Version 4.65  b22  2009-09-01
+ - some ISO were opened as ZIP
+
+Version 4.65  b21  2009-08-27
+ - selected archive formats can be disabled
+ - archive format can be selected manually from plugin menu
+ - ability to detect all archive formats valid for selected file
+ - prefer UDF over ISO
+ - some ISO and TAR archives were opened as PE
+ - Ctrl+F inserts path w/o leading slash
+
+Version 4.65  b20  2009-08-13
+ - improve progress box
+ - support for Far 2 build 1017
+ - save/restore plugin panel mode
+ - allocate disk space to avoid fragmentation
+ - ability to disable selected archive formats (work in progress)
+
+Version 4.65  b19  2009-07-29
+ - fix archive file name for dir with dots in it's name
+ - new option in compression dialog "Add default extension"
+ - current processing filename in progress dialog
+ - output progress to FAR title
+ - fix crashing when try to change occupied archive 
+ - ANSI: fix working with russian names
+
+Version 4.65  b18  2009-07-07
+ - fix remembering of compressing settings
+ - some memory leaks
+ - 7z.dll can be placed anywhere in PATH
+
+Version 4.65  b17  2009-06-16
+ - fix plugin crashes
+
+Version 4.65  b16  2009-06-15
+ - supporting FAR 1.75 x64
+ - supporting FAR 2.0 build 992 
+
+Version 4.65  b15  2009-04-06
+ - fix reading tar.gz
+
+Version 4.65  b14  2009-04-01
+ - fixed junk in input box int extraction dialog
+ - localized warnings
+ - allowed "." in extraction dialog
+
+Version 4.65  b13  2009-03-30
+ - fix long paths in overwrite dialog
+
+Version 4.65  b12  2009-03-26
+ - improved stability
+ - additional fix processing filenames with extensions "001", "002"
+
+Version 4.65  b11  2009-03-25
+ - based on 7-Zip 4.65 sources
+ - fixed crash if 7z.dll is absent (extraction)
+ - supporting Shift+F2 (for multiple archives)
+ - fix processing filenames with extensions "001", "002"
+
+Version 4.57  (Unicode) b10  2009-02-26
+ - can't open archive file from main menu
+
+Version 4.57  (Unicode) b9  2009-02-25
+ * supporting FAR 2.0 build 789
+
+Version 4.57  (Unicode) b8  2009-01-30
+ * supporting FAR 2.0 build 756
+
+Version 4.57  (Unicode) b7  2008-12-23
+ * supporting FAR 2.0 build 684
+
+Version 4.57  (Unicode) b6  2008-12-22
+ * supporting FAR 2.0 build 680
+
+Version 4.57  (Unicode) b5  2008-10-13
+ - fixed selected items packing bug
+
+Version 4.57  (Unicode) b4  2008-09-09
+ - fixed crash if 7z.dll is absent
+ - fixed some bugs
+
+Version 4.57  (Unicode) b3  2008-09-08
+ * supporting FAR 1.8 build 557
+
+Version 4.57  (Unicode) b2  2008-09-02
+ * supporting FAR 1.8 build 552
+
+Version 4.57  (Unicode) b1  2008-08-13
+--------------------------------------
+ - fixed Formats menu
+ - get supported extensions from 7z.dll
+Just empty editbox in Config and press OK
+
+Version 4.57  (Unicode)     2008-08-12
+--------------------------------------
+
+Version 4.57                2008-03-11
+--------------------------------------
+based on 7-ZipFar Version 4.57
+
+Version 4.42                2006-05-18
+--------------------------------------
+based on 7-ZipFar Version 4.42
+
+Version 4.29 beta           2005-09-30
+--------------------------------------
+based on 7-ZipFar Version 4.29 beta 2005-09-28
+ -  *.jar, *.xpi extensions added
+
+Version 4.27 beta           2005-09-23
+--------------------------------------
+based on 7-ZipFar Version 4.27 beta 2005-09-21
+ -  "Use masks" option added

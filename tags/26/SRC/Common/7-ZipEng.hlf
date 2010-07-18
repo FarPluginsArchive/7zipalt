@@ -1,0 +1,100 @@
+.Language=English,English
+.PluginContents=7-Zip Alternative
+
+@Contents
+$^#7-Zip Plugin 4.65 Alternative#
+$^#Copyright (c) 1999-2007 Igor Pavlov#
+$^#Modification by Alexander Nesterovsky#
+$^#Additional supporting by Vladimir Kubyshev#
+$^#Additional modifications by Oleg Makovski#
+    This FAR module performs transparent #archive# processing.
+Files in the archive are handled in the same manner as if they
+were in a folder. Prefix call for this module from the command line
+is #7-Zip#.
+
+   ~Extracting from the archive~@Extract@
+
+   ~Add files to the archive~@Update@
+
+   ~7-Zip Plugin configuration~@Config@
+
+
+ Web site:  ~7zipalt.googlecode.com~@http://7zipalt.googlecode.com@
+
+@Extract
+$ #Extracting from the archive#
+
+In this dialog you may enter extacting mode.
+
+          Path mode
+
+  #Full pathnames#       Extract files with full pathnames.
+
+  #Current pathnames#    Extract files with all relative paths.
+
+  #No pathanmes#         Extract files without folder paths.
+
+
+          Overwrite mode
+
+  #Ask before overwrite#       Ask before overwriting existing files.
+
+  #Overwrite without prompt#   Overwrite existing files without prompt.
+
+  #Skip existing files#        Skip extracting of existing files.
+
+
+           Files
+
+  #Selected files#    Extract only selected files.
+
+  #All files#         Extract all files from archive.
+
+@Update
+$ #Add files to the archive#
+
+This dialog allows you to specify options for process of updating archive.
+
+
+      Compression method
+
+  #Store#     Files will be copied to archive without compression.
+
+  #Normal#    Files will be compressed.
+
+  #Maximum#   Files will be compressed with method that gives
+            maximum compression ratio.
+
+
+      Update mode
+
+  #Add and replace files#    Add all specified files to the archive.
+
+  #Update and add files#     Update older files in the archive and add
+                           files that are new to the archive.
+
+  #Freshen existing files#   Update specified files in the archive that
+                           are older than the selected disk files.
+
+  #Synchronize files#        Replace specified files only if
+                           added files are newer. Always add those
+                           files, which are not present in the
+                           archive. Delete from archive those files,
+                           which are not present on the disk.
+
+  #Append default extension# Auto appending archive extension if you
+                           don't specified it
+
+@Config
+$ #7-Zip Plugin configuration#
+    
+    In this dialog you can change following parameters:
+
+ #Plugin is used by default#   Archives are opened by this plugin.
+
+ #Use masks#   List of file extensions used by this plugin.
+ Standard list of extensions will be used when set empty.
+
+ #Disabled formats#   Comma-separated list of disabled archive formats.
+
+ #Check first N kB#   Number of kilobytes to read when determining archive format.
