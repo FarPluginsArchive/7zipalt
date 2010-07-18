@@ -1,11 +1,12 @@
 @set build=25
-@set bdata=2009-10-12
+@set bdate=2009-10-12
+@set min_far=2.0.1309
 
 @rem ------------------------------
 @rem prepare FILE_ID.DIZ
 @rem ------------------------------
 @echo Generating file_id.diz
-@echo 7-Zip Alternative 4.65 build %build% %bdata% > SRC\Common\file_id.diz
+@echo 7-Zip Alternative 4.65 build %build% %bdate% > SRC\Common\file_id.diz
 @echo All features of original 7-ZipFar  >> SRC\Common\file_id.diz
 @echo with some additions (see readme and help)  >> SRC\Common\file_id.diz
 
@@ -29,6 +30,6 @@
 @echo #endif >> SRC\CPP\7zip\MyVersion.h
 @echo #define MY_VERSION "4.65 Alt b" MY_VER_BUILDS MY_VER_TYPE MY_VER_PLF >> SRC\CPP\7zip\MyVersion.h
 @echo #define MY_7ZIP_VERSION "7-Zip 4.65" >> SRC\CPP\7zip\MyVersion.h
-@echo #define MY_DATE "%bdata%" >> SRC\CPP\7zip\MyVersion.h
+@echo #define MY_DATE "%bdate%" >> SRC\CPP\7zip\MyVersion.h
 @echo #define MY_COPYRIGHT "Copyright (c) 1999-2009 Igor Pavlov" >> SRC\CPP\7zip\MyVersion.h
 @echo #define MY_VERSION_COPYRIGHT_DATE MY_VERSION "  " MY_COPYRIGHT "  " MY_DATE >> SRC\CPP\7zip\MyVersion.h
