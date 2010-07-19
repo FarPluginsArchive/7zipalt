@@ -94,53 +94,64 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID)
 
 // #define  MY_TRY_BEGIN  MY_TRY_BEGIN NCOM::CComInitializer aComInitializer;
 
-CSysString GetMaskList()
+CSysString GetMaskList(CCodecs *codecs)
 {
 
   UString exts;
 
-  CCodecs *codecs = new CCodecs;
-  if (codecs->Load() != S_OK)
-    throw g_StartupInfo.GetMsgString(NMessageID::kCantLoad7Zip);
+  for (int i = 0; i < codecs->Formats.Size(); i++)
   {
-    for (int i = 0; i < codecs->Formats.Size(); i++)
+    const CArcInfoEx &arcInfo = codecs->Formats[i];
+    for (int j = 0; j < arcInfo.Exts.Size(); j++)
     {
-      const CArcInfoEx &arcInfo = codecs->Formats[i];
-      for (int j = 0; j < arcInfo.Exts.Size(); j++)
-      {
-        exts += L"*.";
-        exts += arcInfo.Exts[j].Ext;
-        exts += L",";
-      }
+      exts += L"*.";
+      exts += arcInfo.Exts[j].Ext;
+      exts += L",";
     }
-    exts.MakeLower();
-    exts.Replace(L".r00", L".r[0-9][0-9]");
-    exts.TrimRight(L',');
   }
-  codecs->Release();
+  exts.MakeLower();
+  exts.Replace(L".r00", L".r[0-9][0-9]");
+  exts.TrimRight(L',');
 
   return GetSystemString(exts, CP_OEMCP);
 }
 
-CSysString GetFormatList()
+CSysString GetFormatList(CCodecs* codecs)
 {
   UString Formats;
 
-  CCodecs *codecs = new CCodecs;
-  if (codecs->Load() != S_OK)
-    throw g_StartupInfo.GetMsgString(NMessageID::kCantLoad7Zip);
+  for (int i = 0; i < codecs->Formats.Size(); i++)
   {
-    for (int i = 0; i < codecs->Formats.Size(); i++)
-    {
-      const CArcInfoEx &arcInfo = codecs->Formats[i];
-      if (Formats.Length())
-        Formats += L",";
-      Formats += arcInfo.Name;
-    }
+    const CArcInfoEx &arcInfo = codecs->Formats[i];
+    if (Formats.Length())
+      Formats += L",";
+    Formats += arcInfo.Name;
   }
-  codecs->Release();
 
   return GetSystemString(Formats);
+}
+
+CSysString GetModuleVersion(const CSysString& FileName) {
+  CSysString Version;
+  DWORD dwHandle;
+  DWORD VerSize = GetFileVersionInfoSize(FileName, &dwHandle);
+  if (VerSize)
+  {
+    unsigned char* VerBlock = new unsigned char[VerSize];
+    if (GetFileVersionInfo(FileName, dwHandle, VerSize, VerBlock))
+    {
+      VS_FIXEDFILEINFO* ffi;
+      UINT len;
+      if (VerQueryValue(VerBlock, _F("\\"), reinterpret_cast<LPVOID*>(&ffi), &len))
+      {
+        farChar StrVersion[30];
+        g_StartupInfo.m_FSF.sprintf(StrVersion, _F("%d.%d.%d.%d"), HIWORD(ffi->dwFileVersionMS), LOWORD(ffi->dwFileVersionMS), HIWORD(ffi->dwFileVersionLS), LOWORD(ffi->dwFileVersionLS));
+        Version = StrVersion;
+      }
+    }
+    delete[] VerBlock;
+  }
+  return Version;
 }
 
 struct COptions
@@ -180,7 +191,11 @@ struct COptions
   {
     Masks.Trim();
     if (Masks.IsEmpty())
-      Masks = GetMaskList();
+    {
+      CMyComPtr<CCodecs> codecs(new CCodecs());
+      if (codecs->Load() == S_OK)
+        Masks = GetMaskList(codecs);
+    }
     DisabledFormats.Trim();
     if ((MaxCheckSize <= 0) || (MaxCheckSize > 4 * 1024 * 1024))
       MaxCheckSize = kMaxCheckSizeDefault;
@@ -831,11 +846,27 @@ int WINAPI Configure(int /* itemNumber */)
   const int kDisabledFormatsIndex = 5;
   const int kMaxCheckSizeIndex = 7;
 
-  const int kYSize = 17;
+  const int kYSize = 21;
   const int kXSize = 76;
 
-  CSysString AvailableMasks = GetMaskList();
-  CSysString AvailableFormats = GetFormatList();
+  CSysString AvailableMasks, AvailableFormats;
+  CMyComPtr<CCodecs> codecs(new CCodecs());
+  if (codecs->Load() == S_OK)
+  {
+    AvailableMasks = GetMaskList(codecs);
+    AvailableFormats = GetFormatList(codecs);
+  }
+
+  CSysString DllPath, DllVersion;
+  if (codecs->Libs.Size())
+  {
+    MyGetModuleFileName(codecs->Libs[0].Lib, DllPath);
+    DllVersion = GetModuleVersion(DllPath);
+  }
+  else
+  {
+    DllPath = DllVersion = g_StartupInfo.GetMsgString(NMessageID::kConfigDllNotFound);
+  }
 
   farChar s[32];
   ConvertUInt64ToString(g_Options.MaxCheckSize / 1024, s);
@@ -854,11 +885,15 @@ int WINAPI Configure(int /* itemNumber */)
     { DI_EDIT, MaxCheckSizePos, 7, MaxCheckSizePos + 4, 0, false, false, 0, false, -1, MaxCheckSize, NULL },
     { DI_TEXT, MaxCheckSizePos + 4 + 2, 7, 0, 0, false, false, 0, false, NMessageID::kConfigMaxCheckSize2, NULL, NULL },
     { DI_TEXT, 5, 8, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
-    { DI_TEXT, 5, 9, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableMasks, NULL, NULL },
-    { DI_EDIT, 5, 10, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableMasks, NULL },
-    { DI_TEXT, 5, 11, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableFormats, NULL, NULL },
-    { DI_EDIT, 5, 12, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableFormats, NULL },
-    { DI_TEXT, 5, 13, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
+    { DI_TEXT, 5, 9, 0, 0, false, false, 0, false, NMessageID::kConfigDllPath, NULL, NULL },
+    { DI_EDIT, 5, 10, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, DllPath, NULL },
+    { DI_TEXT, 5, 11, 0, 0, false, false, 0, false, NMessageID::kConfigDllVersion, NULL, NULL },
+    { DI_EDIT, 5, 12, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, DllVersion, NULL },
+    { DI_TEXT, 5, 13, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableMasks, NULL, NULL },
+    { DI_EDIT, 5, 14, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableMasks, NULL },
+    { DI_TEXT, 5, 15, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableFormats, NULL, NULL },
+    { DI_EDIT, 5, 16, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableFormats, NULL },
+    { DI_TEXT, 5, 17, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
     { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, true, NMessageID::kOk, NULL, NULL },
     { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, false, NMessageID::kCancel, NULL, NULL },
   };

@@ -193,6 +193,9 @@ enum EEnum
   kConfigDisabledFormats,
   kConfigMaxCheckSize1,
   kConfigMaxCheckSize2,
+  kConfigDllPath,
+  kConfigDllVersion,
+  kConfigDllNotFound,
   kConfigAvailableMasks,
   kConfigAvailableFormats,
 
