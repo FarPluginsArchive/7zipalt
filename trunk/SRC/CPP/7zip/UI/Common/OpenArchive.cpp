@@ -140,13 +140,8 @@ HRESULT OpenArchive(
         orderIndices.Insert(numFound++, i);
       else
         orderIndices.Add(i);
-  int PEFormatIndex = codecs->FindFormatForArchiveType(L"PE");
-  int ElfFormatIndex = codecs->FindFormatForArchiveType(L"Elf");
-  int iPE = orderIndices.Find(PEFormatIndex);
-  int iElf = orderIndices.Find(ElfFormatIndex);
-  bool probablySFX = ((iPE != -1) && (iPE < numFound)) || ((iElf != -1) && (iElf < numFound));
   #ifndef _SFX
-  if ((numFound != 1) || probablySFX)
+  if (numFound != 1)
   {
     CIntVector orderIndices2;
     CByteBuffer byteBuffer;
@@ -208,18 +203,6 @@ HRESULT OpenArchive(
       int iUdf = orderIndices2.Find(codecs->FindFormatForArchiveType(L"udf"));;
       if (iUdf > iIso && iIso >= 0)
         orderIndices2.Swap(iIso, iUdf);
-    }
-    int iPE = orderIndices2.Find(PEFormatIndex);
-    if (iPE != -1)
-    {
-      orderIndices2.Delete(iPE);
-      orderIndices2.Add(PEFormatIndex);
-    }
-    int iElf = orderIndices2.Find(ElfFormatIndex);
-    if (iElf != -1)
-    {
-      orderIndices2.Delete(iElf);
-      orderIndices2.Add(ElfFormatIndex);
     }
     for (i = 0; i < orderIndices.Size(); i++)
     {
