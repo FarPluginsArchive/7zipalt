@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?define Manufacturer = "7zipalt.googlecode.com" ?>
+<?define SupportUrl = "http://forum.farmanager.com/viewtopic.php?t=84" ?>
+<?define InfoUrl = "http://7zipalt.googlecode.com/" ?>
+<?define UpdateUrl = "http://forum.farmanager.com/viewtopic.php?t=3225" ?>
+<?if $(var.Platform) = x86 ?>
+  <?define Guid.UpgradeCode = "BC35AC3B-6538-450B-BE21-4C950F4268FB" ?>
+  <?define Guid._7_ZipEng.hlf = "0540ACE0-A1B3-47B6-898C-A6AB7F9A4DF4" ?>
+  <?define Guid._7_ZipEng.lng = "8AF4E79F-B386-4C69-B65F-FB4B86FD92FA" ?>
+  <?define Guid._7_ZipFar.dll = "410BFCBD-3E46-4A60-9B4A-D5A167BF518F" ?>
+  <?define Guid._7_ZipFar.map = "D1C6E5D8-BAEF-4D73-BEA1-4B1CAF38BC10" ?>
+  <?define Guid._7_ZipRus.hlf = "D016A588-938F-4B25-9E84-A6C76D803A26" ?>
+  <?define Guid._7_ZipRus.lng = "91E78D6C-F068-421F-9E84-484EA64BC812" ?>
+  <?define Guid.file_id.diz = "AFB0606E-46D7-4B3D-A6D2-54F44B405EA3" ?>
+  <?define Guid.history.txt = "4C3AF17F-740F-4622-A7AA-9B3ABDB35731" ?>
+  <?define Guid.readme.txt = "E9F15C48-F2D2-4C41-93B9-94AE5257DF59" ?>
+  <?define Guid.readme_ru.txt = "B5FBD794-FC70-439E-A849-E9B9ACA924DE" ?>
+  <?define Guid._7z.dll = "277C7440-DADE-41C6-9E7D-2D434589D83C" ?>
+<?endif?>
+<?if $(var.Platform) = x64 ?>
+  <?define Guid.UpgradeCode = "7A017C38-17AB-479A-AB74-97B468DE4718" ?>
+  <?define Guid._7_ZipEng.hlf = "35D456FA-A48A-4D94-A438-4EB61F6CD6E5" ?>
+  <?define Guid._7_ZipEng.lng = "CB66D2CF-6CE8-4882-B97D-34EA3CE784B9" ?>
+  <?define Guid._7_ZipFar.dll = "EAAB14BE-1C44-45A2-884D-FE5F489B4013" ?>
+  <?define Guid._7_ZipFar.map = "5E4A9DFE-E205-4BFF-80BF-D6BC4D733B42" ?>
+  <?define Guid._7_ZipRus.hlf = "6195A373-896A-4BFE-B68F-8A673BBEA65C" ?>
+  <?define Guid._7_ZipRus.lng = "70E1FDE9-7F77-4E6A-8987-C37D5B6D70B1" ?>
+  <?define Guid.file_id.diz = "24E15FB7-D47D-43BE-A833-9FE7B93D643F" ?>
+  <?define Guid.history.txt = "3618BADA-3C93-4B16-A055-DF525251FB55" ?>
+  <?define Guid.readme.txt = "57618FD6-DADE-47E2-8827-BD11434BB0F2" ?>
+  <?define Guid.readme_ru.txt = "7E508F57-EB4E-472E-B5E5-BBDD0C997B04" ?>
+  <?define Guid._7z.dll = "B63DCBDF-2C4A-4CC4-9CC6-831C174D9151" ?>
+<?endif?>
+<Include />

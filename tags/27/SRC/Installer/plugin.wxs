@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?include installer.wxi ?>
+<?include plugin.wxi ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <DirectoryRef Id="Plugins">
+      <Directory Id="_7_ZipAlt" Name="7-ZipAlt">
+        <Component Id="_7_ZipEng.hlf" Guid="$(var.Guid._7_ZipEng.hlf)" Win64="$(var.Win64)">
+          <File Id="_7_ZipEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\7-ZipEng.hlf" />
+        </Component>
+        <Component Id="_7_ZipEng.lng" Guid="$(var.Guid._7_ZipEng.lng)" Win64="$(var.Win64)">
+          <File Id="_7_ZipEng.lng" KeyPath="yes" Source="$(var.SourceDir)\7-ZipEng.lng" />
+        </Component>
+        <Component Id="_7_ZipFar.dll" Guid="$(var.Guid._7_ZipFar.dll)" Win64="$(var.Win64)">
+          <File Id="_7_ZipFar.dll" KeyPath="yes" Source="$(var.SourceDir)\7-ZipFar.dll" />
+        </Component>
+        <Component Id="_7_ZipFar.map" Guid="$(var.Guid._7_ZipFar.map)" Win64="$(var.Win64)">
+          <File Id="_7_ZipFar.map" KeyPath="yes" Source="$(var.SourceDir)\7-ZipFar.map" />
+        </Component>
+        <Component Id="_7_ZipRus.hlf" Guid="$(var.Guid._7_ZipRus.hlf)" Win64="$(var.Win64)">
+          <File Id="_7_ZipRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\7-ZipRus.hlf" />
+        </Component>
+        <Component Id="_7_ZipRus.lng" Guid="$(var.Guid._7_ZipRus.lng)" Win64="$(var.Win64)">
+          <File Id="_7_ZipRus.lng" KeyPath="yes" Source="$(var.SourceDir)\7-ZipRus.lng" />
+        </Component>
+        <Component Id="file_id.diz" Guid="$(var.Guid.file_id.diz)" Win64="$(var.Win64)">
+          <File Id="file_id.diz" KeyPath="yes" Source="$(var.SourceDir)\file_id.diz" />
+        </Component>
+        <Component Id="history.txt" Guid="$(var.Guid.history.txt)" Win64="$(var.Win64)">
+          <File Id="history.txt" KeyPath="yes" Source="$(var.SourceDir)\history.txt" />
+        </Component>
+        <Component Id="readme.txt" Guid="$(var.Guid.readme.txt)" Win64="$(var.Win64)">
+          <File Id="readme.txt" KeyPath="yes" Source="$(var.SourceDir)\readme.txt" />
+        </Component>
+        <Component Id="readme_ru.txt" Guid="$(var.Guid.readme_ru.txt)" Win64="$(var.Win64)">
+          <File Id="readme_ru.txt" KeyPath="yes" Source="$(var.SourceDir)\readme_ru.txt" />
+        </Component>
+        <Component Id="_7z.dll" Guid="$(var.Guid._7z.dll)" Win64="$(var.Win64)">
+          <File Id="_7z.dll" KeyPath="yes" Source="$(var.7z.dll)" />
+        </Component>
+      </Directory>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <Feature Id="Main" Level="1" Absent="disallow" AllowAdvertise="no">
+      <ComponentRef Id="_7_ZipEng.hlf" />
+      <ComponentRef Id="_7_ZipEng.lng" />
+      <ComponentRef Id="_7_ZipFar.dll" />
+      <ComponentRef Id="_7_ZipFar.map" />
+      <ComponentRef Id="_7_ZipRus.hlf" />
+      <ComponentRef Id="_7_ZipRus.lng" />
+      <ComponentRef Id="file_id.diz" />
+      <ComponentRef Id="history.txt" />
+      <ComponentRef Id="readme.txt" />
+      <ComponentRef Id="readme_ru.txt" />
+    </Feature>
+  </Fragment>
+</Wix>
