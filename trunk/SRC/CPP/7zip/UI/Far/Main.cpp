@@ -846,7 +846,7 @@ int WINAPI Configure(int /* itemNumber */)
   const int kDisabledFormatsIndex = 5;
   const int kMaxCheckSizeIndex = 7;
 
-  const int kYSize = 21;
+  const int kYSize = 19;
   const int kXSize = 76;
 
   CSysString AvailableMasks, AvailableFormats;
@@ -860,12 +860,14 @@ int WINAPI Configure(int /* itemNumber */)
   CSysString DllPath, DllVersion;
   if (codecs->Libs.Size())
   {
-    MyGetModuleFileName(codecs->Libs[0].Lib, DllPath);
-    DllVersion = GetModuleVersion(DllPath);
+    CSysString Path;
+    MyGetModuleFileName(codecs->Libs[0].Lib, Path);
+    DllPath = CSysString(g_StartupInfo.GetMsgString(NMessageID::kConfigDllPath)) + _F(" ") + Path;
+    DllVersion = CSysString(g_StartupInfo.GetMsgString(NMessageID::kConfigDllVersion)) + _F(" ") + GetModuleVersion(Path);
   }
   else
   {
-    DllPath = DllVersion = g_StartupInfo.GetMsgString(NMessageID::kConfigDllNotFound);
+    DllPath = g_StartupInfo.GetMsgString(NMessageID::kConfigDllNotFound);
   }
 
   farChar s[32];
@@ -884,16 +886,14 @@ int WINAPI Configure(int /* itemNumber */)
     { DI_TEXT, 5, 7, 0, 0, false, false, 0, false, NMessageID::kConfigMaxCheckSize1, NULL, NULL },
     { DI_EDIT, MaxCheckSizePos, 7, MaxCheckSizePos + 4, 0, false, false, 0, false, -1, MaxCheckSize, NULL },
     { DI_TEXT, MaxCheckSizePos + 4 + 2, 7, 0, 0, false, false, 0, false, NMessageID::kConfigMaxCheckSize2, NULL, NULL },
-    { DI_TEXT, 5, 8, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
-    { DI_TEXT, 5, 9, 0, 0, false, false, 0, false, NMessageID::kConfigDllPath, NULL, NULL },
-    { DI_EDIT, 5, 10, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, DllPath, NULL },
-    { DI_TEXT, 5, 11, 0, 0, false, false, 0, false, NMessageID::kConfigDllVersion, NULL, NULL },
-    { DI_EDIT, 5, 12, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, DllVersion, NULL },
-    { DI_TEXT, 5, 13, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableMasks, NULL, NULL },
-    { DI_EDIT, 5, 14, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableMasks, NULL },
-    { DI_TEXT, 5, 15, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableFormats, NULL, NULL },
-    { DI_EDIT, 5, 16, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableFormats, NULL },
-    { DI_TEXT, 5, 17, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
+    { DI_TEXT, 5, 8, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, NMessageID::kConfigDllInfo, NULL, NULL },
+    { DI_TEXT, 5, 9, kXSize - 6, 0, false, false, 0, false, -1, DllPath, NULL },
+    { DI_TEXT, 5, 10, kXSize - 6, 0, false, false, 0, false, -1, DllVersion, NULL },
+    { DI_TEXT, 5, 11, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableMasks, NULL, NULL },
+    { DI_EDIT, 5, 12, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableMasks, NULL },
+    { DI_TEXT, 5, 13, 0, 0, false, false, 0, false, NMessageID::kConfigAvailableFormats, NULL, NULL },
+    { DI_EDIT, 5, 14, kXSize - 6, 0, false, false, DIF_READONLY, false, -1, AvailableFormats, NULL },
+    { DI_TEXT, 5, 15, 0, 0, false, false, DIF_BOXCOLOR | DIF_SEPARATOR, false, -1, _F(""), NULL },
     { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, true, NMessageID::kOk, NULL, NULL },
     { DI_BUTTON, 0, kYSize - 3, 0, 0, false, false, DIF_CENTERGROUP, false, NMessageID::kCancel, NULL, NULL },
   };

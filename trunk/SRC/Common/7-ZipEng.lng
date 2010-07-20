@@ -185,9 +185,10 @@
 "Disabled &formats:"
 "&Check first"
 "kB"
-"Path to 7z.dll:"
-"7z.dll version:"
-"not found"
+"7z.dll info"
+"Path:"
+"Version:"
+"7z.dll is not found"
 "&Example masks:"
 "&Available formats:"
 
