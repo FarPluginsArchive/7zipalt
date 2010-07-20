@@ -1,5 +1,10 @@
 History of the 7-ZipFar Alternative
 -----------------------------------
+Version 4.65  b27  2010-07-20
+ - fix problems related to handling EXE archives
+ - fix duplicate shortcuts in "Add to archive" dialog
+ - show path and version of 7z.dll in plugin settings
+
 Version 4.65  b26  2010-07-18
  - create archive using LZMA2 compression method
  - filter out invalid file attributes
