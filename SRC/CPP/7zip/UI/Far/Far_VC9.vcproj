@@ -60,13 +60,7 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\Release/Far.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -75,20 +69,16 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginW\7-ZipFar.dll"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\Far18.def"
-				ProgramDatabaseFile=".\Release/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				MapFileName="..\..\..\..\PluginW\7-ZipFar.map"
 				LargeAddressAware="2"
@@ -163,13 +153,7 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\Release/Far.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -178,7 +162,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -186,12 +170,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginW\7-ZipFar.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\Far18.def"
-				ProgramDatabaseFile=".\Release/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				LargeAddressAware="2"
 				RandomizedBaseAddress="2"
@@ -263,14 +246,8 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\Debug/Far.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -279,21 +256,17 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginW\7-ZipFar.dll"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
 				ModuleDefinitionFile="far18.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				LargeAddressAware="2"
 				RandomizedBaseAddress="2"
@@ -366,13 +339,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\Debug/Far.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 				CallingConvention="2"
 			/>
@@ -382,7 +349,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -390,13 +357,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginW\7-ZipFar.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile="far18.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				LargeAddressAware="2"
 				RandomizedBaseAddress="2"
@@ -470,13 +436,7 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\ReleaseA/Far.pch"
-				AssemblerListingLocation=".\ReleaseA/"
-				ObjectFile=".\ReleaseA/"
-				ProgramDataBaseFileName=".\ReleaseA/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -485,20 +445,16 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginA\7-ZipFar.dll"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\Far.def"
-				ProgramDatabaseFile=".\ReleaseA/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				MapFileName="..\..\..\..\PluginA\7-ZipFar.map"
 				LargeAddressAware="2"
@@ -573,13 +529,7 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\ReleaseA/Far.pch"
-				AssemblerListingLocation=".\ReleaseA/"
-				ObjectFile=".\ReleaseA/"
-				ProgramDataBaseFileName=".\ReleaseA/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -588,7 +538,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -596,12 +546,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginA\7-ZipFar.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\Far.def"
-				ProgramDatabaseFile=".\ReleaseA/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				LargeAddressAware="2"
 				RandomizedBaseAddress="2"
@@ -673,14 +622,8 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\DebugA/Far.pch"
-				AssemblerListingLocation=".\DebugA/"
-				ObjectFile=".\DebugA/"
-				ProgramDataBaseFileName=".\DebugA/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -689,21 +632,17 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginA\7-ZipFar.dll"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
 				ModuleDefinitionFile="far.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\DebugA/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				LargeAddressAware="2"
 				RandomizedBaseAddress="2"
@@ -776,13 +715,7 @@
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\DebugA/Far.pch"
-				AssemblerListingLocation=".\DebugA/"
-				ObjectFile=".\DebugA/"
-				ProgramDataBaseFileName=".\DebugA/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 				CallingConvention="2"
 			/>
@@ -792,7 +725,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -800,13 +733,12 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginA\7-ZipFar.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile="far.def"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\DebugA/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				LargeAddressAware="2"
 				RandomizedBaseAddress="2"
@@ -880,13 +812,7 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\Release/Far.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -895,20 +821,16 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginW\7-ZipFar.dll"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\Far18.def"
-				ProgramDatabaseFile=".\Release/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				LargeAddressAware="2"
 				RandomizedBaseAddress="2"
@@ -982,13 +904,7 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\Release64/Far.pch"
-				AssemblerListingLocation=".\Release64/"
-				ObjectFile=".\Release64/"
-				ProgramDataBaseFileName=".\Release64/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -997,7 +913,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_WIN64"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -1005,12 +921,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginW64\7-ZipFar.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\Far18.def"
-				ProgramDatabaseFile=".\Release64/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				MapFileName="..\..\..\..\PluginW64\7-ZipFar.map"
 				LargeAddressAware="2"
@@ -1085,13 +1000,7 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\ReleaseA/Far.pch"
-				AssemblerListingLocation=".\ReleaseA/"
-				ObjectFile=".\ReleaseA/"
-				ProgramDataBaseFileName=".\ReleaseA/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -1100,20 +1009,16 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginA\7-ZipFar.dll"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\Far.def"
-				ProgramDatabaseFile=".\ReleaseA/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				LargeAddressAware="2"
 				RandomizedBaseAddress="2"
@@ -1187,13 +1092,7 @@
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
-				PrecompiledHeaderThrough="StdAfx.h"
-				PrecompiledHeaderFile=".\ReleaseA64/Far.pch"
-				AssemblerListingLocation=".\ReleaseA64/"
-				ObjectFile=".\ReleaseA64/"
-				ProgramDataBaseFileName=".\ReleaseA64/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				CallingConvention="2"
 			/>
 			<Tool
@@ -1202,7 +1101,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG;_WIN64"
-				Culture="1049"
+				Culture="1033"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -1210,12 +1109,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Rpcrt4.lib"
+				AdditionalDependencies="rpcrt4.lib version.lib"
 				OutputFile="..\..\..\..\PluginA64\7-ZipFar.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				ModuleDefinitionFile=".\Far.def"
-				ProgramDatabaseFile=".\ReleaseA64/7-ZipFar.pdb"
 				GenerateMapFile="true"
 				MapFileName="..\..\..\..\PluginA64\7-ZipFar.map"
 				LargeAddressAware="2"
@@ -2189,6 +2087,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\Common\StringConvert.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Common\StringToInt.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\Common\StringToInt.h"
 				>
 			</File>
 			<File
@@ -5589,6 +5495,14 @@
 			</File>
 			<File
 				RelativePath="..\Common\PropIDUtils.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Common\SetProperties.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\Common\SetProperties.h"
 				>
 			</File>
 			<File
