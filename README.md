@@ -1,5 +1,5 @@
 
-This project is no longer developed. Consider using [arclite](http://farplug.googlecode.com/) instead.
+This project is no longer developed. Consider using [arclite](https://github.com/FarGroup/FarManager/tree/master/plugins/arclite) from official FarManager distribution instead.
 
 # 7-Zip Alternative plugin for [Far Manager](http://farmanager.com/)
 This plugin requires 7z.dll. Either install [7-Zip](http://7-zip.org/) or place 7z.dll into plugin directory. Another option is to use installer which includes 7z.dll. Check out plugin settings to ensure that 7z.dll is found and its version is correct (9.x is recommended).
